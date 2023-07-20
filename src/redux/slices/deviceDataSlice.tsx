@@ -290,7 +290,7 @@ const getUnique = (currentList: string[], newValues: string[]) => {
     } else {
         let temp = [...currentList];
 
-        currentList.forEach(val => {
+        newValues.forEach(val => {
             if (temp.indexOf(val) == -1) {
                 temp.push(val);
             }
@@ -315,6 +315,13 @@ export const deviceDataSlice = createSlice({
 
             Object.keys(action.payload.data).forEach((parameterName: string) => {
                 const {val, unt} = action.payload.data[parameterName];
+                // console.log('Parameter name: ', parameterName);
+
+                const existingDataPoints = (((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName] || {[parameterName]: {dataPoints: []}}).dataPoints || []);
+                const existingBreakdown: ParameterBreakdownObj = (((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}}}}).data[parameterName] || {[parameterName]: {breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}}}).breakdown || {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0});
+
+                // console.log('Existing data: ', existingDataPoints);
+
                 // console.log(parameterName, ' = ', val);
                 // console.log('dataPoints: ', [...((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName].dataPoints), {value: val, time: new Date().getTime()}]);
                 // console.log('parameterName: ', parameterName);
@@ -327,18 +334,18 @@ export const deviceDataSlice = createSlice({
                 // console.log('breakdown.numberOfPoints: ', (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1);
 
                 parameterData[parameterName] = {
-                    dataPoints: [...((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName].dataPoints), {value: val, time: new Date().getTime()}],
+                    dataPoints: [...existingDataPoints, {value: val, time: new Date().getTime()}],
                     parameterName: parameterName,
                     parameterUnits: unt,
                     breakdown: {
                         current: val,
-                        min: getMin(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {min: val}}}}).data[parameterName].breakdown.min),
-                        max: getMax(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {max: val}}}}).data[parameterName].breakdown.max),
-                        exponentialMovingAverage: getExponentialMovingAverage(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {exponentialMovingAverage: val}}}}).data[parameterName].breakdown.exponentialMovingAverage, 2, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1),
-                        mean: ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {sum: 0}}}}).data[parameterName].breakdown.sum + val) / ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1),
+                        min: getMin(val, existingBreakdown.min),
+                        max: getMax(val, existingBreakdown.max),
+                        exponentialMovingAverage: getExponentialMovingAverage(val, existingBreakdown.exponentialMovingAverage, 2, existingBreakdown.numberOfPoints + 1),
+                        mean: existingBreakdown.sum + val / (existingBreakdown.numberOfPoints + 1),
 
-                        sum: ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {sum: 0}}}}).data[parameterName].breakdown.sum + val),
-                        numberOfPoints: (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1,
+                        sum: existingBreakdown.sum + val,
+                        numberOfPoints: existingBreakdown.numberOfPoints + 1,
                     },
 
                 }
@@ -370,5 +377,5 @@ export const deviceDataSlice = createSlice({
     },
 });
 
-export const { addDeviceData } = deviceDataSlice.actions;
+export const { addDeviceData, } = deviceDataSlice.actions;
 export default deviceDataSlice.reducer;

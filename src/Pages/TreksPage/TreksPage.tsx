@@ -24,7 +24,7 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
     const earliest: Date = new Date(timeStamps.length > 0 ? timeStamps[0] : 0);
     const latest: Date = new Date(timeStamps.length > 0 ? timeStamps[timeStamps.length - 1] : 1);
 
-    const [fileName, setFileName] = useState<string>(buildDeviceFileName(deviceDef.deviceName, FileTypes.TrekFile));
+    const [fileName, setFileName] = useState<string>(buildDeviceFileName(deviceDef.deviceName, FileTypes.TrekFile, false));
     const [startTime, setStartTime] = useState<number>(earliest.getTime());
     const [endTime, setEndTime] = useState<number>(latest.getTime());
 

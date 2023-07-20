@@ -13,7 +13,8 @@ import { ThunkDispatch } from "redux-thunk";
 import { RootState } from "../../redux/store";
 import { Action } from "redux";
 import { ConnectionType, clearAvailable, discoverDevice } from "../../redux/slices/deviceSlice";
-import { connect } from "react-redux";
+import { ConnectedProps, connect, } from "react-redux";
+import { handleBeaconData } from "../../redux/middleware/Bluetooth/ConnectToDeviceMiddleware";
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 declare module 'react-native-ble-manager' {
@@ -24,19 +25,15 @@ declare module 'react-native-ble-manager' {
     }
 }
 
-interface BluetoothProviderProps {
-    clearOnStart: () => Promise<void>;
-    discoverDevice: (peripheral: Peripheral) => Promise<void>;
-
-    availableDevices: string[];
-    connectedDevices: string[];
+interface BluetoothProviderProps extends PropsFromRedux {
+  
 }
 
 const SECONDS_TO_SCAN_FOR = 7;
-const SERVICE_UUIDS: string[] = ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'];
+const SERVICE_UUIDS: string[] = ['6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0061'];
 const ALLOW_DUPLICATES = true;
 
-const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDevice, availableDevices, connectedDevices,}) => {
+const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDevice, onReceiveBeaconData}) => {
     const [isScanning, setIsScanning] = useState<boolean>(false);
     // const [peripherals, setPeripherals] = useState(
     //     new Map<Peripheral['id'], Peripheral>(),
@@ -52,9 +49,9 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
             console.debug('[startScan] starting scan...');
             setIsScanning(true);
             BleManager.scan(SERVICE_UUIDS, SECONDS_TO_SCAN_FOR, ALLOW_DUPLICATES, {
-            matchMode: BleScanMatchMode.Sticky,
-            scanMode: BleScanMode.LowLatency,
-            callbackType: BleScanCallbackType.AllMatches,
+              matchMode: BleScanMatchMode.Sticky,
+              scanMode: BleScanMode.LowLatency,
+              callbackType: BleScanCallbackType.AllMatches,
             })
             .then(() => {
                 console.debug('[startScan] scan promise returned successfully.');
@@ -72,7 +69,7 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
             setTimeout(() => {
                 resolve(undefined)
             }, ms)
-        )
+        );
 
     const handleStopScan = async () => {
         setIsScanning(false);
@@ -85,24 +82,18 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
 
     const addOrUpdatePeripheral = (id: string, updatedPeripheral: Peripheral) => {
         if (updatedPeripheral == undefined) {
-            return;
+          return;
         } else if (id == undefined) {
-            return;
+          return;
         } else if (updatedPeripheral.name == undefined) {
-            return;
+          return;
         }
 
-        console.log('Available in object: ', availableDevices);
-        
-        if (!availableDevices.includes(id) && !connectedDevices.includes(id)) {
-            console.log('Found device: ', updatedPeripheral.name, ' - ', id);
-            discoverDevice(updatedPeripheral);
+        discoverDevice(updatedPeripheral);
+
+        if (updatedPeripheral.advertising.serviceUUIDs?.includes('0061')) {
+          onReceiveBeaconData(updatedPeripheral);
         }
-
-
-        // new Map() enables changing the reference & refreshing UI.
-        // TOFIX not efficient.
-        // setPeripherals(map => new Map(map.set(id, updatedPeripheral)));
     };
 
     const handleDisconnectedPeripheral = (
@@ -340,12 +331,12 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
     )
 }
 
-const mapStateToProps = (state: RootState) => {
-    return {
-        availableDevices: state.deviceSlice.availableDevices,
-        connectedDevices: state.deviceSlice.connectedDevices,
-    }
-}
+// const mapStateToProps = (state: RootState) => {
+//     return {
+//         availableDevices: state.deviceSlice.availableDevices,
+//         connectedDevices: state.deviceSlice.connectedDevices,
+//     }
+// }
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) => {
     return {
@@ -358,7 +349,15 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
                 connectionType: peripheral.advertising.serviceUUIDs?.includes('0061') ? ConnectionType.Beacon : ConnectionType.DirectConnect,
             }));
         },
+
+        onReceiveBeaconData: (peripheral: Peripheral) => {
+          dispatch(handleBeaconData(peripheral));
+        },
     };
   }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BluetoothProvider);
+const connector = connect(undefined, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(BluetoothProvider);

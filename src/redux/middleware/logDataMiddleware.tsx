@@ -2,10 +2,10 @@ import * as RNFS from 'react-native-fs';
 import { ParameterSigFigs } from "../../Constants/Parameters/ParameterDefs";
 import { ParameterDataObj, addDeviceData, ParameterMap } from "../slices/deviceDataSlice";
 import { Platform } from 'react-native';
-import { ConnectionType, DeviceId } from '../slices/deviceSlice';
+import { ConnectionType, DeviceId, updateDeviceFileName } from '../slices/deviceSlice';
 import { FileTypes, buildFullDataFilePath, mkpath } from '../../Utils/FileUtils';
 import { Action, ActionCreator, AnyAction, CombinedState, Middleware, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
-import { RootState } from '../store';
+import { RootState, store } from '../store';
 import { Dispatch } from 'react';
 
 const buildDataDate: (() => string) = () => {
@@ -63,21 +63,51 @@ export function applyData(reading: DeviceReading) {
             if (getState().deviceDataSlice.deviceData[reading.deviceKey].data[firstParamName].breakdown.numberOfPoints < 2) {
                 return;
             }
+
+            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
+
+            let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName) || '';
+            if (filePath == '') {
+                filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, true);
+
+                dispatch(updateDeviceFileName({
+                    deviceKey: reading.deviceKey,
+                    fileName: filePath,
+                }));
+            }
+
+            // console.log('Filepath: ', filePath);
+
+            await mkpath(filePath.split('/').slice(0, -1).join('/'));
+
+            const fileExists = await RNFS.exists(filePath);
+
+            if (!fileExists) {
+                await RNFS.write(filePath, [...getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, 'Date', 'Time'].join(',') + '\n');
+            }
+            await RNFS.appendFile(filePath, dataLine + '\n');
+        } else {
+            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
+            
+            let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName);
+            if (filePath == '') {
+                filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, false);
+
+                dispatch(updateDeviceFileName({
+                    deviceKey: reading.deviceKey,
+                    fileName: filePath,
+                }));
+            }
+
+            await mkpath(filePath.split('/').slice(0, -1).join('/'));
+
+            const fileExists = await RNFS.exists(filePath);
+
+            if (!fileExists) {
+                await RNFS.write(filePath, [...getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, 'Date', 'Time'].join(',') + '\n');
+            }
+            await RNFS.appendFile(filePath, dataLine + '\n');
         }
-
-        const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
-
-        const filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile);
-        await mkpath(filePath.split('/').slice(0, -1).join('/'));
-
-        const fileExists = await RNFS.exists(filePath);
-
-        if (!fileExists) {
-            await RNFS.write(filePath, [...getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, 'Date', 'Time'].join(',') + '\n');
-        }
-        await RNFS.appendFile(filePath, dataLine + '\n');
-
-        // console.log(dataLine);
     }
 }
 

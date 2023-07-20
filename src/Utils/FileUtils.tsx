@@ -38,10 +38,14 @@ export const FileExts = {
 }
 
 // Returns a result in the following format: dd_mm_yyyy
-export const buildFileDate: (() => string) = () => {
+export const buildFileDate: ((includeTime: boolean) => string) = (includeTime: boolean = false) => {
     const d = new Date();
 
-    return ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
+    if (includeTime) {
+        return ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear() + "_" + ('0' + d.getHours()).slice(-2) + '_' + ('0' + d.getMinutes()).slice(-2) + '_' + ('0' + d.getSeconds()).slice(-2);
+    } else {
+        return ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
+    }
 }
 
 // Ex: PAM-0001 => PAM_0001
@@ -53,12 +57,12 @@ export const buildDeviceDirPath: ((deviceName: string, fileType: FileTypes) => s
     return RNFS.DocumentDirectoryPath + '/' + formatNameForFiles(deviceName) + '/' + FileDirs[fileType] + '/';
 }
 
-export const buildDeviceFileName: ((deviceName: string, fileType: FileTypes) => string) = (deviceName: string, fileType: FileTypes) => {
-    return formatNameForFiles(deviceName) + '_' + buildFileDate() + FileExts[fileType];
+export const buildDeviceFileName: ((deviceName: string, fileType: FileTypes, includeTime: boolean) => string) = (deviceName: string, fileType: FileTypes, includeTime: boolean = false) => {
+    return formatNameForFiles(deviceName) + '_' + buildFileDate(includeTime) + FileExts[fileType];
 }
 
-export const buildFullDataFilePath: ((deviceName: string, fileType: FileTypes) => string) = (deviceName: string, fileType: FileTypes) => {
-    return buildDeviceDirPath(deviceName, fileType) + buildDeviceFileName(deviceName, fileType);
+export const buildFullDataFilePath: ((deviceName: string, fileType: FileTypes, includeTime: boolean) => string) = (deviceName: string, fileType: FileTypes, includeTime: boolean = false) => {
+    return buildDeviceDirPath(deviceName, fileType) + buildDeviceFileName(deviceName, fileType, includeTime);
 }
 
 // Makes sure all items in a path exists. Expexts the full system path

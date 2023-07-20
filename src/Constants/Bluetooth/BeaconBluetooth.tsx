@@ -1,0 +1,53 @@
+export enum PacketConstants {
+    DEVICE_ID_PACKET_CONSTANT = 'Z',
+    VOC_PACKET_CONSTANT = 'g',
+    CARBON_MONOXIDE_PACKET_CONSTANT = 'M',
+    CARBON_DIOXIDE_PACKET_CONSTANT = 'C',
+    PM1_PACKET_CONSTANT = 'r',
+    PM2PT5_PACKET_CONSTANT = 'R',
+    PM10_PACKET_CONSTANT = 'q',
+    TEMPERATURE_PACKET_CONSTANT = 't',
+    TEMPERATURE_FAHRENHEIT_PACKET_CONSTANT = 'f',
+    PRESSURE_PACKET_CONSTANT = 'P',
+    HUMIDITY_PACKET_CONSTANT = 'h',
+    SOUND_PACKET_CONSTANT = 's',
+    LATITUDE_PACKET_CONSTANT = 'a',
+    LONGITUDE_PACKET_CONSTANT = 'o',
+    ACCURACY_PACKET_CONSTANT = 'c',
+    PARTICLE_TIME_PACKET_CONSTANT = 'Y',
+    OZONE_PACKET_CONSTANT = 'O',
+    BATTERY_PACKET_CONSTANT = 'x',
+    NO2_PACKET_CONSTANT = 'n',
+    METHANE_CONSTANT = 'm',
+    H2S_CONSTANT = 'H',
+    UNKNOWN_CONSTANT = '',
+}
+
+export const PackageConstantValueName = {
+    [PacketConstants.DEVICE_ID_PACKET_CONSTANT]: 'Device Id',
+    [PacketConstants.VOC_PACKET_CONSTANT]: 'VOC',
+    [PacketConstants.CARBON_MONOXIDE_PACKET_CONSTANT]: 'CO',
+    [PacketConstants.CARBON_DIOXIDE_PACKET_CONSTANT]: 'CO2',
+    [PacketConstants.PM1_PACKET_CONSTANT]: 'PM 1',
+    [PacketConstants.PM2PT5_PACKET_CONSTANT]: 'PM 2.5',
+    [PacketConstants.PM10_PACKET_CONSTANT]: 'PM 10',
+    [PacketConstants.TEMPERATURE_PACKET_CONSTANT]: 'Temp(C)',
+    [PacketConstants.TEMPERATURE_FAHRENHEIT_PACKET_CONSTANT]: 'Temp(F)',
+    [PacketConstants.PRESSURE_PACKET_CONSTANT]: 'Press',
+    [PacketConstants.HUMIDITY_PACKET_CONSTANT]: 'Humidity',
+    [PacketConstants.SOUND_PACKET_CONSTANT]: 'Sound',
+    [PacketConstants.LATITUDE_PACKET_CONSTANT]: 'Latitude',
+    [PacketConstants.LONGITUDE_PACKET_CONSTANT]: 'Longitude',
+    [PacketConstants.ACCURACY_PACKET_CONSTANT]: 'Accuracy',
+    [PacketConstants.PARTICLE_TIME_PACKET_CONSTANT]: 'Particle Time',
+    [PacketConstants.OZONE_PACKET_CONSTANT]: 'Ozone',
+    [PacketConstants.BATTERY_PACKET_CONSTANT]: 'Battery',
+    [PacketConstants.NO2_PACKET_CONSTANT]: 'NO2',
+    [PacketConstants.METHANE_CONSTANT]: 'Methane',
+    [PacketConstants.H2S_CONSTANT]: 'H2S',
+    [PacketConstants.UNKNOWN_CONSTANT]: 'Unknown',
+}
+
+export const markerToConstant: (marker: string) => (PacketConstants | undefined) = (marker: string) => {
+    return Object.values(PacketConstants).find((col: string) => col === marker);
+}

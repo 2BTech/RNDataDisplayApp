@@ -15,10 +15,10 @@ interface AppProps {
 const App: FC<AppProps> = ({}) => {
   return (
     <Provider store={store}>
-      <DeviceTester />
+      {/* <DeviceTester /> */}
       <LocationProvider />
       <BluetoothProvider />
-      <SafeAreaProvider>
+      <SafeAreaProvider style={{backgroundColor: 'white',}}>
         <SafeAreaView style={styles.container}>
           <PageHandler />
         </SafeAreaView>

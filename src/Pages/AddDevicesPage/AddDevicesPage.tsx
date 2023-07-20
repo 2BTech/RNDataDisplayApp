@@ -4,7 +4,7 @@ import { ScrollView, SectionList, StyleSheet, View } from "react-native";
 import DevicePageSection from "./Components/DevicePageSection";
 import DeviceCard from "./Components/DeviceCard";
 import { RootState } from "../../redux/store";
-import { ConnectionType, DeviceDefinition, DeviceId, connectToDevice, disconnectFromDevice } from "../../redux/slices/deviceSlice";
+import { ConnectionType, DeviceDefinition, DeviceDefinitionMap, DeviceId, connectToDevice, disconnectFromDevice } from "../../redux/slices/deviceSlice";
 import { useDispatch } from "react-redux";
 
 interface AddDevicesPageProps {
@@ -12,7 +12,9 @@ interface AddDevicesPageProps {
 };
 
 const AddDevicesPage: FC<AddDevicesPageProps> = ({}) => {
-    const deviceDefs = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions);
+    const deviceDefs: DeviceDefinitionMap = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions);
+    const available = useSelector((state: RootState) => state.deviceSlice.availableDevices);
+    const connected = useSelector((state: RootState) => state.deviceSlice.connectedDevices);
     const dispatch = useDispatch();
 
     const connectionData = {
@@ -26,17 +28,28 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({}) => {
         },
     }
 
-    Object.values(deviceDefs).forEach(def => {
-        if (def.deviceKey == 'Default') {
-            return;
-        }
-
-        if (def.isConnected) {
-            connectionData.connected.data.push(def);
-        } else {
-            connectionData.available.data.push(def);
+    Object.values(available).forEach(deviceId => {
+        if (deviceId != 'Default' && deviceDefs[deviceId]) {
+            connectionData.available.data.push(deviceDefs[deviceId]);
         }
     });
+    Object.values(connected).forEach(deviceId => {
+        if (deviceId != 'Default' && deviceDefs[deviceId]) {
+            connectionData.connected.data.push(deviceDefs[deviceId]);
+        }
+    });
+
+    // Object.values(deviceDefs).forEach(def => {
+    //     if (def.deviceKey == 'Default') {
+    //         return;
+    //     }
+
+    //     if (def.isConnected) {
+    //         connectionData.connected.data.push(def);
+    //     } else {
+    //         connectionData.available.data.push(def);
+    //     }
+    // });
 
     const connectToBeacon = (deviceKey: DeviceId): void => {
         console.log('Connect to beacon: ', deviceDefs[deviceKey].deviceName);
@@ -55,6 +68,7 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({}) => {
         dispatch(disconnectFromDevice(deviceKey));
     }
     
+    console.log('Rendering add devices page');
     return (
         <View style={styles.container}>
             <SectionList

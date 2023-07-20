@@ -167,6 +167,25 @@ export const ParameterRanges: {[key: string]: AirQualityRangeMap} = {
     Methane: MethaneAirQualityRanges,
 }
 
+export const ParameterDefaultUnits: {[key: string]: string} = {
+    CO: 'PPM',
+    CO2: 'PPM',
+    O3: 'PPB',
+    PM1: 'UGM3',
+    'PM 2.5': 'UGM3',
+    'PM 10': 'UGM3',
+    SO2: 'PPM',
+    NO: 'PPB',
+    NO2: 'PPB',
+    NOx: 'PPB',
+    Methane: 'PPM',
+    Humidity: '%',
+    'Temp(C)': 'C',
+    'Temp(F)': 'F',
+    Press: 'mbar',
+    Battery: '%',
+}
+
 type SigFigMap = {
     [key: string]: number;
 }

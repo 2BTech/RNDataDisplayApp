@@ -83,7 +83,7 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
     </View>;
 
     const ranges: AirQualityRangeMap = ParameterRanges[parameterName];
-    const parameterRanges = 
+    const parameterRanges = ranges &&
     <View style={styles.rangeTableContainer}>
         {/* Label */}
         <View style={styles.rangeEntryContainer}>
@@ -175,30 +175,37 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
         graphData.push({x: 0, y: 0});
     } else {
         let diff = (xRange.max - xRange.min) / 20;
+        if (diff < 1) {
+            diff = 1;
+        }
         xRange.max += diff;
         xRange.min -= diff;
 
         diff = (yRange.max - yRange.min) / 20;
+        if (diff < 1) {
+            diff = 1;
+        }
         yRange.max += diff;
         yRange.min -= diff;
     }
 
     // console.log('Graph data: ', graphData);
+    // console.log('Graph y range: ', yRange);
 
-    const parameterGraph = 
+    const parameterGraph =// undefined &&
     <Chart
         style={{ height: 300, width: '100%' }}
         xDomain={xRange}
         yDomain={yRange}
         // Creates room for axis labels
-        padding={{ left: 20, top: 20, bottom: 20, right: 20, }}
+        padding={{ left: 30, top: 20, bottom: 20, right: 20, }}
         >
             <VerticalAxis tickCount={5} />
             <HorizontalAxisTime tickCount={5} />
             <Line 
                 data={graphData}
                 smoothing="none" 
-                theme={{ stroke: { color: 'green', width: 1 } }}
+                theme={{ stroke: { color: 'green', width: 1 }}}
             />
     </Chart>;
 
@@ -212,16 +219,16 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             </View>
 
             {/* Parameter break down */}
-            <ParameterSection sectionName="Break down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} />
+            {parameterBreakdown && <ParameterSection sectionName="Break down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} />}
 
             {/* Parameter Description */}
-            <ParameterSection sectionName="Description" sectionContent={parameterDescription} isExpanded={descriptionIsExpanded} toggleIsExpanded={() => setDescriptionIsExpanded(!descriptionIsExpanded)} />
+            {parameterDescription && <ParameterSection sectionName="Description" sectionContent={parameterDescription} isExpanded={descriptionIsExpanded} toggleIsExpanded={() => setDescriptionIsExpanded(!descriptionIsExpanded)} />}
 
             {/* Parameter Value Ranges */}
-            <ParameterSection sectionName="Ranges" sectionContent={parameterRanges} isExpanded={rangesIsExpanded} toggleIsExpanded={() => setRangesIsExpanded(!rangesIsExpanded)} />
+            {parameterRanges && <ParameterSection sectionName="Ranges" sectionContent={parameterRanges} isExpanded={rangesIsExpanded} toggleIsExpanded={() => setRangesIsExpanded(!rangesIsExpanded)} />}
 
             {/* Parameter graph */}
-            <ParameterSection sectionName="Graph" sectionContent={parameterGraph} isExpanded={graphIsExpanded} toggleIsExpanded={() => setGraphIsExpanded(!graphIsExpanded)} />
+            {parameterGraph && <ParameterSection sectionName="Graph" sectionContent={parameterGraph} isExpanded={graphIsExpanded} toggleIsExpanded={() => setGraphIsExpanded(!graphIsExpanded)} />}
         </View>
     );
 }

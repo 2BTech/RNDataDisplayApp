@@ -7,6 +7,7 @@ export interface DeviceDefinition {
     deviceName: string;
     connectionType: ConnectionType;
     isConnected: boolean;
+    fileName: string;
 }
 
 export interface DeviceSliceState {
@@ -33,6 +34,7 @@ const initialState: DeviceSliceState = {
             deviceName: 'Default',
             connectionType: ConnectionType.Beacon,
             isConnected: true,
+            fileName: '',
         }
     },
 }
@@ -50,16 +52,11 @@ export const deviceSlice = createSlice({
             }
         },
 
-
-
-
-
-
         discoverDevice: (state, action) => {
-            console.log('DISCOVER_DEVICE: ', action.payload, ' - ', !state.availableDevices.includes(action.payload.deviceKey), ' - ', !state.connectedDevices.includes(action.payload.deviceKey));
+            // console.log('DISCOVER_DEVICE: ', action.payload, ' - ', !state.availableDevices.includes(action.payload.deviceKey), ' - ', !state.connectedDevices.includes(action.payload.deviceKey));
             if (!state.availableDevices.includes(action.payload.deviceKey) && !state.connectedDevices.includes(action.payload.deviceKey)) {
-                console.log('Adding: ', action.payload.deviceKey);
-                console.log('Available: ', [...state.availableDevices, action.payload.deviceKey]);
+                // console.log('Adding: ', action.payload.deviceKey);
+                // console.log('Available: ', [...state.availableDevices, action.payload.deviceKey]);
                 return {
                     ...state,
                     availableDevices: [...state.availableDevices, action.payload.deviceKey],
@@ -116,8 +113,21 @@ export const deviceSlice = createSlice({
                 connectedDevices: state.connectedDevices.filter(deviceKey => deviceKey != action.payload),
             }
         },
+
+        updateDeviceFileName: (state, action) => {
+            return {
+                ...state,
+                deviceDefinitions: {
+                    ...state.deviceDefinitions,
+                    [action.payload.deviceKey]: {
+                        ...state.deviceDefinitions[action.payload.deviceKey],
+                        fileName: action.payload.fileName,
+                    }
+                }
+            }
+        },
     },
 });
 
-export const { clearAvailable, discoverDevice, connectToDevice, disconnectFromDevice, loseDevice, } = deviceSlice.actions;
+export const { clearAvailable, discoverDevice, connectToDevice, disconnectFromDevice, loseDevice, updateDeviceFileName, } = deviceSlice.actions;
 export default deviceSlice.reducer;

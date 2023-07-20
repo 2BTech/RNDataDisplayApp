@@ -8,6 +8,7 @@ import { HorizontalAxisTime } from "../../Components/Graph/HorizontalAxisTime";
 import { ParameterDataObj } from "../../../redux/slices/deviceDataSlice";
 import { DeviceId } from "../../../redux/slices/deviceSlice";
 import { RootState } from "../../../redux/store";
+import moment from "moment";
 
 interface ParamaterOverviewPageProps {
     deviceKey: DeviceId;
@@ -44,6 +45,21 @@ const ParameterValueCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
             <View style={styles.container}>
                 <Text style={styles.parameterCellTitle}>{paramterName}</Text>
                 <Text style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(paramterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
+            </View>
+        </TouchableHighlight>
+    );
+}
+
+const ParameterDateTimeCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, onPressParameter, cellHeight}) => {
+    const timeStamps: number[] = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps);
+
+    const lastTime = moment(timeStamps.length > 0 ? new Date(timeStamps[timeStamps.length - 1]) : new Date())
+
+    return (
+        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
+            <View style={styles.container}>
+                <Text style={styles.parameterCellTitle}>{paramterName}</Text>
+                <Text style={styles.parameterValueText}>{paramterName == 'Date' ? lastTime.format('DD/MM/yyyy') : lastTime.format('hh:mm:ss')}</Text>
             </View>
         </TouchableHighlight>
     );
@@ -178,6 +194,13 @@ const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = ({parameterNames, 
                 </View>
             );
         }
+
+        toReturn.push(
+            <View key={'parameterRow dt'} style={styles.parameterRowContainer}>
+                <ParameterDateTimeCell paramterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                <ParameterDateTimeCell paramterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+            </View>
+            );
 
         return toReturn;
     }
