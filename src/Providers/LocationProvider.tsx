@@ -2,24 +2,16 @@ import React, { FC, useEffect, useState, useRef, } from "react";
 import { Linking, Alert, Platform, PermissionsAndroid, ToastAndroid, } from 'react-native';
 import Geolocation, { GeoPosition, } from 'react-native-geolocation-service';
 import { GPSCoordinate, updateGPSCoords } from "../redux/slices/gpsSlice";
-import { connect } from "react-redux";
+import { ConnectedProps, connect } from "react-redux";
 import { ThunkDispatch } from "redux-thunk";
 import { RootState } from "../redux/store";
 import { Action } from "redux";
 
-interface LocationProviderProps {
-  updateCoords: (coords: GPSCoordinate) => Promise<void>;
+interface LocationProviderProps extends PropsFromRedux {
+
 }
 
 const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
-    const [location, setLocation] = useState<GeoPosition | null>(null);
-    const [highAccuracy, setHighAccuracy] = useState(true);
-    const [forceLocation, setForceLocation] = useState(true);
-    const [useLocationManager, setUseLocationManager] = useState(false);
-    const [locationDialog, setLocationDialog] = useState(true);
-    const [significantChanges, setSignificantChanges] = useState(false);
-    const [observing, setObserving] = useState(false);
-
     const watchId = useRef<number | null>(null);
 
     useEffect(() => {
@@ -118,13 +110,9 @@ const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
               altitude: position.coords.altitude || 0,
             }
             updateCoords(coords);
-
-            // setLocation(position);
-            // console.log(position);
           },
           error => {
             Alert.alert(`Code ${error.code}`, error.message);
-            setLocation(null);
             console.log(error);
           },
           {
@@ -132,13 +120,13 @@ const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
               android: 'high',
               ios: 'best',
             },
-            enableHighAccuracy: highAccuracy,
+            enableHighAccuracy: true,
             timeout: 15000,
             maximumAge: 10000,
             distanceFilter: 0,
-            forceRequestLocation: forceLocation,
-            forceLocationManager: useLocationManager,
-            showLocationDialog: locationDialog,
+            forceRequestLocation: true,
+            forceLocationManager: false,
+            showLocationDialog: false,
           },
         );
     };
@@ -150,8 +138,6 @@ const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
           return;
         }
     
-        setObserving(true);
-    
         watchId.current = Geolocation.watchPosition(
           position => {
             const coords: GPSCoordinate = {
@@ -160,12 +146,8 @@ const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
               altitude: position.coords.altitude || 0,
             }
             updateCoords(coords);
-
-            // console.log('Found position: ', position);
-            // setLocation(position);
           },
           error => {
-            setLocation(null);
             console.log(error);
           },
           {
@@ -173,14 +155,14 @@ const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
               android: 'high',
               ios: 'best',
             },
-            enableHighAccuracy: highAccuracy,
+            enableHighAccuracy: true,
             distanceFilter: 0,
             interval: 5000,
             fastestInterval: 2000,
-            forceRequestLocation: forceLocation,
-            forceLocationManager: useLocationManager,
-            showLocationDialog: locationDialog,
-            useSignificantChanges: significantChanges,
+            forceRequestLocation: true,
+            forceLocationManager: false,
+            showLocationDialog: true,
+            useSignificantChanges: false,
           },
         );
     };
@@ -196,4 +178,8 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
   };
 }
 
-export default connect(undefined, mapDispatchToProps)(LocationProvider);
+const connector = connect(undefined, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(LocationProvider);

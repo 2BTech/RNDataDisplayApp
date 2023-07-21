@@ -8,7 +8,7 @@ import beaconReducer from './slices/beaconSlice';
 
 // Middlewares
 import { logDataMiddleware } from './middleware/logDataMiddleware';
-import { discoverDeviceMiddleware } from './middleware/Bluetooth/ConnectToDeviceMiddleware';
+import { discoverDeviceMiddleware } from './middleware/Bluetooth/BluetoothBeaconMiddleware';
 
 const rootReducer = combineReducers({
     deviceSlice: deviceReducer,

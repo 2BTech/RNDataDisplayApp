@@ -1,17 +1,20 @@
 import React, { FC, useState, } from "react";
-import { useSelector } from "react-redux";
+import { ConnectedProps, connect, useSelector } from "react-redux";
 import { ScrollView, SectionList, StyleSheet, View } from "react-native";
 import DevicePageSection from "./Components/DevicePageSection";
 import DeviceCard from "./Components/DeviceCard";
 import { RootState } from "../../redux/store";
 import { ConnectionType, DeviceDefinition, DeviceDefinitionMap, DeviceId, connectToDevice, disconnectFromDevice } from "../../redux/slices/deviceSlice";
 import { useDispatch } from "react-redux";
+import { ThunkDispatch } from "redux-thunk";
+import { Action } from "redux";
+import { connectToDirectConnect } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
 
-interface AddDevicesPageProps {
+interface AddDevicesPageProps extends PropsFromRedux {
 
 };
 
-const AddDevicesPage: FC<AddDevicesPageProps> = ({}) => {
+const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
     const deviceDefs: DeviceDefinitionMap = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions);
     const available = useSelector((state: RootState) => state.deviceSlice.availableDevices);
     const connected = useSelector((state: RootState) => state.deviceSlice.connectedDevices);
@@ -57,7 +60,7 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({}) => {
     }
     const connectToDirect = (deviceKey: DeviceId): void => {
         console.log('Connect to direct: ', deviceDefs[deviceKey].deviceName);
-        dispatch(connectToDevice(deviceKey));
+        connectToDirectCon(deviceKey);
     }
     const disconnectBeacon = (deviceKey: DeviceId): void => {
         console.log('Disconnect from beacon: ', deviceDefs[deviceKey].deviceName);
@@ -93,4 +96,16 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AddDevicesPage;
+const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) => {
+    return {
+        connectToDirectCon: (deviceId: DeviceId) => {
+            dispatch(connectToDirectConnect(deviceId));
+        },
+    };
+}
+
+const connector = connect(undefined, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(AddDevicesPage);

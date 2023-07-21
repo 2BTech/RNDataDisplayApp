@@ -20,7 +20,7 @@ const Dropdown: FC<DropdownProps> = ({defaultLabel, data, onSelect}) => {
     const [dropdownTop, setDropdownTop] = useState(0);
 
     const toggleDropdown = (): void => {
-        visible ? setVisible(false) : openDropdown();
+      visible ? setVisible(false) : openDropdown();
     };
 
   const openDropdown = (): void => {
@@ -76,7 +76,7 @@ const Dropdown: FC<DropdownProps> = ({defaultLabel, data, onSelect}) => {
       <Text style={styles.buttonText}>
         {(!!selected && selected.label) || defaultLabel}
       </Text>
-      <Icon style={styles.icon} type="font-awesome" name="chevron-down" />
+      <Icon style={styles.icon} type="font-awesome" name={visible ? 'chevron-up' : 'chevron-down'} />
     </TouchableOpacity>
   );
 }

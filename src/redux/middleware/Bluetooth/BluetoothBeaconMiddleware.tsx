@@ -70,6 +70,9 @@ export function handleBeaconData(device: Peripheral) {
             return;
         }
 
+        // console.log('Cur: ', curData);
+        // console.log('Pre: ', prevData);
+
         dispatch(updateBeaconData({
             deviceKey: device.id,
             data: curData,

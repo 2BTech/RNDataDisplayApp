@@ -10,6 +10,7 @@ import { AddPointToKML, ConvertToString, CreateDefaultKMLDoc } from "../../Utils
 import moment from "moment";
 import * as RNFS from 'react-native-fs';
 import { ParameterSigFigs } from "../../Constants/Parameters/ParameterDefs";
+import Spinner from 'react-native-loading-spinner-overlay';
 // import { Button } from "react-native-elements";
 
 interface TreksPageProps {
@@ -24,7 +25,7 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
     const earliest: Date = new Date(timeStamps.length > 0 ? timeStamps[0] : 0);
     const latest: Date = new Date(timeStamps.length > 0 ? timeStamps[timeStamps.length - 1] : 1);
 
-    const [fileName, setFileName] = useState<string>(buildDeviceFileName(deviceDef.deviceName, FileTypes.TrekFile, false));
+    const [fileName, setFileName] = useState<string>(buildDeviceFileName(deviceDef.deviceName, FileTypes.TrekFile, true));
     const [startTime, setStartTime] = useState<number>(earliest.getTime());
     const [endTime, setEndTime] = useState<number>(latest.getTime());
 
@@ -46,6 +47,15 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
 
         await RNFS.writeFile(dirPath + fileName, ConvertToString(kmlDoc))
             .catch(err => console.log('Failed to save trek: ', err));
+    }
+
+    const testFunct = async () => {
+        setBlockingPageActive(true);
+        await createTrek()
+        
+        alert('Finished saving trek');
+
+        setBlockingPageActive(false)
     }
 
     const createTrek = async () => {
@@ -88,6 +98,8 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
             content += cont.join('\n');
 
             AddPointToKML(kmlDoc, timeStamp.format('HH:mm:ss'), content, devData.timeData[time].gpsCoords);
+
+            setBlockingPageActive(false);
         });
 
         await saveTrek(kmlDoc);
@@ -132,8 +144,14 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
             </View>
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
-                <Button title={'Save Trek'} onPress={createTrek} />
+                <Button title={'Save Trek'} onPress={testFunct} />
             </View>
+
+            <Spinner 
+                visible={blockingPageActive}
+                textContent={'Creating and saving trek'}
+                textStyle={styles.spinnerTextStyle}
+                />
         </ScrollView>
     );
 }
@@ -169,6 +187,10 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         marginBottom: 5,
     },
+
+    spinnerTextStyle: {
+        color: 'black',
+      },
 });
 
 export default TreksPage;
