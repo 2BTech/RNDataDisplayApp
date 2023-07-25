@@ -5,17 +5,19 @@ import { ConnectionType, DeviceId } from "../../redux/slices/deviceSlice";
 import FileButton, { FileButtonProps, } from "./Components/FilesButton";
 import * as RNFS from 'react-native-fs';
 import { FileEntry, FileSectionFilesMap, FileTypes, buildDeviceDirPath } from "../../Utils/FileUtils";
-import { useSelector } from "react-redux";
+import { ConnectedProps, connect, useSelector } from "react-redux";
 import LoadingFileButton from "./Components/LoadingFileButton";
 import { RootState } from "../../redux/store";
 import Share, { ShareOptions } from 'react-native-share';
 import FileTypeSelector from "./Components/FileTypeSelector";
+import { ThunkDispatch } from "redux-thunk";
+import { Action } from "redux";
 
-interface FilesPageProps {
+interface FilesPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
 }
 
-const FilesPage: FC<FilesPageProps> = ({deviceKey}) => {
+const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownloadingFile}) => {
     const deviceName: DeviceId = useSelector((state: RootState) => (state.deviceSlice.deviceDefinitions[deviceKey].deviceName));
     const isBeacon: boolean = useSelector((state: RootState) => (state.deviceSlice.deviceDefinitions[deviceKey].connectionType == ConnectionType.Beacon));
 
@@ -133,7 +135,7 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey}) => {
 
             entries.sort((a, b) => {
                 return a.name < b.name ? -1 : (a.name == b.name ? 0 : 1);
-            })
+            });
 
             for (let i = 0; i < entries.length; i++) {
                 fileSections[FileTypes.TrekFile].push({
@@ -144,6 +146,15 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey}) => {
                 });
             }
         }
+
+        deviceRemoteFiles?.forEach(entry => {
+            fileSections[FileTypes.DownloadedFile].push({
+                existsOnPhone: false,
+                fileName: entry,
+                filePath: '',
+                isDownloadable: true,
+            });
+        });
 
         setFileEntries(fileSections);
     };
@@ -212,5 +223,23 @@ const styles = StyleSheet.create({
         marginLeft: '25%',
     }
 });
+
+const mapStateToProps = (state: RootState, ownProps: any) => {
+    return {
+        deviceRemoteFiles: state.deviceFilesSlice[ownProps.deviceKey],
+    };
+}
+
+const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) => {
+    return {
+        startDownloadingFile: (fileName: string, deviceKey: DeviceId) => {
+            
+        }
+    };
+}
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default FilesPage;

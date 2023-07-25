@@ -4,10 +4,10 @@ import { RootState } from "../../store";
 import { Action, CombinedState } from "redux";
 import { Middleware } from "@reduxjs/toolkit";
 import { updateBeaconData } from "../../slices/beaconSlice";
-import { Platform } from "expo-modules-core";
 import { PackageConstantValueName, PacketConstants } from "../../../Constants/Bluetooth/BeaconBluetooth";
 import { ParameterDefaultUnits, ParameterSigFigs } from "../../../Constants/Parameters/ParameterDefs";
 import { DeviceReading, ParameterPointMap, applyData } from "../logDataMiddleware";
+import { Platform } from "react-native";
 
 const isAndroid = Platform.OS == 'android';
 

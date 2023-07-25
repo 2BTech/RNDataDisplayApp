@@ -49,6 +49,7 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
     const [rangesIsExpanded, setRangesIsExpanded] = useState<boolean>(false);
     const [graphIsExpanded, setGraphIsExpanded] = useState<boolean>(true);
 
+    // console.log('Rendering parameter view for ', deviceKey, ': ', parameterName);
 
     const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[parameterName]) || {dataPoints: [], parameterName, breakdown: {min: 0, max: 0, current: 0, mean: 0, exponentialMovingAverage: 0}};
 
@@ -73,7 +74,9 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
         }
     </View>;
 
-    const parameterDescription = 
+    // console.log('Break is not null: ', (parameterBreakdown != undefined));
+
+    const parameterDescription = ParameterDescriptions[parameterName] &&
     <View style={styles.descriptionContainer}>
         <Text style={styles.descriptionText}>
             {
@@ -81,6 +84,8 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             }
         </Text>
     </View>;
+
+    // console.log('Description is not null: ', (parameterDescription != undefined));
 
     const ranges: AirQualityRangeMap = ParameterRanges[parameterName];
     const parameterRanges = ranges &&
@@ -154,6 +159,8 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
         }
     </View>;
 
+    // console.log('Parameter ranges is not null: ', (parameterRanges != undefined));
+
     let xRange: AxisDomain = {
         min: parameterData.dataPoints.length > 0 ? parameterData.dataPoints[0].time : 0,
         max: parameterData.dataPoints.length > 0 ? parameterData.dataPoints[parameterData.dataPoints.length - 1].time : 1,
@@ -162,7 +169,12 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
         min: parameterData.dataPoints.length > 0 ? parameterData.dataPoints[0].value : 0,
         max: parameterData.dataPoints.length > 0 ? parameterData.dataPoints[parameterData.dataPoints.length - 1].value : 1,
     };
+
+    // console.log('Number of initial data points: ', parameterData.dataPoints.length);
     let graphData: ChartDataPoint[] = parameterData.dataPoints.map(point => {
+        if (Number.isNaN(point.value)) {
+            return {x: NaN, y: NaN,};   
+        }
         yRange.min = Math.min(point.value, yRange.min);
         yRange.max = Math.max(point.value, yRange.max);
 
@@ -170,27 +182,34 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             x: point.time,
             y: point.value,
         };
-    });
-    if (graphData.length == 0) {
-        graphData.push({x: 0, y: 0});
-    } else {
-        let diff = (xRange.max - xRange.min) / 20;
-        if (diff < 1) {
-            diff = 1;
-        }
-        xRange.max += diff;
-        xRange.min -= diff;
-
-        diff = (yRange.max - yRange.min) / 20;
-        if (diff < 1) {
-            diff = 1;
-        }
-        yRange.max += diff;
-        yRange.min -= diff;
+    }).filter(val => !Number.isNaN(val.y));
+    // console.log('Number of filtered data points: ', graphData.length);
+    if (Number.isNaN(yRange.min)) {
+        yRange = {min: 0, max: 1};
     }
+
+    if (graphData.length == 0) {
+        // console.log('Graph data is empty');
+        graphData.push({x: 0, y: 0});
+    }
+
+    let diff = (xRange.max - xRange.min) / 20;
+    if (diff < 1) {
+        diff = 1;
+    }
+    xRange.max += diff;
+    xRange.min -= diff;
+
+    diff = (yRange.max - yRange.min) / 20;
+    if (diff < 1) {
+        diff = 1;
+    }
+    yRange.max += diff;
+    yRange.min -= diff;
 
     // console.log('Graph data: ', graphData);
     // console.log('Graph y range: ', yRange);
+    // console.log('Graph data: ', graphData);
 
     const parameterGraph =// undefined &&
     <Chart
@@ -219,16 +238,16 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             </View>
 
             {/* Parameter break down */}
-            {parameterBreakdown && <ParameterSection sectionName="Break down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} />}
+            {parameterBreakdown != undefined ? <ParameterSection sectionName="Break down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} /> : <></>}
 
             {/* Parameter Description */}
-            {parameterDescription && <ParameterSection sectionName="Description" sectionContent={parameterDescription} isExpanded={descriptionIsExpanded} toggleIsExpanded={() => setDescriptionIsExpanded(!descriptionIsExpanded)} />}
+            {parameterDescription != undefined ? <ParameterSection sectionName="Description" sectionContent={parameterDescription} isExpanded={descriptionIsExpanded} toggleIsExpanded={() => setDescriptionIsExpanded(!descriptionIsExpanded)} /> : <></>}
 
             {/* Parameter Value Ranges */}
-            {parameterRanges && <ParameterSection sectionName="Ranges" sectionContent={parameterRanges} isExpanded={rangesIsExpanded} toggleIsExpanded={() => setRangesIsExpanded(!rangesIsExpanded)} />}
+            {parameterRanges != undefined ? <ParameterSection sectionName="Ranges" sectionContent={parameterRanges} isExpanded={rangesIsExpanded} toggleIsExpanded={() => setRangesIsExpanded(!rangesIsExpanded)} /> : <></>}
 
             {/* Parameter graph */}
-            {parameterGraph && <ParameterSection sectionName="Graph" sectionContent={parameterGraph} isExpanded={graphIsExpanded} toggleIsExpanded={() => setGraphIsExpanded(!graphIsExpanded)} />}
+            {parameterGraph != undefined ? <ParameterSection sectionName="Graph" sectionContent={parameterGraph} isExpanded={graphIsExpanded} toggleIsExpanded={() => setGraphIsExpanded(!graphIsExpanded)} /> : <></>}
         </View>
     );
 }

@@ -10,6 +10,7 @@ import AddDevicesPage from "./AddDevicesPage/AddDevicesPage";
 import FilesPage from "./FilesPage/FilesPage";
 import TreksPage from "./TreksPage/TreksPage";
 import SettingsPage from "./SettingsPage/SettingsPage";
+import AllFilesPage from "./AllFilesPage/AllFilesPage";
 
 interface PageHandlerProps {
 
@@ -29,9 +30,14 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
                 );
 
             case 'Files':
-                console.log('Rendering files page');
+                // console.log('Rendering files page');
                 return (
                     <FilesPage deviceKey={selectedDevice} />
+                );
+
+            case 'All Files':
+                return (
+                    <AllFilesPage />
                 );
 
             case 'Devices':
@@ -46,7 +52,7 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
 
             case 'Settings': 
                 return (
-                    <SettingsPage />
+                    <SettingsPage deviceKey={selectedDevice} />
                 );
 
             default:
@@ -87,6 +93,12 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
     navButtons.push({
         title: 'Devices',
         iconName: 'plus',
+        iconSource: 'font-awesome-5',
+    });
+
+    navButtons.push({
+        title: 'All Files',
+        iconName: 'folder-open',
         iconSource: 'font-awesome-5',
     });
 

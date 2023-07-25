@@ -23,12 +23,14 @@ const createTestDevices = async (dispatch: Dispatch<AnyAction>, onCreateData: ((
             deviceName: 'PAM-0001',
             connectionType: ConnectionType.DirectConnect,
             isConnected: false,
+            fileName: '',
         },
         {
             deviceKey: 'TestDevice2',
             deviceName: 'PAM-0002',
             connectionType: ConnectionType.Beacon,
             isConnected: false,
+            fileName: '',
         },
         // {
         //     deviceKey: 'TestDevice2',

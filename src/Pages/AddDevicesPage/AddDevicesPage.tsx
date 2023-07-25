@@ -71,7 +71,7 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
         dispatch(disconnectFromDevice(deviceKey));
     }
     
-    console.log('Rendering add devices page');
+    // console.log('Rendering add devices page');
     return (
         <View style={styles.container}>
             <SectionList

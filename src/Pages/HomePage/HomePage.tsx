@@ -6,6 +6,7 @@ import ParameterOverviewPage from "./ParameterOverviewPage/ParameterOverviewPage
 import { useSelector } from 'react-redux';
 import { RootState } from "../../redux/store";
 import ParameterView from "./ParameterView";
+import ParameterDescriptions from "../../Constants/Parameters/ParameterDefs";
 
 interface HomePageProps {
     deviceKey: DeviceId;
@@ -15,20 +16,23 @@ interface HomePageProps {
 const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
     const [pageIndex, setPageIndex] = useState(0);
     const parameterNames = useSelector((state: RootState) => (state.deviceDataSlice.deviceData[deviceKey] || {}).parameterNames) || [];
+    
+    // const parametersWithDescs = parameterNames.filter((paramName: string) => ParameterDescriptions[paramName] != undefined);
+    const parametersWithDescs = parameterNames;
 
     // Move onto the next page
     const incrementPageIndex = () => {
-        setPageIndex(pageIndex + 1 <= parameterNames.length ? pageIndex + 1 : 0);
+        setPageIndex(pageIndex + 1 <= parametersWithDescs.length ? pageIndex + 1 : 0);
     }
     // Move to the previous page
     const decrementPageIndex = () => {
-        setPageIndex(pageIndex - 1 >= 0 ? pageIndex - 1 : parameterNames.length);
+        setPageIndex(pageIndex - 1 >= 0 ? pageIndex - 1 : parametersWithDescs.length);
     }
     // Jump to the page for the selected parameter
     const onPressParameter = (parameterName: string) => {
         let i = 0;
-        for (; i < parameterNames.length; i++) {
-            if (parameterName == parameterNames[i]) {
+        for (; i < parametersWithDescs.length; i++) {
+            if (parameterName == parametersWithDescs[i]) {
                 setPageIndex(i + 1);
                 return;
             }
@@ -36,6 +40,7 @@ const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
     }
 
     const renderSelectedPage = () => {
+        console.log('Rendering selected page: ', pageIndex);
         if (pageIndex == 0) {
             return (
                 <View style={styles.pageContainer}>
@@ -43,9 +48,10 @@ const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
                 </View>
             );
         } else {
+            console.log('Selected parameter: ', parametersWithDescs[pageIndex - 1]);
             return (
                 <ScrollView style={styles.pageContainer}>
-                    <ParameterView parameterName={parameterNames[pageIndex - 1]} deviceKey={deviceKey} />
+                    <ParameterView parameterName={parametersWithDescs[pageIndex - 1]} deviceKey={deviceKey} />
                 </ScrollView>
             );
         }
@@ -56,7 +62,7 @@ const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
             {
                 renderSelectedPage()
             }
-            <PageNav currentIndex={pageIndex} numberOfPages={parameterNames.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
+            <PageNav currentIndex={pageIndex + 1} numberOfPages={parametersWithDescs.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
         </View>
     );
 }

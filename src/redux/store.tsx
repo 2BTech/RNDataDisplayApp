@@ -5,6 +5,10 @@ import deviceReducer from './slices/deviceSlice';
 import deviceDataReducer from './slices/deviceDataSlice';
 import gpsReducer from './slices/gpsSlice';
 import beaconReducer from './slices/beaconSlice';
+import bluetoothDataReducer from './slices/bluetoothDataSlice';
+import bluetoothCommandReducer from './slices/bluetoothCommandSlice';
+import deviceSettingsReducer from './slices/deviceSettingsSlice';
+import deviceFilesReducer from './slices/deviceFilesSlice';
 
 // Middlewares
 import { logDataMiddleware } from './middleware/logDataMiddleware';
@@ -15,11 +19,18 @@ const rootReducer = combineReducers({
     deviceDataSlice: deviceDataReducer,
     gpsSlice: gpsReducer,
     beaconSlice: beaconReducer,
+    bluetoothDataSlice: bluetoothDataReducer,
+    bluetoothCommandSlice: bluetoothCommandReducer,
+    deviceSettingsSlice: deviceSettingsReducer,
+    deviceFilesSlice: deviceFilesReducer,
 })
 
 export const store = configureStore({
     reducer: rootReducer,
-    middleware: (getDefaultMiddleware) => [...getDefaultMiddleware(), logDataMiddleware, discoverDeviceMiddleware],
+    middleware: (getDefaultMiddleware) => [...getDefaultMiddleware({
+        immutableCheck: false,
+        serializableCheck: false,
+    }), logDataMiddleware, discoverDeviceMiddleware],
 })
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

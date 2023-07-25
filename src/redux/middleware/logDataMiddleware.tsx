@@ -67,7 +67,7 @@ export function applyData(reading: DeviceReading) {
             const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
 
             let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName) || '';
-            if (filePath == '') {
+            if (filePath == '' || filePath == undefined) {
                 filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, true);
 
                 dispatch(updateDeviceFileName({
@@ -90,7 +90,7 @@ export function applyData(reading: DeviceReading) {
             const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
             
             let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName);
-            if (filePath == '') {
+            if (filePath == '' || filePath == undefined) {
                 filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, false);
 
                 dispatch(updateDeviceFileName({
