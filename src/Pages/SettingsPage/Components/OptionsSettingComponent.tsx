@@ -14,7 +14,7 @@ const OptionsSettingComponent: FC<OptionsSettingComponentProps> = ({setting, lev
         <View style={StyleSheet.compose(styles.container, {marginLeft: level * 10})}>
             <Text style={styles.descriptionText}>{setting.description}</Text>
             <View style={styles.dropdownContainer}>
-            <Dropdown 
+            <Dropdown
                     defaultLabel={setting.description}
                     data={[]}
                     onSelect={() => console.log('Selected')}

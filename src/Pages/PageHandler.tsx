@@ -70,13 +70,14 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
             iconName: 'home',
             iconSource: undefined,
         },
-        {
+    ];
+    if (selectedDevice != 'Default') {
+        navButtons.push({
             title: 'Files',
             iconName: 'folder',
             iconSource: undefined,
-        },
-    ];
-    if (selectedDevice != 'Default') {
+        });
+
         if (deviceDefs.deviceDefinitions[selectedDevice].connectionType == ConnectionType.DirectConnect) {
             navButtons.push({
                 title: 'Settings',
@@ -90,15 +91,16 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
             iconSource: 'font-awesome-5',
         });
     }
-    navButtons.push({
-        title: 'Devices',
-        iconName: 'plus',
-        iconSource: 'font-awesome-5',
-    });
 
     navButtons.push({
         title: 'All Files',
         iconName: 'folder-open',
+        iconSource: 'font-awesome-5',
+    });
+
+    navButtons.push({
+        title: 'Devices',
+        iconName: 'plus',
         iconSource: 'font-awesome-5',
     });
 

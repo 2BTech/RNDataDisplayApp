@@ -12,6 +12,9 @@ import Share, { ShareOptions } from 'react-native-share';
 import FileTypeSelector from "../FilesPage/Components/FileTypeSelector";
 import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
+import Dropdown from "../Components/Dropdown/DropdownV2";
+import { mergeObjects } from "../../Utils/ObjUtils";
+// import Dropdown, { DropdownItem } from "../Components/Dropdown/Dropdown";
 
 interface AllFilesPageProps extends PropsFromRedux {
 
@@ -21,21 +24,64 @@ type DeviceFileMap = {
     [key: string]: {[key: string]: FileEntry[]};
 }
 
+const stringToFileType: (fType: string) => FileTypes = (fType) => {
+    return [FileTypes.LocalDataFile, FileTypes.TrekFile, FileTypes.DownloadedFile].find(typ => typ == fType) || FileTypes.LocalDataFile;
+}
+
 const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
     const [allFiles, setAllFiles] = useState<DeviceFileMap | undefined>(undefined);
     const [selectedDevice, setSelectedDevice] = useState<string | undefined>(undefined);
-    const [selectedFileType, setSelectedFileType] = useState<string>('');
+    const [selectedFileType, setSelectedFileType] = useState<FileTypes>(FileTypes.LocalDataFile);
     
+    const exportFile = async (file: FileEntry) => {
+        // console.log('Export file: ', file.fileName);
+        
+        const shareOptions: ShareOptions = {
+            title: file.fileName,
+            url: 'file:///' + file.filePath,
+        };
+
+        await Share.open(shareOptions)
+            // .then(result => console.log('Finished exporting file'))
+            .catch(err => console.log('Failed to export file: ', err));
+    }
+
+    const deleteFile = async (file: FileEntry) => {
+        // console.log('Delete file: ', file.fileName);
+        await RNFS.unlink(file.filePath);
+
+        let dirPath = file.filePath;
+        dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1);
+
+        let entries = await RNFS.readDir(dirPath);
+
+        // Check if the directory is empty
+        if (entries.length == 0) {
+            // Delete dir because it is empty
+            await RNFS.unlink(dirPath);
+
+            dirPath = file.filePath;
+            dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1)
+
+            entries = await RNFS.readDir(dirPath);
+
+            if (entries.length == 0) {
+                await RNFS.unlink(dirPath);
+            }
+        }
+    }
+
     const gatherAllFiles: () => Promise<void> = async () => {
         const filesMap = await queryAllFiles(RNFS.DocumentDirectoryPath) || {};
 
-        console.log('Devices with files: ', Object.keys(filesMap));
+        console.log('Files map:', filesMap);
+
         setAllFiles(filesMap);
         if (Object.keys(filesMap).length > 0) {
             const selected = Object.keys(filesMap).sort()[0];
             setSelectedDevice(selected);
             if (Object.keys(filesMap[selected])) {
-                setSelectedFileType(Object.keys(filesMap[selected]).sort()[0]);
+                setSelectedFileType(stringToFileType(Object.keys(filesMap[selected]).sort()[0]));
             }
         }
     }
@@ -58,10 +104,11 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                 if (entries[i].isDirectory()) {
                     const map: (undefined | DeviceFileMap) = await queryAllFiles(entries[i].path);
                     if (map) {
-                        currentMap = {
-                            ...currentMap,
-                            ...map,
-                        }
+                        // currentMap = {
+                        //     ...currentMap,
+                        //     ...map,
+                        // }
+                        currentMap = mergeObjects(currentMap, map);
                     }
                 } else if (entries[i].isFile()) {
                     const fName = entries[i].path.replace(RNFS.DocumentDirectoryPath + '/', '');
@@ -74,8 +121,11 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                     if (sections.length == 3) {
                         console.log('Device: ', sections[0], ' Section: ', sections[1], ' Name: ', sections[2]);
 
+                        console.log(currentMap);
                         if (currentMap[sections[0]]) {
+                            // Device and file type is not null
                             if (currentMap[sections[0]][sections[1]]) {
+                                console.log('Device and section exist');
                                 currentMap[sections[0]][sections[1]].push({
                                     fileName: sections[2],
                                     filePath: entries[i].path,
@@ -83,6 +133,8 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                                     isDownloadable: false,
                                 });
                             } else {
+                                console.log('Device exits but not section');
+                                // Device exists, but not type
                                 currentMap[sections[0]][sections[1]] = [{
                                     fileName: sections[2],
                                     filePath: entries[i].path,
@@ -91,6 +143,8 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                                 }];
                             }
                         } else {
+                            console.log('Section is null');
+                            // Device object doesn't exist
                             currentMap[sections[0]] = {
                                 [sections[1]]: [{
                                     fileName: sections[2],
@@ -100,6 +154,7 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                                 }],
                             }
                         }
+                        console.log(currentMap);
                     }
                 }
             }
@@ -114,8 +169,52 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
         gatherAllFiles();
     }, []);
 
-    if (selectedDevice) {
+    if (selectedDevice != undefined && allFiles != undefined) {
+        if (allFiles[selectedDevice] == null) {
+            setSelectedDevice(Object.keys(allFiles)[0]);
+            return (
+                <></>
+            )
+        }
 
+        const deviceDropdown = Object.keys(allFiles).map(item => {return {label: item, value: item}});
+        
+        if (allFiles[selectedDevice][selectedFileType] == null) {
+            setSelectedFileType(stringToFileType(Object.keys(allFiles[selectedDevice])[0]));
+        }
+        return (
+            <View style={styles.container}>
+                <View style={{height: 75, width: '100%'}}>
+                    {/* <Dropdown defaultLabel={selectedDevice || 'Select Device'}
+                        data={Object.keys(allFiles || {}).map(deviceName => {
+                            return {
+                                label: deviceName,
+                                value: deviceName,
+                            }
+                        })}
+                        onSelect={(item: DropdownItem) => console.log('Selected: ', item.value)}
+                        /> */}
+                        <Dropdown 
+                            options={allFiles ? Object.keys(allFiles).map(item => {return {label: item, value: item}}) : []}
+                            currentVal={deviceDropdown.find(val => val.label == selectedDevice) || {label: 'Select Device', value: 'Select Device'}}
+                            onSelectItem={item => {
+                                if (typeof item.value == 'string') {
+                                    setSelectedDevice(item.value);
+                                }
+                            }}
+                            itemStartHeight={10}
+                            />
+                </View>
+                    <View style={{width: '100%', marginBottom: 5}}>
+                        <FileTypeSelector selectedFileType={selectedFileType} availableFileTypes={Object.keys(allFiles[selectedDevice]).map(fType => stringToFileType(fType))} onSelectFileType={setSelectedFileType} />
+                    </View>
+                    <FlatList 
+                        data={allFiles[selectedDevice][selectedFileType]}
+                        renderItem={(entry) => <FileButton key={entry.item.fileName} fileName={entry.item.fileName} onExportClicked={entry.item.existsOnPhone ? () => {exportFile(entry.item); gatherAllFiles();} : undefined} onDeleteClicked={entry.item.existsOnPhone ? () => {deleteFile(entry.item); gatherAllFiles();} : undefined} onDownloadClicked={undefined} />}
+                        keyExtractor={(entry) => entry.fileName}
+                        />
+            </View>
+        );
     } else {
         const loadingEntries = [
             {

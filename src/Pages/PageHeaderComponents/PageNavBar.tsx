@@ -30,7 +30,7 @@ const PageNavBar: FC<PageNavBarProps> = ({buttons, onSelectNewPage, selectedPage
                 buttons.map((val, i) => {
                     return (
                         <Button key={'NavBarButton' + i} type="outline" buttonStyle={val.title == selectedPage ? styles.selectedButton : styles.button} containerStyle={StyleSheet.compose(styles.buttonContainer, {width: buttonWidth})} onPress={() => onPressButton(val.title)}>
-                            <Text>{val.title}</Text>
+                            <Text adjustsFontSizeToFit={true} style={styles.sectionText}>{val.title}</Text>
                             <Icon name={val.iconName} type={val.iconSource} />
                         </Button>
                     );
@@ -56,7 +56,8 @@ const styles = StyleSheet.create({
         height: '100%', 
         borderRadius: 0,
         flexDirection: 'column',
-        borderColor: 'black'
+        borderColor: 'black',
+        backgroundColor: '#efefef'
     },
     selectedButton: {
         height: '100%', 
@@ -64,6 +65,11 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         borderColor: 'black',
         backgroundColor: 'lightblue',
+    },
+    sectionText: {
+        color: 'black',
+        flexShrink: 1,
+        fontSize: 15,
     }
 });
 

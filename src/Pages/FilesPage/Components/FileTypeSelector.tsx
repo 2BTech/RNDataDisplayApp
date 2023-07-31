@@ -15,7 +15,7 @@ const FileTypeSelector: FC<FileTypeSelectorProps> = ({availableFileTypes, select
         <View style={styles.container}>
             {
                 availableFileTypes.map(typ => {
-                    const backgroundColor = typ == selectedFileType ? 'lightgray' : 'white';
+                    const backgroundColor = typ == selectedFileType ? '#c0e6f0' : '#efefef';
                     return (
                         <TouchableOpacity key={typ} style={StyleSheet.compose(styles.buttonContainer, {backgroundColor, width: buttonWidth})} onPress={() => onSelectFileType(typ)}>
                             <Text style={styles.buttonText}>{typ}</Text>
@@ -31,10 +31,11 @@ const styles = StyleSheet.create({
     container: {
         width: '100%',
         height: 50,
-        backgroundColor: 'lightblue',
+        backgroundColor: '#c0e6f0',
         flexDirection: 'row',
 
         borderBottomWidth: 1,
+        borderTopWidth: 1,
     },
 
     buttonContainer: {
