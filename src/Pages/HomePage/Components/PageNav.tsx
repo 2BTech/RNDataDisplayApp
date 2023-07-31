@@ -1,6 +1,8 @@
 import { Icon } from '@rneui/base';
 import React, { FC } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, } from 'react-native';
+import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 export interface PageNavProps {
     currentIndex: number;
@@ -12,17 +14,22 @@ export interface PageNavProps {
 const PageNav: FC<PageNavProps> = ({currentIndex, numberOfPages, onLeftClicked, onRightClicked}) => {
     return (
         <View style={styles.pageNavContainer}>
-            <Icon style={styles.pageNavIcon} type="font-awesome" name="angle-left" onPress={() => {
+            <TouchableOpacity style={styles.pageNavIcon} onPress={() => {
                 if (onLeftClicked) {
                     onLeftClicked();
                 }
-            }} />
+            }}>
+                <FontAwesomeIcon icon={faAngleLeft} />
+            </TouchableOpacity>
+
             <Text style={styles.pageNavText}>{currentIndex} / {numberOfPages}</Text>
-            <Icon style={styles.pageNavIcon} type="font-awesome" name="angle-right" onPress={() => {
+            <TouchableOpacity style={styles.pageNavIcon} onPress={() => {
                 if (onRightClicked) {
                     onRightClicked();
                 }
-            }} />
+            }}>
+                <FontAwesomeIcon icon={faAngleRight} />
+            </TouchableOpacity>
         </View>
     );
 }

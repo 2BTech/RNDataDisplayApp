@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { DeviceId } from "../../redux/slices/deviceSlice";
 import { ScrollView, StyleSheet, View } from "react-native";
 import PageNav from "./Components/PageNav";
@@ -17,6 +17,12 @@ const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
     const [pageIndex, setPageIndex] = useState(0);
     const parameterNames = useSelector((state: RootState) => (state.deviceDataSlice.deviceData[deviceKey] || {}).parameterNames) || [];
     
+    useEffect(() => {
+        return () => {
+            setPageIndex(0);
+        }
+    }, [deviceKey]);
+
     // const parametersWithDescs = parameterNames.filter((paramName: string) => ParameterDescriptions[paramName] != undefined);
     const parametersWithDescs = parameterNames;
 

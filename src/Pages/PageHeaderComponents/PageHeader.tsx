@@ -1,8 +1,9 @@
 import React, { FC } from "react";
-import { StyleSheet, TouchableNativeFeedback, View } from "react-native";
+import { StyleSheet, TouchableNativeFeedback, View, TouchableOpacity, } from "react-native";
 import Dropdown, { DropdownItem } from "../Components/Dropdown/Dropdown";
 import { DeviceDefinition, DeviceId } from "../../redux/slices/deviceSlice";
-import { Icon } from "react-native-elements";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faQuestion, } from "@fortawesome/free-solid-svg-icons";
 
 interface PageHeaderProps {
     availableDevices: Array<DeviceDefinition>;
@@ -29,11 +30,9 @@ const PageHeader: FC<PageHeaderProps> = ({availableDevices, infoFunction, select
     return (
         <View style={styles.container}>
             <Dropdown defaultLabel="Select Device" data={deviceOptions} onSelect={onSelectDevice} />
-            <View style={styles.iconContainer}>
-                <TouchableNativeFeedback onPress={infoFunction ? infoFunction : () => {}} background={TouchableNativeFeedback.Ripple('#AAF', true)}>
-                    <Icon name="question" type="font-awesome-5" color={'white'} />
-                </TouchableNativeFeedback>
-            </View>
+            <TouchableOpacity style={styles.iconContainer} onPress={infoFunction ? infoFunction : () => {}}>
+                <FontAwesomeIcon icon={faQuestion} color='white' size={30} />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -51,8 +50,11 @@ const styles = StyleSheet.create({
         height: 50,
 
         borderRadius: 25,
+        borderWidth: 1,
+        borderColor: 'white',
 
         justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

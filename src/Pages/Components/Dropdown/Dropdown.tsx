@@ -1,6 +1,7 @@
+import { faChevronUp, faChevronDown, } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import React, { FC, LegacyRef, ReactElement, useRef, useState } from "react";
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Icon } from "react-native-elements";
 
 export interface DropdownItem {
     label: string;
@@ -76,7 +77,7 @@ const Dropdown: FC<DropdownProps> = ({defaultLabel, data, onSelect}) => {
       <Text style={styles.buttonText}>
         {(!!selected && selected.label) || defaultLabel}
       </Text>
-      <Icon style={styles.icon} type="font-awesome" name={visible ? 'chevron-up' : 'chevron-down'} />
+      <FontAwesomeIcon style={styles.icon} icon={visible ? faChevronUp : faChevronDown} />
     </TouchableOpacity>
   );
 }

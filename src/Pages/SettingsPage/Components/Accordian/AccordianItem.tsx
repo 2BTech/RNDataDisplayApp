@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Platform, UIManager, LayoutAnimation, } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faChevronUp, faChevronDown, } from "@fortawesome/free-solid-svg-icons";
 
 if(Platform.OS === 'android') {
     UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -36,7 +37,7 @@ const AccordianItem: FC<AccordianItemProps> = ({title, content}) => {
             {/* Header */}
             <TouchableOpacity style={styles.header} onPress={toggleIsExpaned}>
                 <Text style={styles.title}>{title}</Text>
-                <Icon name={isExpanded ? 'chevron-up' : 'chevron-down'} size={20} color="#bbb" />
+                <FontAwesomeIcon icon={isExpanded ? faChevronUp : faChevronDown} size={20} color='#bbb' />
             </TouchableOpacity>
 
             {/* Content */}

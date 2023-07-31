@@ -1,11 +1,12 @@
 import React, { FC } from "react";
 import { StyleSheet, View } from "react-native";
 import { Button, Text, Icon } from "@rneui/base";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 
 export interface NavButtonDef {
     title: string;
-    iconName: string;
-    iconSource: string | undefined;
+    icon: IconDefinition;
 }
 
 interface PageNavBarProps {
@@ -31,7 +32,7 @@ const PageNavBar: FC<PageNavBarProps> = ({buttons, onSelectNewPage, selectedPage
                     return (
                         <Button key={'NavBarButton' + i} type="outline" buttonStyle={val.title == selectedPage ? styles.selectedButton : styles.button} containerStyle={StyleSheet.compose(styles.buttonContainer, {width: buttonWidth})} onPress={() => onPressButton(val.title)}>
                             <Text adjustsFontSizeToFit={true} style={styles.sectionText}>{val.title}</Text>
-                            <Icon name={val.iconName} type={val.iconSource} />
+                            <FontAwesomeIcon icon={val.icon} size={25} />
                         </Button>
                     );
                 })

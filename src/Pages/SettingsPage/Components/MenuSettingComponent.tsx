@@ -1,11 +1,12 @@
 import React, { FC, useState, } from "react";
 import { SettingObj } from "../../../redux/slices/deviceSettingsSlice";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import { Icon } from "react-native-elements";
 import OpenSettingComponent from "./OpenSettingComponent";
 import ToggleSettingComponent from "./ToggleSettingComponent";
 import ValueSettingComponent from "./ValueSettingComponent";
 import { ChangedSettingsMap } from "../SettingsPage";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faChevronUp, faChevronDown, } from "@fortawesome/free-solid-svg-icons";
 
 export type ExpandedMap = {
     [key: string]: boolean;
@@ -33,7 +34,7 @@ const MenuSettingsComponent: FC<MenuSettingsProps> = ({setting, level, onChangeV
                 [setting.description]: !isExpanded,
             })}>
                 <Text style={styles.descriptionText}>{setting.description}</Text>
-                <Icon style={styles.icon} type="font-awesome" name={isExpanded ? 'chevron-up' : 'chevron-down'} />
+                <FontAwesomeIcon icon={isExpanded ? faChevronUp : faChevronDown} />
             </TouchableOpacity>
             {
                 isExpanded && setting.items?.map(subSetting => {

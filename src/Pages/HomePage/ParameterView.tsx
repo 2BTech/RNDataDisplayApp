@@ -8,6 +8,8 @@ import { DeviceId } from "../../redux/slices/deviceSlice";
 import { RootState } from "../../redux/store";
 import { AxisDomain, Chart, ChartDataPoint, Line, VerticalAxis } from "../Components/Graph";
 import { HorizontalAxisTime } from "../Components/Graph/HorizontalAxisTime";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faChevronUp, faChevronDown, } from "@fortawesome/free-solid-svg-icons";
 
 interface ParameterViewProps {
     parameterName: string;
@@ -34,7 +36,9 @@ const ParameterSection: FC<ParameterSectionComponent> = ({sectionName, sectionCo
                 <Text style={styles.parameterSectionTitleText}>
                     {sectionName}
                 </Text>
-                <Icon style={styles.icon} type="font-awesome" name={isExpanded ? "chevron-down" : "chevron-up"} />
+                <View style={{alignItems: 'center', justifyContent: 'center', paddingLeft: 8,}}>
+                    <FontAwesomeIcon icon={isExpanded ? faChevronDown : faChevronUp} />
+                </View>
             </TouchableOpacity>
             {
                 isExpanded && sectionContent
@@ -170,8 +174,10 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
         max: parameterData.dataPoints.length > 0 ? parameterData.dataPoints[parameterData.dataPoints.length - 1].value : 1,
     };
 
+    // Used to limit how much data is shown on the graph. Current limit: 1 hour
+    let cutoffTime: number = Date.now() - (1 * 60 * 60 * 1000);
     // console.log('Number of initial data points: ', parameterData.dataPoints.length);
-    let graphData: ChartDataPoint[] = parameterData.dataPoints.map(point => {
+    let graphData: ChartDataPoint[] = parameterData.dataPoints.filter(point => point.time >= cutoffTime).map(point => {
         if (Number.isNaN(point.value)) {
             return {x: NaN, y: NaN,};   
         }
@@ -292,6 +298,9 @@ const styles = StyleSheet.create({
         paddingRight: 10,
 
         backgroundColor: 'lightgray',
+
+        alignContent: 'center',
+        justifyContent: 'center',
     
         flexDirection: 'row',
     },
@@ -373,6 +382,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         backgroundColor: 'white',
+        borderTopWidth: 1,
     },
     rangeEntryContainer: {
         flex: 1,

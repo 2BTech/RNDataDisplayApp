@@ -1,6 +1,8 @@
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import React, { FC } from "react";
-import { StyleSheet, View, Text, } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, } from "react-native";
 import { Icon } from "react-native-elements";
+import { faFileExport, faTrash, faFileDownload, } from "@fortawesome/free-solid-svg-icons";
 
 export interface FileButtonProps {
     fileName: string;
@@ -18,13 +20,22 @@ const FileButton: FC<FileButtonProps> = ({fileName, onExportClicked: onSaveClick
             <Text style={styles.fileNameText}>{fileName}</Text>
             <View style={styles.buttonContainer}>
             {
-                onSaveClicked && <Icon containerStyle={{borderRightWidth: (onDeleteClicked || onDownloadClicked) ? 1 : 0, width: iconWidth, height: 40, justifyContent: 'center', }} name="file-export" type="font-awesome-5" onPress={onSaveClicked} />
+                onSaveClicked && 
+                <TouchableOpacity style={{borderRightWidth: (onDeleteClicked || onDownloadClicked) ? 1 : 0, width: iconWidth, height: 40, justifyContent: 'center', alignItems: 'center', }} onPress={onSaveClicked}>
+                    <FontAwesomeIcon icon={faFileExport} size={25} />
+                </TouchableOpacity>
             }
             {
-                onDeleteClicked && <Icon containerStyle={{borderRightWidth: onDownloadClicked ? 1 : 0, width: iconWidth, height: 40, justifyContent: 'center', }} name="trash" type="font-awesome-5" onPress={onDeleteClicked} />
+                onDeleteClicked && 
+                <TouchableOpacity style={{borderRightWidth: (onDownloadClicked) ? 1 : 0, width: iconWidth, height: 40, justifyContent: 'center', alignItems: 'center', }} onPress={onDeleteClicked}>
+                    <FontAwesomeIcon icon={faTrash} size={25} />
+                </TouchableOpacity>
             }
             {
-                onDownloadClicked && <Icon containerStyle={{ width: iconWidth, height: 40, justifyContent: 'center', }} name="file-download" type="font-awesome-5" onPress={onDownloadClicked} />
+                onDownloadClicked &&
+                <TouchableOpacity style={{width: iconWidth, height: 40, justifyContent: 'center', alignItems: 'center', }} onPress={onDownloadClicked}>
+                    <FontAwesomeIcon icon={faFileDownload} size={25} />
+                </TouchableOpacity>
             }
             </View>
         </View>

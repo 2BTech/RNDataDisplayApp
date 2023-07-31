@@ -1,11 +1,10 @@
 import React, { FC, useEffect, useState, } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View, } from "react-native";
-import { SafeAreaProvider, } from "react-native-safe-area-context";
-import { ConnectionType, DeviceId } from "../../redux/slices/deviceSlice";
+import { FlatList, StyleSheet, Text, View, } from "react-native";
+import { DeviceId } from "../../redux/slices/deviceSlice";
 import FileButton, { FileButtonProps, } from "../FilesPage/Components/FilesButton";
 import * as RNFS from 'react-native-fs';
-import { FileEntry, FileSectionFilesMap, FileTypes, buildDeviceDirPath } from "../../Utils/FileUtils";
-import { ConnectedProps, connect, useSelector } from "react-redux";
+import { FileEntry, FileTypes, } from "../../Utils/FileUtils";
+import { ConnectedProps, connect, } from "react-redux";
 import LoadingFileButton from "../FilesPage/Components/LoadingFileButton";
 import { RootState } from "../../redux/store";
 import Share, { ShareOptions } from 'react-native-share';

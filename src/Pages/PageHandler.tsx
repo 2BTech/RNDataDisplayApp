@@ -11,6 +11,7 @@ import FilesPage from "./FilesPage/FilesPage";
 import TreksPage from "./TreksPage/TreksPage";
 import SettingsPage from "./SettingsPage/SettingsPage";
 import AllFilesPage from "./AllFilesPage/AllFilesPage";
+import { faHome, faFolder, faGears, faMap, faFolderOpen, faPlus, } from "@fortawesome/free-solid-svg-icons";
 
 interface PageHandlerProps {
 
@@ -67,41 +68,35 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
     let navButtons: NavButtonDef[] = [
         {
             title: 'Home',
-            iconName: 'home',
-            iconSource: undefined,
+            icon: faHome
         },
     ];
     if (selectedDevice != 'Default') {
         navButtons.push({
             title: 'Files',
-            iconName: 'folder',
-            iconSource: undefined,
+            icon: faFolder,
         });
 
         if (deviceDefs.deviceDefinitions[selectedDevice].connectionType == ConnectionType.DirectConnect) {
             navButtons.push({
                 title: 'Settings',
-                iconName: 'gears',
-                iconSource: 'font-awesome',
+                icon: faGears,
             });
         }
         navButtons.push({
             title: 'Treks',
-            iconName: 'map',
-            iconSource: 'font-awesome-5',
+            icon: faMap,
         });
     }
 
     navButtons.push({
         title: 'All Files',
-        iconName: 'folder-open',
-        iconSource: 'font-awesome-5',
+        icon: faFolderOpen,
     });
 
     navButtons.push({
         title: 'Devices',
-        iconName: 'plus',
-        iconSource: 'font-awesome-5',
+        icon: faPlus,
     });
 
     return (
