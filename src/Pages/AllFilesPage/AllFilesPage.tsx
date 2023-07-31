@@ -74,7 +74,7 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
     const gatherAllFiles: () => Promise<void> = async () => {
         const filesMap = await queryAllFiles(RNFS.DocumentDirectoryPath) || {};
 
-        console.log('Files map:', filesMap);
+        // console.log('Files map:', filesMap);
 
         setAllFiles(filesMap);
         if (Object.keys(filesMap).length > 0) {

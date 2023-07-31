@@ -1,7 +1,9 @@
 import React, { FC, } from "react";
-import { StyleSheet, View, Text, } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity } from "react-native";
 import { Icon } from "react-native-elements";
 import { ConnectionType } from "../../../redux/slices/deviceSlice";
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faMinusSquare, faPlusSquare, } from "@fortawesome/free-regular-svg-icons";
 
 interface DeviceCardProps {
     deviceName: string;
@@ -29,13 +31,9 @@ const DeviceCard: FC<DeviceCardProps> = ({deviceName, isConnected, cardFunct, co
             </View>
 
             {/* Interact button */}
-            <View style={styles.iconContainer}>
-                <Icon color={isConnected ? 'red' : 'green'} size={30} type="font-awesome-5" name={isConnected ? 'minus-square' : 'plus-square'} onPress={cardFunct || (() => {})} />
-            </View>
-
-            {/* <Text style={styles.deviceNameText}>{deviceName}</Text>
-            <Text style={}></Text>
-            <Icon color={isConnected ? 'red' : 'green'} size={30} type="font-awesome-5" name={isConnected ? 'minus-square' : 'plus-square'} onPress={cardFunct || (() => {})} /> */}
+            <TouchableOpacity style={styles.iconContainer} onPress={cardFunct || (() => {})}>
+                <FontAwesomeIcon icon={isConnected ? faMinusSquare : faPlusSquare} color={isConnected ? 'red' : 'green'} size={30} />
+            </TouchableOpacity>
         </View>
     );
 }
@@ -62,6 +60,7 @@ const styles = StyleSheet.create({
         width: '25%',
 
         justifyContent: 'center',
+        alignItems: 'center',
     },
 
     rowContentContainer: {

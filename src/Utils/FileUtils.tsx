@@ -72,3 +72,5 @@ export async function mkpath(path: string) {
         await RNFS.mkdir(path);
     }
 }
+
+
