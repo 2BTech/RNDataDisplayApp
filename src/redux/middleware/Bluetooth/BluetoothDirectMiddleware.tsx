@@ -56,31 +56,32 @@ export function connectToDirectConnect(deviceId: DeviceId) {
             `[connectPeripheral][${deviceId}] retrieved current RSSI value: ${rssi}.`,
         );
 
-        if (peripheralData.characteristics) {
-            for (let characteristic of peripheralData.characteristics) {
-                if (characteristic.descriptors) {
-                    for (let descriptor of characteristic.descriptors) {
-                        try {
-                            let data = await BleManager.readDescriptor(
-                                deviceId,
-                                characteristic.service,
-                                characteristic.characteristic,
-                                descriptor.uuid,
-                            );
-                            console.debug(
-                                `[connectPeripheral][${deviceId}] descriptor read as:`,
-                                data,
-                            );
-                        } catch (error) {
-                            console.error(
-                            `[connectPeripheral][${deviceId}] failed to retrieve descriptor ${descriptor} for characteristic ${characteristic}:`,
-                            error,
-                            );
-                        }
-                    }
-                }
-            }
-        }
+        // There is some wierd casting? issue causing a crash. Not sure if needed though
+        // if (peripheralData.characteristics) {
+        //     for (let characteristic of peripheralData.characteristics) {
+        //         if (characteristic.descriptors) {
+        //             for (let descriptor of characteristic.descriptors) {
+        //                 try {
+        //                     let data = await BleManager.readDescriptor(
+        //                         deviceId,
+        //                         characteristic.service,
+        //                         characteristic.characteristic,
+        //                         descriptor.uuid,
+        //                     );
+        //                     console.debug(
+        //                         `[connectPeripheral][${deviceId}] descriptor read as:`,
+        //                         data,
+        //                     );
+        //                 } catch (error) {
+        //                     console.error(
+        //                     `[connectPeripheral][${deviceId}] failed to retrieve descriptor ${descriptor} for characteristic ${characteristic}:`,
+        //                     error,
+        //                     );
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         // This sets up the ble driver to watch for updates to the read characteristic
         // in the UART service

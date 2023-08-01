@@ -31,7 +31,7 @@ const PageNavBar: FC<PageNavBarProps> = ({buttons, onSelectNewPage, selectedPage
                 buttons.map((val, i) => {
                     return (
                         <Button key={'NavBarButton' + i} type="outline" buttonStyle={val.title == selectedPage ? styles.selectedButton : styles.button} containerStyle={StyleSheet.compose(styles.buttonContainer, {width: buttonWidth})} onPress={() => onPressButton(val.title)}>
-                            <Text adjustsFontSizeToFit={true} style={styles.sectionText}>{val.title}</Text>
+                            <Text adjustsFontSizeToFit={true} numberOfLines={1} style={styles.sectionText}>{val.title}</Text>
                             <FontAwesomeIcon icon={val.icon} size={25} />
                         </Button>
                     );

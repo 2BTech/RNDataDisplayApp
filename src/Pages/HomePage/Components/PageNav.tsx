@@ -19,16 +19,19 @@ const PageNav: FC<PageNavProps> = ({currentIndex, numberOfPages, onLeftClicked, 
                     onLeftClicked();
                 }
             }}>
-                <FontAwesomeIcon icon={faAngleLeft} />
+                <FontAwesomeIcon icon={faAngleLeft} size={25} />
             </TouchableOpacity>
 
-            <Text style={styles.pageNavText}>{currentIndex} / {numberOfPages}</Text>
+            <View>
+                <View style={{ height: '33%' }} />
+                <Text style={styles.pageNavText}>{currentIndex} / {numberOfPages}</Text>
+            </View>
             <TouchableOpacity style={styles.pageNavIcon} onPress={() => {
                 if (onRightClicked) {
                     onRightClicked();
                 }
             }}>
-                <FontAwesomeIcon icon={faAngleRight} />
+                <FontAwesomeIcon icon={faAngleRight} size={25} />
             </TouchableOpacity>
         </View>
     );

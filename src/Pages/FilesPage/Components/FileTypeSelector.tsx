@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, Platform, } from 'react-native';
 import { FileTypes } from '../../../Utils/FileUtils';
 import type {DimensionValue} from 'react-native';
 
@@ -18,7 +18,9 @@ const FileTypeSelector: FC<FileTypeSelectorProps> = ({availableFileTypes, select
                     const backgroundColor = typ == selectedFileType ? '#c0e6f0' : '#efefef';
                     return (
                         <TouchableOpacity key={typ} style={StyleSheet.compose(styles.buttonContainer, {backgroundColor, width: buttonWidth})} onPress={() => onSelectFileType(typ)}>
+                            <View style={{height: '33%', width: '100%'}} />
                             <Text style={styles.buttonText}>{typ}</Text>
+                            <View style={{height: '33%', width: '100%'}} />
                         </TouchableOpacity>
                     )
                 })
@@ -42,14 +44,23 @@ const styles = StyleSheet.create({
         height: 50,
         borderLeftWidth: 1,
         borderBottomWidth: 1,
+
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+
+        width: '100%',
+        height: '100%',
     },
     buttonText: {
         color: 'black',
         fontSize: 15,
         textAlign: 'center',
         textAlignVertical: 'center',
-        height: '100%',
+        height: '34%',
         width: '100%',
+        alignSelf: 'center',
     },
 });
 

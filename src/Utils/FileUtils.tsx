@@ -73,4 +73,106 @@ export async function mkpath(path: string) {
     }
 }
 
+export const queryAllFiles: (dirPath: string) => Promise<DeviceFileMap | undefined> = async (dirPath: string) => {
 
+    const dirExists = await RNFS.exists(dirPath);
+    if (dirExists) {
+        let currentMap: DeviceFileMap = {
+
+        };
+
+        const entries: RNFS.ReadDirItem[] = await RNFS.readDir(dirPath);
+
+        entries.sort((a, b) => {
+            return a.name < b.name ? -1 : (a.name == b.name ? 0 : 1);
+        });
+
+        for (let i = 0; i < entries.length; i++) {
+            if (entries[i].isDirectory()) {
+                const map: (undefined | DeviceFileMap) = await queryAllFiles(entries[i].path);
+                if (map) {
+                    // currentMap = {
+                    //     ...currentMap,
+                    //     ...map,
+                    // }
+                    currentMap = mergeObjects(currentMap, map);
+                }
+            } else if (entries[i].isFile()) {
+                const fName = entries[i].path.replace(RNFS.DocumentDirectoryPath + '/', '');
+
+                const sections = fName.split('/');
+                if (sections.length == 1) {
+                    continue;
+                }
+
+                if (sections.length == 3) {
+                    console.log('Device: ', sections[0], ' Section: ', sections[1], ' Name: ', sections[2]);
+
+                    console.log(currentMap);
+                    if (currentMap[sections[0]]) {
+                        // Device and file type is not null
+                        if (currentMap[sections[0]][sections[1]]) {
+                            console.log('Device and section exist');
+                            currentMap[sections[0]][sections[1]].push({
+                                fileName: sections[2],
+                                filePath: entries[i].path,
+                                existsOnPhone: true,
+                                isDownloadable: false,
+                            });
+                        } else {
+                            console.log('Device exits but not section');
+                            // Device exists, but not type
+                            currentMap[sections[0]][sections[1]] = [{
+                                fileName: sections[2],
+                                filePath: entries[i].path,
+                                existsOnPhone: true,
+                                isDownloadable: false,
+                            }];
+                        }
+                    } else {
+                        console.log('Section is null');
+                        // Device object doesn't exist
+                        currentMap[sections[0]] = {
+                            [sections[1]]: [{
+                                fileName: sections[2],
+                                filePath: entries[i].path,
+                                existsOnPhone: true,
+                                isDownloadable: false,
+                            }],
+                        }
+                    }
+                    console.log(currentMap);
+                }
+            }
+        }
+
+        return currentMap;
+    } else {
+        return undefined;
+    }
+}
+
+export const deleteFile = async (file: FileEntry) => {
+    // console.log('Delete file: ', file.fileName);
+    await RNFS.unlink(file.filePath);
+
+    let dirPath = file.filePath;
+    dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1);
+
+    let entries = await RNFS.readDir(dirPath);
+
+    // Check if the directory is empty
+    if (entries.length == 0) {
+        // Delete dir because it is empty
+        await RNFS.unlink(dirPath);
+
+        dirPath = file.filePath;
+        dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1)
+
+        entries = await RNFS.readDir(dirPath);
+
+        if (entries.length == 0) {
+            await RNFS.unlink(dirPath);
+        }
+    }
+}

@@ -43,7 +43,9 @@ const ParameterValueCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
     return (
         <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
             <View style={styles.container}>
+                <View style={{width: '100%', height: '10%'}} />
                 <Text style={styles.parameterCellTitle}>{paramterName}</Text>
+                <View style={{width: '100%', height: '10%'}} />
                 <Text style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(paramterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
             </View>
         </TouchableHighlight>
@@ -58,7 +60,9 @@ const ParameterDateTimeCell: FC<ParamaterCellProps> = ({paramterName, deviceKey,
     return (
         <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
             <View style={styles.container}>
+                <View style={{width: '100%', height: '10%'}} />
                 <Text style={styles.parameterCellTitle}>{paramterName}</Text>
+                <View style={{width: '100%', height: '10%'}} />
                 <Text style={styles.parameterValueText}>{paramterName == 'Date' ? lastTime.format('DD/MM/yyyy') : lastTime.format('hh:mm:ss')}</Text>
             </View>
         </TouchableHighlight>
@@ -243,20 +247,16 @@ const styles = StyleSheet.create({
         fontSize: 22,
         textAlign: 'center',
         textAlignVertical: 'center',
-        height: '33%',
+        height: '30%',
         color: 'black',
     },
     parameterValueText: {
-        fontSize: 16,
+        fontSize: 25,
         textAlign: 'center',
         textAlignVertical: 'center',
-        height: '67%',
+        height: '40%',
         width: '100%',
         color: 'black',
-
-        position: 'absolute',
-        top: '33%',
-        left: 0,
     },
 });
 
