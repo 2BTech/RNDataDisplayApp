@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View, Button, } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View, Button, TouchableOpacity, } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { useSelector } from "react-redux";
 import { DeviceId } from "../../redux/slices/deviceSlice";
@@ -144,7 +144,9 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
             </View>
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
-                <Button title={'Save Trek'} onPress={testFunct} />
+                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={testFunct}>Save Trek</Text>
+                </TouchableOpacity>
             </View>
 
             <Spinner 
@@ -190,7 +192,46 @@ const styles = StyleSheet.create({
 
     spinnerTextStyle: {
         color: 'black',
-      },
+    },
+
+    button: {
+        borderColor: 'black',
+        borderWidth: 1,
+
+        marginTop: 10,
+        marginBottom: 10,
+        width: '90%',
+        marginLeft: '5%',
+        marginRight: '5%',
+
+        // backgroundColor: '#d3d3d3',
+        backgroundColor: '#055D9C',
+
+        shadowColor: 'black',
+        shadowOffset: { width: 2, height: 4},
+        shadowOpacity: 0.9,
+        shadowRadius: 2,
+        elevation: 10,
+
+        borderBottomWidth: 2,
+    },
+    defaultButton: {
+        backgroundColor: 'lightblue',
+        alignItems: 'center',
+        padding: 10,
+        marginLeft: 10, 
+        marginRight: 10, 
+        borderRadius: 10,
+    },
+
+    defaultTextStyle: {
+        color: 'black',
+        fontSize: 12,
+    },
+    buttonText: {
+        fontSize: 16,
+        color: 'white',
+    },
 });
 
 export default TreksPage;

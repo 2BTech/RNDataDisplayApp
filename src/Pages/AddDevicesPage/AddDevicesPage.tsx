@@ -1,6 +1,6 @@
 import React, { FC, useState, } from "react";
 import { ConnectedProps, connect, useSelector } from "react-redux";
-import { ScrollView, SectionList, StyleSheet, View } from "react-native";
+import { ScrollView, SectionList, StyleSheet, View, Text, FlatList, } from "react-native";
 import DevicePageSection from "./Components/DevicePageSection";
 import DeviceCard from "./Components/DeviceCard";
 import { RootState } from "../../redux/store";
@@ -42,18 +42,6 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
         }
     });
 
-    // Object.values(deviceDefs).forEach(def => {
-    //     if (def.deviceKey == 'Default') {
-    //         return;
-    //     }
-
-    //     if (def.isConnected) {
-    //         connectionData.connected.data.push(def);
-    //     } else {
-    //         connectionData.available.data.push(def);
-    //     }
-    // });
-
     const connectToBeacon = (deviceKey: DeviceId): void => {
         console.log('Connect to beacon: ', deviceDefs[deviceKey].deviceName);
         dispatch(connectToDevice(deviceKey));
@@ -74,7 +62,7 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
     // console.log('Rendering add devices page');
     return (
         <View style={styles.container}>
-            <SectionList
+            {/* <SectionList
                 sections={Object.values(connectionData)}
                 keyExtractor={(item, index) => item.deviceName + index}
                 renderItem={({item, index}) => {
@@ -83,7 +71,32 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
                     );
                 }}
                 renderSectionHeader={({section: {title}}) => <DevicePageSection sectionName={title} />}
-                />
+                /> */}
+
+            <Text style={styles.sectionHeaderText}>Connected Devices</Text>
+            <View style={styles.sectionContainer}>
+                <FlatList 
+                    data={connectionData.connected.data}
+                    renderItem={({item, index}) => {
+                        return (
+                            <DeviceCard deviceName={item.deviceName} isConnected={item.isConnected} cardFunct={item.connectionType == ConnectionType.Beacon ? (item.isConnected ? () => {disconnectBeacon(item.deviceKey)} : () => {connectToBeacon(item.deviceKey)}) : (item.isConnected ? () => {disconnectDirect(item.deviceKey)} : () => {connectToDirect(item.deviceKey)})} connectionType={item.connectionType} isEven={index % 2 == 0} isFirst={index == 0} isLast={index == (connectionData.connected.data.length - 1)} />
+                        );
+                    }}
+                    />
+            </View>
+
+            <Text style={styles.sectionHeaderText}>Available Devices</Text>
+            <View style={styles.sectionContainer}>
+                <FlatList 
+                    data={connectionData.available.data}
+                    renderItem={({item, index}) => {
+                        return (
+                            <DeviceCard deviceName={item.deviceName} isConnected={item.isConnected} cardFunct={item.connectionType == ConnectionType.Beacon ? (item.isConnected ? () => {disconnectBeacon(item.deviceKey)} : () => {connectToBeacon(item.deviceKey)}) : (item.isConnected ? () => {disconnectDirect(item.deviceKey)} : () => {connectToDirect(item.deviceKey)})} connectionType={item.connectionType} isEven={index % 2 == 0} isFirst={index == 0} isLast={index == (connectionData.available.data.length - 1)} />
+                        );
+                    }}
+                    />
+            </View>
+
         </View>
     );
 };
@@ -93,6 +106,22 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         backgroundColor: 'white',
+    },
+
+    sectionHeaderText: {
+        color: 'black',
+        fontSize: 15,
+        marginLeft: '2.5%',
+        marginTop: '3%',
+    },
+
+    sectionContainer: {
+        height: '42%',
+        borderWidth: 1,
+        borderRadius: 20,
+
+        marginHorizontal: '5%',
+        marginTop: '2%',
     },
 });
 

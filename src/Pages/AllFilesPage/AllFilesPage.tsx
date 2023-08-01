@@ -1,9 +1,9 @@
 import React, { FC, useEffect, useState, } from "react";
 import { FlatList, StyleSheet, Text, View, } from "react-native";
 import { DeviceId } from "../../redux/slices/deviceSlice";
-import FileButton, { FileButtonProps, deleteFile, } from "../FilesPage/Components/FilesButton";
+import FileButton, { FileButtonProps, } from "../FilesPage/Components/FilesButton";
 import * as RNFS from 'react-native-fs';
-import { FileEntry, FileTypes, queryAllFiles, exportFile, } from "../../Utils/FileUtils";
+import { FileEntry, FileTypes, queryAllFiles, exportFile, deleteFile, } from "../../Utils/FileUtils";
 import { ConnectedProps, connect, } from "react-redux";
 import LoadingFileButton from "../FilesPage/Components/LoadingFileButton";
 import { RootState } from "../../redux/store";
@@ -20,7 +20,7 @@ interface AllFilesPageProps extends PropsFromRedux {
 
 }
 
-type DeviceFileMap = {
+export type DeviceFileTypeMap = {
     [key: string]: {[key: string]: FileEntry[]};
 }
 
@@ -29,7 +29,7 @@ const stringToFileType: (fType: string) => FileTypes = (fType) => {
 }
 
 const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
-    const [allFiles, setAllFiles] = useState<DeviceFileMap | undefined>(undefined);
+    const [allFiles, setAllFiles] = useState<DeviceFileTypeMap | undefined>(undefined);
     const [selectedDevice, setSelectedDevice] = useState<string | undefined>(undefined);
     const [selectedFileType, setSelectedFileType] = useState<FileTypes>(FileTypes.LocalDataFile);
     
@@ -81,7 +81,7 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                         })}
                         onSelect={(item: DropdownItem) => console.log('Selected: ', item.value)}
                         /> */}
-                        {/* <Dropdown 
+                        <Dropdown 
                             options={allFiles ? Object.keys(allFiles).map(item => {return {label: item, value: item}}) : []}
                             currentVal={deviceDropdown.find(val => val.label == selectedDevice) || {label: 'Select Device', value: 'Select Device'}}
                             onSelectItem={item => {
@@ -90,14 +90,14 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
                                 }
                             }}
                             itemStartHeight={10}
-                            /> */}
-                        <DropDownPicker 
+                            />
+                        {/* <DropDownPicker 
                             open={dropdownIsOpen}
                             value={dropdownValue}
                             items={allFiles ? Object.keys(allFiles).map(item => {return {label: item, value: item}}) : []}
                             setOpen={setDropDownIsOpen}
-                            setDropdownValue={setDropdownValue}
-                            />
+                            setValue={setDropdownValue}
+                            /> */}
                 </View>
                     <View style={{width: '100%', marginBottom: 5}}>
                         <FileTypeSelector selectedFileType={selectedFileType} availableFileTypes={Object.keys(allFiles[selectedDevice]).map(fType => stringToFileType(fType))} onSelectFileType={setSelectedFileType} />

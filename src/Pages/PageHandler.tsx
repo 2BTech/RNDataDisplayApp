@@ -1,7 +1,7 @@
 import React, { FC, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import PageHeader from "./PageHeaderComponents/PageHeader";
-import { ConnectionType, DeviceId, DeviceSliceState } from "../redux/slices/deviceSlice";
+import { ConnectionType, DeviceDefinition, DeviceId, DeviceSliceState } from "../redux/slices/deviceSlice";
 import { useSelector } from 'react-redux';
 import { RootState } from "../redux/store";
 import PageNavBar, { NavButtonDef } from "./PageHeaderComponents/PageNavBar";
@@ -12,28 +12,28 @@ import TreksPage from "./TreksPage/TreksPage";
 import SettingsPage from "./SettingsPage/SettingsPage";
 import AllFilesPage from "./AllFilesPage/AllFilesPage";
 import { faHome, faFolder, faGears, faMap, faFolderOpen, faPlus, } from "@fortawesome/free-solid-svg-icons";
+import { DropdownItem } from "./Components/Dropdown/DropdownV2";
 
 interface PageHandlerProps {
 
 }
 
 const PageHandler: FC<PageHandlerProps> = ({}) => {
-    const [selectedDevice, setSelectedDevice] = useState<DeviceId>('Default');
-    const [selectedPage, setSelectedPage] = useState<string>('Home');
-
     const deviceDefs: DeviceSliceState = useSelector((state: RootState) => state.deviceSlice);
+    const [selectedDevice, setSelectedDevice] = useState<DeviceDefinition>(deviceDefs.deviceDefinitions['Default']);
+    const [selectedPage, setSelectedPage] = useState<string>('Home');
 
     const renderSelectedPage = (pageName: string) => {
         switch (pageName) {
             case 'Home':
                 return (
-                    <HomePage deviceKey={selectedDevice} pageHeight={Dimensions.get('screen').height * 0.8} />
+                    <HomePage deviceKey={selectedDevice.deviceKey} pageHeight={Dimensions.get('screen').height * 0.8} />
                 );
 
             case 'Files':
                 // console.log('Rendering files page');
                 return (
-                    <FilesPage deviceKey={selectedDevice} />
+                    <FilesPage deviceKey={selectedDevice.deviceKey} />
                 );
 
             case 'All Files':
@@ -48,12 +48,12 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
 
             case 'Treks':
                 return (
-                    <TreksPage deviceKey={selectedDevice} />
+                    <TreksPage deviceKey={selectedDevice.deviceKey} />
                 );
 
             case 'Settings': 
                 return (
-                    <SettingsPage deviceKey={selectedDevice} />
+                    <SettingsPage deviceKey={selectedDevice.deviceKey} />
                 );
 
             default:
@@ -71,13 +71,13 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
             icon: faHome
         },
     ];
-    if (selectedDevice != 'Default') {
+    if (selectedDevice.deviceKey != 'Default') {
         navButtons.push({
             title: 'Files',
             icon: faFolder,
         });
 
-        if (deviceDefs.deviceDefinitions[selectedDevice].connectionType == ConnectionType.DirectConnect) {
+        if (selectedDevice.connectionType == ConnectionType.DirectConnect) {
             navButtons.push({
                 title: 'Settings',
                 icon: faGears,
@@ -99,12 +99,16 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
         icon: faPlus,
     });
 
+    const updateSelectedDevice: (selected: DropdownItem) => void = (selected) => {
+        setSelectedDevice(Object.values(deviceDefs.deviceDefinitions).find(dev => dev.deviceKey == selected.value) || deviceDefs.deviceDefinitions['Default']);
+    }
+
     return (
         <View style={styles.container}>
 
             {/* Header */}
             <View style={styles.headerContainer}>
-                <PageHeader availableDevices={deviceDefs.connectedDevices.map(deviceKey => deviceDefs.deviceDefinitions[deviceKey])} selectDeviceFunction={setSelectedDevice} infoFunction={undefined} />
+                <PageHeader selectedDevice={{label: selectedDevice.deviceName, value: selectedDevice.deviceKey}} availableDevices={deviceDefs.connectedDevices.map(deviceKey => deviceDefs.deviceDefinitions[deviceKey])} selectDeviceFunction={updateSelectedDevice} infoFunction={undefined} />
             </View>
 
             {/* Content */}

@@ -1,17 +1,19 @@
 import React, { FC } from "react";
 import { StyleSheet, TouchableNativeFeedback, View, TouchableOpacity, } from "react-native";
-import Dropdown, { DropdownItem } from "../Components/Dropdown/Dropdown";
+// import Dropdown, { DropdownItem } from "../Components/Dropdown/Dropdown";
 import { DeviceDefinition, DeviceId } from "../../redux/slices/deviceSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faQuestion, } from "@fortawesome/free-solid-svg-icons";
+import Dropdown, { DropdownItem } from "../Components/Dropdown/DropdownV2";
 
 interface PageHeaderProps {
     availableDevices: Array<DeviceDefinition>;
+    selectedDevice: DropdownItem;
     infoFunction: undefined | (() => void);
-    selectDeviceFunction: undefined | ((deviceKey: DeviceId) => void);
+    selectDeviceFunction: ((selected: DropdownItem) => void);
 }
 
-const PageHeader: FC<PageHeaderProps> = ({availableDevices, infoFunction, selectDeviceFunction}) => {
+const PageHeader: FC<PageHeaderProps> = ({availableDevices, selectedDevice, infoFunction, selectDeviceFunction}) => {
     const deviceOptions: Array<DropdownItem> = availableDevices.map((device: DeviceDefinition) => {
         const t: DropdownItem = {
             label: device.deviceName,
@@ -20,16 +22,19 @@ const PageHeader: FC<PageHeaderProps> = ({availableDevices, infoFunction, select
         return t;
     });
 
-    const onSelectDevice = (item: DropdownItem) => {
-        console.log(item);
-        if (selectDeviceFunction) {
-            selectDeviceFunction(item.value);
-        }
-    };
-
     return (
         <View style={styles.container}>
-            <Dropdown defaultLabel="Select Device" data={deviceOptions} onSelect={onSelectDevice} />
+            <Dropdown 
+                currentVal={selectedDevice} 
+                options={availableDevices.map(dev => {
+                    return {
+                        value: dev.deviceKey,
+                        label: dev.deviceName,
+                    }
+                })} 
+                onSelectItem={selectDeviceFunction}
+                itemStartHeight={0}
+                />
             <TouchableOpacity style={styles.iconContainer} onPress={infoFunction ? infoFunction : () => {}}>
                 <FontAwesomeIcon icon={faQuestion} color='white' size={30} />
             </TouchableOpacity>

@@ -4,7 +4,7 @@ import { SafeAreaProvider, } from "react-native-safe-area-context";
 import { ConnectionType, DeviceId } from "../../redux/slices/deviceSlice";
 import FileButton, { FileButtonProps, } from "./Components/FilesButton";
 import * as RNFS from 'react-native-fs';
-import { FileEntry, FileSectionFilesMap, FileTypes, buildDeviceDirPath } from "../../Utils/FileUtils";
+import { FileEntry, FileSectionFilesMap, FileTypes, buildDeviceDirPath, deleteFile, exportFile, queryAllFiles } from "../../Utils/FileUtils";
 import { ConnectedProps, connect, useSelector } from "react-redux";
 import LoadingFileButton from "./Components/LoadingFileButton";
 import { RootState } from "../../redux/store";
@@ -54,48 +54,12 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
         },
     ]
 
-    const exportFile = async (file: FileEntry) => {
-        // console.log('Export file: ', file.fileName);
-        
-        const shareOptions: ShareOptions = {
-            title: file.fileName,
-            url: 'file:///' + file.filePath,
-        };
-
-        await Share.open(shareOptions)
-            // .then(result => console.log('Finished exporting file'))
-            .catch(err => console.log('Failed to export file: ', err));
-    }
-
-    const deleteFile = async (file: FileEntry) => {
-        // console.log('Delete file: ', file.fileName);
-        await RNFS.unlink(file.filePath);
-
-        let dirPath = file.filePath;
-        dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1);
-
-        let entries = await RNFS.readDir(dirPath);
-
-        // Check if the directory is empty
-        if (entries.length == 0) {
-            // Delete dir because it is empty
-            await RNFS.unlink(dirPath);
-
-            dirPath = file.filePath;
-            dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1)
-
-            entries = await RNFS.readDir(dirPath);
-
-            if (entries.length == 0) {
-                await RNFS.unlink(dirPath);
-            }
-        }
-        
-        queryDeviceFiles();
-    }
-
     const downloadFile = (file: FileEntry) => {
         console.log('Download file: ', file.fileName);
+    }
+
+    const query =async () => {
+        let t = await queryAllFiles
     }
 
     const queryDeviceFiles = async () => {
@@ -201,7 +165,7 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
         } else {
             return <FlatList
                         data={fileEntries[selectedFileType]}
-                        renderItem={(entry) => <FileButton key={entry.item.fileName} fileName={entry.item.fileName} onExportClicked={entry.item.existsOnPhone ? () => {exportFile(entry.item)} : undefined} onDeleteClicked={entry.item.existsOnPhone ? () => deleteFile(entry.item) : undefined} onDownloadClicked={entry.item.isDownloadable ? () => downloadFile(entry.item) : undefined} />}
+                        renderItem={(entry) => <FileButton key={entry.item.fileName} fileName={entry.item.fileName} onExportClicked={entry.item.existsOnPhone ? () => {exportFile(entry.item)} : undefined} onDeleteClicked={entry.item.existsOnPhone ? () => deleteFile(entry.item).then(() => queryDeviceFiles()) : undefined} onDownloadClicked={entry.item.isDownloadable ? () => downloadFile(entry.item) : undefined} />}
                         keyExtractor={(entry) => entry.fileName}
                         />
         }

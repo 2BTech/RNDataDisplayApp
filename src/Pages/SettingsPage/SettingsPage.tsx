@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state: RootState, ownProps: any) => {
     return {
-        deviceSettings: state.deviceSettingsSlice[ownProps.deviceKey],
+        deviceSettings: state.deviceSettingsSlice[ownProps.deviceKey] || [],
     }
 }
 

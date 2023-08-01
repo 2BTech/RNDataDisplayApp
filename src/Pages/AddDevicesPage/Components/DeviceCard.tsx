@@ -11,11 +11,13 @@ interface DeviceCardProps {
     isConnected: boolean;
     cardFunct: undefined | (() => void);
     isEven: boolean;
+    isFirst: boolean;
+    isLast: boolean;
 }
 
-const DeviceCard: FC<DeviceCardProps> = ({deviceName, isConnected, cardFunct, connectionType, isEven}) => {
+const DeviceCard: FC<DeviceCardProps> = ({deviceName, isConnected, cardFunct, connectionType, isEven, isFirst, isLast}) => {
     return (
-        <View style={StyleSheet.compose(styles.container, {backgroundColor: isEven ? 'lightgray' : 'lightblue'})}>
+        <View style={StyleSheet.compose(styles.container, {backgroundColor: isEven ? 'lightblue' : 'lightgray', borderTopRightRadius: isFirst ? 20 : 0, borderTopLeftRadius: isFirst ? 20 : 0})}>
             <View style={styles.rowContainer}>
                 {/* Labels */}
                 <View style={styles.rowContentContainer}>
@@ -40,9 +42,9 @@ const DeviceCard: FC<DeviceCardProps> = ({deviceName, isConnected, cardFunct, co
 
 const styles = StyleSheet.create({
     container: {
-        width: '90%',
+        width: '100%',
 
-        marginHorizontal: '5%',
+        // marginHorizontal: '5%',
 
         flexDirection: 'row',
 
@@ -50,7 +52,7 @@ const styles = StyleSheet.create({
     },
 
     rowContainer: {
-        width: '75%',
+        width: '80%',
         alignContent: 'space-between',
         justifyContent: 'space-around',
 

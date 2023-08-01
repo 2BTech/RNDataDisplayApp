@@ -1,4 +1,7 @@
 import * as RNFS from 'react-native-fs';
+import { mergeObjects } from './ObjUtils';
+import { DeviceFileTypeMap } from '../Pages/AllFilesPage/AllFilesPage';
+import Share, { ShareOptions } from 'react-native-share';
 
 export enum FileTypes {
     // A file that was built from data received by the device .csv
@@ -73,11 +76,11 @@ export async function mkpath(path: string) {
     }
 }
 
-export const queryAllFiles: (dirPath: string) => Promise<DeviceFileMap | undefined> = async (dirPath: string) => {
+export const queryAllFiles: (dirPath: string) => Promise<DeviceFileTypeMap | undefined> = async (dirPath: string) => {
 
     const dirExists = await RNFS.exists(dirPath);
     if (dirExists) {
-        let currentMap: DeviceFileMap = {
+        let currentMap: DeviceFileTypeMap = {
 
         };
 
@@ -89,7 +92,7 @@ export const queryAllFiles: (dirPath: string) => Promise<DeviceFileMap | undefin
 
         for (let i = 0; i < entries.length; i++) {
             if (entries[i].isDirectory()) {
-                const map: (undefined | DeviceFileMap) = await queryAllFiles(entries[i].path);
+                const map: (undefined | DeviceFileTypeMap) = await queryAllFiles(entries[i].path);
                 if (map) {
                     // currentMap = {
                     //     ...currentMap,
@@ -175,4 +178,17 @@ export const deleteFile = async (file: FileEntry) => {
             await RNFS.unlink(dirPath);
         }
     }
+}
+
+export const exportFile = async (file: FileEntry) => {
+    // console.log('Export file: ', file.fileName);
+    
+    const shareOptions: ShareOptions = {
+        title: file.fileName,
+        url: 'file:///' + file.filePath,
+    };
+
+    await Share.open(shareOptions)
+        // .then(result => console.log('Finished exporting file'))
+        .catch(err => console.log('Failed to export file: ', err));
 }

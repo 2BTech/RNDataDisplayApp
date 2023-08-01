@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     pageNavText: {
         fontSize: 20,
         textAlign: 'center',
-        textAlignVertical: 'center',
+        // textAlignVertical: 'center',
         height: '100%',
         color: 'black',
     },

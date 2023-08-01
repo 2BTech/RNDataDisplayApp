@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { Icon } from "@rneui/base";
-import React, { FC, ReactElement, useRef, useState, } from "react";
+import React, { FC, ReactElement, useEffect, useRef, useState, } from "react";
 import { StyleSheet, View, TouchableOpacity, Text, FlatList, Modal, Dimensions, } from "react-native";
 import { faChevronUp, faChevronDown, } from "@fortawesome/free-solid-svg-icons";
 
@@ -37,7 +37,18 @@ const Dropdown: FC<DropdownV2Props> = ({options, currentVal, onSelectItem, itemS
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [objectY, setObjY] = useState<number>(0);
 
-    const ref = useRef(null);
+    const ref = useRef<TouchableOpacity>(null);
+
+    useEffect(() => {
+        if (ref != undefined) {
+            ref.current?.measure((x, y, width, height, pageX, pageY) => {
+                let bottom = height + pageY;
+                if (objectY != bottom) {
+                    setObjY(bottom);
+                }
+            });
+        }
+    }, [ref, objectY]);
     
     const toggleIsExpanded = () => {
         setIsExpanded(!isExpanded);
@@ -66,9 +77,11 @@ const Dropdown: FC<DropdownV2Props> = ({options, currentVal, onSelectItem, itemS
         );
     };
 
+    console.log('Selected item: ', currentVal.label);
+
     return (
         <TouchableOpacity style={dropdownStyles.container} onPress={toggleIsExpanded} ref={ref} onLayout={result => {
-            const { width, height, x, y } = result.nativeEvent.layout;
+            const { x, y, width, height, } = result.nativeEvent.layout;
             if ((y + height) != objectY) {
                 setObjY(height + y);
             }

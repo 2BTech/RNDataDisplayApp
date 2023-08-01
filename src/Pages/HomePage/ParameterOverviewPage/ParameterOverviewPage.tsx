@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, TouchableHighlight, Dimensions, ActivityIndicator, } from "react-native";
+import { StyleSheet, View, Text, TouchableOpacity, TouchableHighlight, Dimensions, ActivityIndicator, Platform, } from "react-native";
 // import { LineChart } from "react-native-chart-kit";
 import { useSelector } from "react-redux";
 import ParameterDescriptions, { ParameterSigFigs, getParameterValueColor } from "../../../Constants/Parameters/ParameterDefs";
@@ -44,9 +44,9 @@ const ParameterValueCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
         <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
             <View style={styles.container}>
                 <View style={{width: '100%', height: '10%'}} />
-                <Text style={styles.parameterCellTitle}>{paramterName}</Text>
-                <View style={{width: '100%', height: '10%'}} />
-                <Text style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(paramterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={styles.parameterCellTitle}>{paramterName}</Text>
+                <View style={{width: '80%', height: '10%', marginLeft: '10%', borderBottomWidth: 1,}} />
+                <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(paramterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
             </View>
         </TouchableHighlight>
     );
@@ -100,28 +100,6 @@ const ParameterGraphCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
     const [cellSizeObj, setGraphSize] = useState<CellSizeObj|undefined>(undefined);
 
     return (
-        // <TouchableOpacity style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
-        //     <Text style={styles.parameterCellTitle}>{paramterName}</Text>
-        //     {
-        //         <Chart
-        //             style={{ height: '67%', width: '100%' }}
-        //             xDomain={{ min: 0.5, max: 3.5, }}
-        //             yDomain={{ min: 0.5, max: 3.5, }}
-        //             // Creates room for axis labels
-        //             padding={{ left: 0, top: 0, bottom: 0, right: 0 }}
-        //             >
-        //                 <VerticalAxis tickCount={5} />
-        //                 <HorizontalAxisTime tickCount={5} />
-        //                 <Line 
-        //                     data={[{ x: 1, y: 2 }, {x: 2, y: 1}, {x: 3, y: 3}]}
-        //                     smoothing="none" 
-        //                     theme={{ stroke: { color: 'green', width: 1 } }}
-        //                 />
-        //         </Chart>
-        //     }
-        //     <Text style={styles.parameterValueText}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
-        // </TouchableOpacity>
-
         <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
             <View>
             <Text style={styles.parameterCellTitle}>{paramterName}</Text>
