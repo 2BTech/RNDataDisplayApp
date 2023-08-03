@@ -86,6 +86,11 @@ export function handleBeaconData(device: Peripheral) {
 
         const con: PacketConstants = Object.values(PacketConstants).find(value => value == marker) || PacketConstants.UNKNOWN_CONSTANT;
         
+        if (con == PacketConstants.UNKNOWN_CONSTANT) {
+            // Do not include unknown values
+            return;
+        }
+
         // console.log(PackageConstantValueName[con], ' = ', value);
         if (ParameterDefaultUnits[PackageConstantValueName[con]] == undefined) {
             console.log('No units for ', PackageConstantValueName[con]);
@@ -116,7 +121,6 @@ export function handleBeaconData(device: Peripheral) {
 
 export const discoverDeviceMiddleware: Middleware<{}, RootState> = store => next => action => {
     if (action.type == 'deviceSlice/discoverDevice') {
-
         if (store.getState().deviceSlice.availableDevices.includes(action.payload.deviceKey)) {
             return;
         } else if (store.getState().deviceSlice.connectedDevices.includes(action.payload.deviceKey)) {

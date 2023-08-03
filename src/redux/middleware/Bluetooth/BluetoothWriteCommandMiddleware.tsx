@@ -22,7 +22,7 @@ async function writeCommand(command:bluetoothCommand) {
         com += 'end';
     }
 
-    console.log('Write command: ', com);
+    // console.log('Write command: ', com);
 
     let wasSuccess: boolean = true;
 
@@ -61,11 +61,13 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
             return;
         }
 
+        // Signal that the device is now writing message to devices
         dispatch(setIsWritingMessage(true));
 
         let success: boolean = await writeCommand(command);
 
         if (!success) {
+            console.log('Write failed, queuing message');
             dispatch(queueMessageForWrite(command));
             dispatch(setIsWritingMessage(false));
             return;
@@ -73,14 +75,9 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
 
         sleep(250);
 
-        let writtenKeys: string[] = [];
-
         // Try to write the entire message queue
         while (success) {
-            let { commandQueue, commandKeys, } = getState().bluetoothCommandSlice;
-
-            // Prevent weird 
-            commandKeys = commandKeys.filter(key => !writtenKeys.includes(key));
+            let {commandQueue, commandKeys, } = getState().bluetoothCommandSlice;
 
             console.log('Command queue length: ', commandKeys.length);
 
@@ -90,10 +87,17 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
             }
 
             // Get the first command to write
-            const curCommand: bluetoothCommand = commandQueue[commandKeys[0]];
+            const curCommandKey = commandKeys[0];
+            const curCommand: bluetoothCommand = commandQueue[curCommandKey];
 
             // Dequeue the message
-            dispatch(dequeueMessage(curCommand));
+            console.log('Dequeuing message: ', curCommand);
+            await dispatch(dequeueMessage(curCommand));
+
+            commandKeys = getState().bluetoothCommandSlice.commandKeys;
+            if (commandKeys.includes(curCommandKey)) {
+                console.log('Failed to dequeue current message: ', curCommandKey, ' - ', commandKeys);
+            }
 
             // Write the next command
             success = await writeCommand(curCommand);
@@ -101,15 +105,15 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
             if (!success) {
                 dispatch(queueMessageForWrite(command));
                 break;
-            } else {
-                writtenKeys.push(commandKeys[0]);
             }
 
-            sleep(250);
+            sleep(1000);
+
+            // ToDo, wait for an ack/response from the device to add a timeout
         }
 
         dispatch(setIsWritingMessage(false));
 
-        console.log('Finished writing commands');
+        // console.log('Finished writing commands');
     }
 }

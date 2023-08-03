@@ -45,7 +45,6 @@ export const deviceSlice = createSlice({
     reducers: {
         // Clear the list of available devices when a new scan starts
         clearAvailable: (state, action) => {
-            console.log('Clearing available');
             return {
                 ...state,
                 availableDevices: [],

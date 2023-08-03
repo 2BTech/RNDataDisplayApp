@@ -1,5 +1,5 @@
 import BleManager, { BleManagerDidUpdateValueForCharacteristicEvent } from 'react-native-ble-manager';
-import { DeviceId, connectToDevice } from '../../slices/deviceSlice';
+import { DeviceId, connectToDevice, disconnectFromDevice } from '../../slices/deviceSlice';
 import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../../store';
 import { Action, CombinedState, } from 'redux';
@@ -8,10 +8,13 @@ import { clearDeviceMessage, receivePartialMessage } from '../../slices/bluetoot
 import { addDeviceData } from '../../slices/deviceDataSlice';
 import { ParameterPointMap, applyData } from '../logDataMiddleware';
 import { bluetoothWriteCommand } from './BluetoothWriteCommandMiddleware';
-import { requestDataFileNamesCommand, requestSettingsCommand } from '../../../Utils/Bluetooth/BluetoothCommandUtils';
-import { getUniqueKeyForCommand } from '../../slices/bluetoothCommandSlice';
+import { BuildRequestDataFileCommand, BuildRequestFilePartCommand, requestDataFileNamesCommand, requestSettingsCommand } from '../../../Utils/Bluetooth/BluetoothCommandUtils';
+import { getUniqueKeyForCommand, queueMessageForWrite } from '../../slices/bluetoothCommandSlice';
 import { setDeviceSettings } from '../../slices/deviceSettingsSlice';
 import { updateDeviceFiles } from '../../slices/deviceFilesSlice';
+import { addFileChunk, onFinishDownload, onStartDownload } from '../../slices/fileDownloadSlice';
+import * as RNFS from 'react-native-fs';
+import { FileTypes, writeFile } from '../../../Utils/FileUtils';
 
 var convertString = {
     bytesToString: function(bytes: number[]) {
@@ -119,6 +122,18 @@ export function connectToDirectConnect(deviceId: DeviceId) {
     }
 }
 
+export function disconnectFromDirectConnect(deviceId: DeviceId) {
+    return async (dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) => {
+        console.log('Disconnecting from: ', deviceId);
+
+        await BleManager.disconnect(deviceId);
+
+        dispatch(disconnectFromDevice(deviceId));
+
+        console.log('Finished disconnecting from device');
+    }
+}
+
 interface BluetoothMessage {
     status: number;
     type: string;
@@ -161,7 +176,7 @@ async function parseMeasurement(measurements: Measurement[], deviceKey: DeviceId
 }
 
 async function parseDeviceFiles(fileNames:any, deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>) {
-    console.log('Filenames: ', fileNames);
+    console.log(deviceKey, ' filenames: ', fileNames);
 
     dispatch(updateDeviceFiles({
         deviceKey,
@@ -169,8 +184,10 @@ async function parseDeviceFiles(fileNames:any, deviceKey: DeviceId, dispatch: Th
     }));
 }
 
-async function parseFileData(fileData:any, deviceKey: DeviceId) {
+async function parseFileData(fileData:any, deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>) {
     console.log('File data: ', fileData);
+
+    dispatch(receiveNewFilePart(fileData, deviceKey));
 }
 
 async function parseAvailableNetworks(networks:any, deviceKey: DeviceId) {
@@ -205,12 +222,11 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
 
         case 'sd card':
         case 'filenames':
-            console.log('File names: ', message.body);
-            await parseDeviceFiles(deviceKey, message.body, dispatch);
+            await parseDeviceFiles(message.body, deviceKey, dispatch);
             break;
 
         case 'file':
-            await parseFileData(deviceKey, message.body.data);
+            await parseFileData(message.body, deviceKey, dispatch);
             break;
 
         case 'networks':
@@ -231,54 +247,107 @@ export function handleDirectConnectData(data: BleManagerDidUpdateValueForCharact
 
         // console.log('Handle data for: ', data.peripheral);
 
-        // Retrieve any existing partial data
-        let message: string = getState().bluetoothDataSlice[data.peripheral] || '';
+        // Get any existing data, ie) package to big to be sent in one message
+        let existingData = getState().bluetoothDataSlice[data.peripheral];
 
-        // console.log('Existing data: ', message);
+        // Get the new data sent from the device
+        let currentData = convertString.bytesToString(data.value);
 
-        // Append the newly received data
-        message += convertString.bytesToString(data.value);
+        let fullMessage = existingData ? existingData + currentData : currentData;
 
-        // console.log('Message: ', message);
-
-        // Check if the message is complete by checking if the message ends with 'end'
-        if (!message.endsWith('end')) {
-            // Save the incomplete message for later and exit
+        // Check if a full message has been received
+        if (!fullMessage.endsWith('end')) {
             dispatch(receivePartialMessage({
                 deviceKey: data.peripheral,
-                data: message,
-            }));
+                data: existingData ? existingData + currentData : currentData,
+            }))
             return;
         }
 
-        // Remove the end
-        message = message.substring(0, message.length - 3)
+        // A full message has been received
 
-        // Received full message, time to parse it
-        dispatch(clearDeviceMessage(data.peripheral));
+        // Remove the end portion of the string
+        fullMessage = fullMessage.substring(0, fullMessage.length - 3);
 
-        let messageJson: BluetoothMessage;
+        let messageJson: BluetoothMessage | undefined = undefined;
 
         try {
             // Try to parse the received message
-            messageJson = JSON.parse(message);
-        } catch (err) {
-            // Log the error
-            if (err instanceof SyntaxError) {
-                console.log("Failed to parse message json: ", err);
-                console.log('Read buffer length: ', message.length);
-                console.log(message);
-            } else {
-                console.log("Encountered error when parsing message json: ", err);
+            messageJson = JSON.parse(fullMessage);
+
+            // Received full message, clear existing data
+            if (existingData) {
+                dispatch(clearDeviceMessage(data.peripheral));
             }
-            return;
+        } catch (err) {
+            // If there is existing data and the current data could be its own message
+            if (existingData != null && currentData.length > 3) {
+                currentData = currentData.substring(0, currentData.length - 3);
+
+                try {
+                    messageJson = JSON.parse(currentData);
+                } catch (err2) {
+                    // Bad message all around, drop all data to start fresh
+                    dispatch(clearDeviceMessage(data.peripheral));
+                }
+            }
         }
 
         if (messageJson == undefined) {
-            console.log('Received undefined object from parsing received message: ', message);
+            console.log('Received undefined object from parsing received message: ', fullMessage);
             return;
         }
 
         await parseMessageJson(messageJson, data.peripheral, dispatch, getState);
+    }
+}
+
+export function startDownloadingFile(fileName: string, deviceId: DeviceId) {
+    return async (dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) => {
+        console.log('Started requesting ', fileName, ' from ', deviceId);
+        
+        dispatch(onStartDownload({
+            fileName,
+            deviceKey: deviceId,
+        }));
+
+        dispatch(bluetoothWriteCommand({
+            deviceKey: deviceId,
+            command: BuildRequestDataFileCommand(fileName),
+            key: getUniqueKeyForCommand(),
+        }));
+    }
+}
+
+export function receiveNewFilePart(payload: any, deviceKey: DeviceId) {
+    return async (dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) => {
+
+        const progress = getState().downloadFilesSlice.gathered + 1;
+        const numParts = payload.numparts;
+
+        console.log('Received new file part of ', payload.fileName, ': ', progress, ' / ', numParts);
+
+        // Download is finished
+        if (progress == numParts) {
+            await writeFile(getState().deviceSlice.deviceDefinitions[deviceKey].deviceName, payload.fileName, FileTypes.DownloadedFile, getState().downloadFilesSlice.fileContents + payload.data);
+
+            dispatch(onFinishDownload({}));
+        } else {
+            // Update store
+            dispatch(addFileChunk({
+                gathered: progress,
+                numberToGather: numParts,
+                fileName: payload.fileName,
+                deviceKey,
+                data: payload.data,
+            }));
+
+            // Request next part
+            dispatch(bluetoothWriteCommand({
+                deviceKey,
+                command: BuildRequestFilePartCommand(payload.fileName, progress),
+                key: getUniqueKeyForCommand(),
+            }));
+        }
     }
 }

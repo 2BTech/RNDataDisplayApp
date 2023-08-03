@@ -47,16 +47,16 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
         }
 
         try {
-            console.debug('[startScan] starting scan...');
+            // console.debug('[startScan] starting scan...');
             setIsScanning(true);
             BleManager.scan(SERVICE_UUIDS, SECONDS_TO_SCAN_FOR, ALLOW_DUPLICATES, {
               matchMode: BleScanMatchMode.Sticky,
               scanMode: BleScanMode.LowLatency,
               callbackType: BleScanCallbackType.AllMatches,
             })
-            .then(() => {
-                console.debug('[startScan] scan promise returned successfully.');
-            })
+            // .then(() => {
+            //     console.debug('[startScan] scan promise returned successfully.');
+            // })
             .catch(err => {
                 console.error('[startScan] ble scan returned in error', err);
             });
@@ -74,7 +74,7 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
 
     const handleStopScan = async () => {
         setIsScanning(false);
-        console.debug('[handleStopScan] scan is stopped.');
+        // console.debug('[handleStopScan] scan is stopped.');
 
         await wait(1000);
 
@@ -160,10 +160,10 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
             return;
           }
     
-          console.debug(
-            '[retrieveConnected] connectedPeripherals',
-            connectedPeripherals,
-          );
+          // console.debug(
+          //   '[retrieveConnected] connectedPeripherals',
+          //   connectedPeripherals,
+          // );
     
           for (var i = 0; i < connectedPeripherals.length; i++) {
             var peripheral = connectedPeripherals[i];
@@ -196,15 +196,15 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
     
             /* Test read current RSSI value, retrieve services first */
             const peripheralData = await BleManager.retrieveServices(peripheral.id);
-            console.debug(
-              `[connectPeripheral][${peripheral.id}] retrieved peripheral services`,
-              peripheralData,
-            );
+            // console.debug(
+            //   `[connectPeripheral][${peripheral.id}] retrieved peripheral services`,
+            //   peripheralData,
+            // );
     
             const rssi = await BleManager.readRSSI(peripheral.id);
-            console.debug(
-              `[connectPeripheral][${peripheral.id}] retrieved current RSSI value: ${rssi}.`,
-            );
+            // console.debug(
+            //   `[connectPeripheral][${peripheral.id}] retrieved current RSSI value: ${rssi}.`,
+            // );
     
             if (peripheralData.characteristics) {
               for (let characteristic of peripheralData.characteristics) {
@@ -253,7 +253,6 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
         try {
           BleManager.start({showAlert: false})
             .then(() => {
-                console.debug('BleManager started.');
                 startScanning();
             })
             .catch(error =>
@@ -283,7 +282,7 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
         handleAndroidPermissions();
     
         return () => {
-          console.debug('[app] main component unmounting. Removing listeners...');
+          // console.debug('[app] main component unmounting. Removing listeners...');
           for (const listener of listeners) {
             listener.remove();
           }

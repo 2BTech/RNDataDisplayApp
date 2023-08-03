@@ -9,6 +9,7 @@ import bluetoothDataReducer from './slices/bluetoothDataSlice';
 import bluetoothCommandReducer from './slices/bluetoothCommandSlice';
 import deviceSettingsReducer from './slices/deviceSettingsSlice';
 import deviceFilesReducer from './slices/deviceFilesSlice';
+import downloadFilesReducer from './slices/fileDownloadSlice';
 
 // Middlewares
 import { logDataMiddleware } from './middleware/logDataMiddleware';
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     bluetoothCommandSlice: bluetoothCommandReducer,
     deviceSettingsSlice: deviceSettingsReducer,
     deviceFilesSlice: deviceFilesReducer,
+    downloadFilesSlice: downloadFilesReducer,
 })
 
 export const store = configureStore({

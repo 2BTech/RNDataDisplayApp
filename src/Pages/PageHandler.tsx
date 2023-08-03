@@ -33,12 +33,12 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
             case 'Files':
                 // console.log('Rendering files page');
                 return (
-                    <FilesPage deviceKey={selectedDevice.deviceKey} />
+                    <FilesPage deviceKey={selectedDevice.deviceKey} deviceRemoteFiles={[]} startDownloadingFile={(fileName, deviceKey) => {}} />
                 );
 
             case 'All Files':
                 return (
-                    <AllFilesPage />
+                    <AllFilesPage devices={{}} startDownloadingFile={(fileName, deviceKey) => {}} />
                 );
 
             case 'Devices':

@@ -8,13 +8,13 @@ import { ConnectionType, DeviceDefinition, DeviceDefinitionMap, DeviceId, connec
 import { useDispatch } from "react-redux";
 import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
-import { connectToDirectConnect } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
+import { connectToDirectConnect, disconnectFromDirectConnect } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
 
 interface AddDevicesPageProps extends PropsFromRedux {
 
 };
 
-const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
+const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon, disconnectFromDirect}) => {
     const deviceDefs: DeviceDefinitionMap = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions);
     const available = useSelector((state: RootState) => state.deviceSlice.availableDevices);
     const connected = useSelector((state: RootState) => state.deviceSlice.connectedDevices);
@@ -62,17 +62,6 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon}) => {
     // console.log('Rendering add devices page');
     return (
         <View style={styles.container}>
-            {/* <SectionList
-                sections={Object.values(connectionData)}
-                keyExtractor={(item, index) => item.deviceName + index}
-                renderItem={({item, index}) => {
-                    return (
-                        <DeviceCard deviceName={item.deviceName} isConnected={item.isConnected} cardFunct={item.connectionType == ConnectionType.Beacon ? (item.isConnected ? () => {disconnectBeacon(item.deviceKey)} : () => {connectToBeacon(item.deviceKey)}) : (item.isConnected ? () => {disconnectDirect(item.deviceKey)} : () => {connectToDirect(item.deviceKey)})} connectionType={item.connectionType} isEven={index % 2 == 0} />
-                    );
-                }}
-                renderSectionHeader={({section: {title}}) => <DevicePageSection sectionName={title} />}
-                /> */}
-
             <Text style={styles.sectionHeaderText}>Connected Devices</Text>
             <View style={styles.sectionContainer}>
                 <FlatList 
@@ -122,6 +111,8 @@ const styles = StyleSheet.create({
 
         marginHorizontal: '5%',
         marginTop: '2%',
+
+        overflow: 'hidden',
     },
 });
 
@@ -129,6 +120,10 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
     return {
         connectToDirectCon: (deviceId: DeviceId) => {
             dispatch(connectToDirectConnect(deviceId));
+        },
+
+        disconnectFromDirect: (deviceId: DeviceId) => {
+            dispatch(disconnectFromDirectConnect(deviceId));
         },
     };
 }

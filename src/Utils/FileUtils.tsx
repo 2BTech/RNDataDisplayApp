@@ -109,13 +109,9 @@ export const queryAllFiles: (dirPath: string) => Promise<DeviceFileTypeMap | und
                 }
 
                 if (sections.length == 3) {
-                    console.log('Device: ', sections[0], ' Section: ', sections[1], ' Name: ', sections[2]);
-
-                    console.log(currentMap);
                     if (currentMap[sections[0]]) {
                         // Device and file type is not null
                         if (currentMap[sections[0]][sections[1]]) {
-                            console.log('Device and section exist');
                             currentMap[sections[0]][sections[1]].push({
                                 fileName: sections[2],
                                 filePath: entries[i].path,
@@ -123,7 +119,6 @@ export const queryAllFiles: (dirPath: string) => Promise<DeviceFileTypeMap | und
                                 isDownloadable: false,
                             });
                         } else {
-                            console.log('Device exits but not section');
                             // Device exists, but not type
                             currentMap[sections[0]][sections[1]] = [{
                                 fileName: sections[2],
@@ -133,7 +128,6 @@ export const queryAllFiles: (dirPath: string) => Promise<DeviceFileTypeMap | und
                             }];
                         }
                     } else {
-                        console.log('Section is null');
                         // Device object doesn't exist
                         currentMap[sections[0]] = {
                             [sections[1]]: [{
@@ -144,7 +138,6 @@ export const queryAllFiles: (dirPath: string) => Promise<DeviceFileTypeMap | und
                             }],
                         }
                     }
-                    console.log(currentMap);
                 }
             }
         }
@@ -191,4 +184,22 @@ export const exportFile = async (file: FileEntry) => {
     await Share.open(shareOptions)
         // .then(result => console.log('Finished exporting file'))
         .catch(err => console.log('Failed to export file: ', err));
+}
+
+export const writeFile = async (deviceName: string, fileName: string, fileType: FileTypes, content: string) => {
+    const dirPath = buildDeviceDirPath(deviceName, fileType);
+
+    const dirExists = await RNFS.exists(dirPath);
+    if (!dirExists) {
+        await mkpath(dirPath);
+    }
+
+    const filePath = dirPath + fileName;
+
+    const fileExits = await RNFS.exists(filePath);
+    if (fileExits) {
+        await RNFS.unlink(filePath);
+    }
+
+    await RNFS.writeFile(filePath, content);
 }

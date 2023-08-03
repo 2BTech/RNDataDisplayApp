@@ -47,6 +47,32 @@ const ParameterSection: FC<ParameterSectionComponent> = ({sectionName, sectionCo
     );
 }
 
+const breakdownKeyToDisplay: (key: keyof ParameterBreakdownObj) => string = (key) => {
+    switch (key) {
+        case "current":
+            return 'Current';
+
+        case "exponentialMovingAverage":
+            return "Moving Avg";
+
+        case "max":
+            return 'Max';
+
+        case "mean":
+            return 'Mean';
+
+        case "min":
+            return 'Min';
+
+        case "numberOfPoints":
+            return 'Count';
+
+        case "sum":
+            return 'Sum';
+    }
+    return '';
+}
+
 const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
     const [breakdownIsExpanded, setBreakdownIsExpaned] = useState<boolean>(false);
     const [descriptionIsExpanded, setDescriptionIsExpanded] = useState<boolean>(false);
@@ -64,7 +90,7 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
                 return (
                     <View key={val} style={styles.breakdownSectionContainer}>
                         <Text style={styles.breakdownSectionText}>
-                            {val}:
+                            {breakdownKeyToDisplay(val)}:
                         </Text>
                         <Text style={styles.breakdownValueText}>
                             {parameterData.breakdown[val].toFixed(ParameterSigFigs[parameterName])}
@@ -244,7 +270,7 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             </View>
 
             {/* Parameter break down */}
-            {parameterBreakdown != undefined ? <ParameterSection sectionName="Break down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} /> : <></>}
+            {parameterBreakdown != undefined ? <ParameterSection sectionName="Break Down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} /> : <></>}
 
             {/* Parameter Description */}
             {parameterDescription != undefined ? <ParameterSection sectionName="Description" sectionContent={parameterDescription} isExpanded={descriptionIsExpanded} toggleIsExpanded={() => setDescriptionIsExpanded(!descriptionIsExpanded)} /> : <></>}
@@ -363,13 +389,12 @@ const styles = StyleSheet.create({
         textAlign: 'left',
         fontSize: 20,
         paddingLeft: 30,
-        minWidth: '30%',
+        width: '40%',
         color: 'black',
     },
     breakdownValueText: {
         fontSize: 20,
         paddingLeft: 20,
-        textDecorationLine: 'underline',
         color: 'black',
     },
     breakdownUnitText: {

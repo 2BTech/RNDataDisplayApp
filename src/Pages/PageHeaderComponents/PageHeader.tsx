@@ -24,17 +24,19 @@ const PageHeader: FC<PageHeaderProps> = ({availableDevices, selectedDevice, info
 
     return (
         <View style={styles.container}>
-            <Dropdown 
-                currentVal={selectedDevice} 
-                options={availableDevices.map(dev => {
-                    return {
-                        value: dev.deviceKey,
-                        label: dev.deviceName,
-                    }
-                })} 
-                onSelectItem={selectDeviceFunction}
-                itemStartHeight={0}
-                />
+            <View style={{width: '80%', height: '100%'}}>
+                <Dropdown 
+                    currentVal={selectedDevice} 
+                    options={availableDevices.map(dev => {
+                        return {
+                            value: dev.deviceKey,
+                            label: dev.deviceName,
+                        }
+                    })} 
+                    onSelectItem={selectDeviceFunction}
+                    itemStartHeight={0}
+                    />
+            </View>
             <TouchableOpacity style={styles.iconContainer} onPress={infoFunction ? infoFunction : () => {}}>
                 <FontAwesomeIcon icon={faQuestion} color='white' size={30} />
             </TouchableOpacity>

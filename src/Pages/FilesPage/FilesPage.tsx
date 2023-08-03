@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View, } from "react-native";
+import { FlatList, ScrollView, StyleSheet, Text, View, Modal, Image, } from "react-native";
 import { SafeAreaProvider, } from "react-native-safe-area-context";
 import { ConnectionType, DeviceId } from "../../redux/slices/deviceSlice";
 import FileButton, { FileButtonProps, } from "./Components/FilesButton";
@@ -12,12 +12,13 @@ import Share, { ShareOptions } from 'react-native-share';
 import FileTypeSelector from "./Components/FileTypeSelector";
 import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
+import { startDownloadingFile } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
 
 interface FilesPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
 }
 
-const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownloadingFile}) => {
+const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownloadingFile, downloadState}) => {
     const deviceName: DeviceId = useSelector((state: RootState) => (state.deviceSlice.deviceDefinitions[deviceKey].deviceName));
     const isBeacon: boolean = useSelector((state: RootState) => (state.deviceSlice.deviceDefinitions[deviceKey].connectionType == ConnectionType.Beacon));
 
@@ -56,10 +57,7 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
 
     const downloadFile = (file: FileEntry) => {
         console.log('Download file: ', file.fileName);
-    }
-
-    const query =async () => {
-        let t = await queryAllFiles
+        startDownloadingFile(file.fileName, deviceKey);
     }
 
     const queryDeviceFiles = async () => {
@@ -133,12 +131,16 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
         }
 
         deviceRemoteFiles?.forEach(entry => {
-            fileSections[FileTypes.DownloadedFile].push({
-                existsOnPhone: false,
-                fileName: entry,
-                filePath: '',
-                isDownloadable: true,
-            });
+            const exists = fileSections[FileTypes.DownloadedFile].find(entry => entry.fileName == entry.fileName) != undefined;
+            
+            if (!exists) {
+                fileSections[FileTypes.DownloadedFile].push({
+                    existsOnPhone: false,
+                    fileName: entry,
+                    filePath: '',
+                    isDownloadable: true,
+                });
+            }
         });
 
         setFileEntries(fileSections);
@@ -148,8 +150,7 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
         queryDeviceFiles();
     }, [deviceKey]);
 
-    const renderFileObjects = () =>
-    {
+    const renderFileObjects = () => {
         if (fileEntries == undefined) {
             return <FlatList
                         data={loadingEntries}
@@ -171,8 +172,23 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
         }
     }
 
+    const renderDownloadProgressView = () => {
+        return (
+            <Modal visible={downloadState.downloadInProgress} transparent animationType="none">
+                <View style={styles.overlay}>
+                    <Text style={styles.downloadTitle}>Downloading file: {downloadState.fileName}</Text>
+                    <Text style={styles.progressText}>Download progress: {downloadState.gathered} / {downloadState.numberToGather}</Text>
+                    <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
+                </View>
+            </Modal>
+        );
+    }
+
     return (
         <View style={styles.container}>
+            {
+                renderDownloadProgressView()
+            }
             <FileTypeSelector selectedFileType={selectedFileType} availableFileTypes={isBeacon ? [FileTypes.LocalDataFile, FileTypes.TrekFile] : [FileTypes.LocalDataFile, FileTypes.TrekFile, FileTypes.DownloadedFile]} onSelectFileType={setSelectedFileType} />
             {
                 renderFileObjects()
@@ -206,19 +222,48 @@ const styles = StyleSheet.create({
 
         width: '50%',
         marginLeft: '25%',
-    }
+    },
+
+
+    overlay: {
+        flex: 1,
+        position: 'absolute',
+        left: '5%',
+        top: '5%',
+        // opacity: 0.5,
+        backgroundColor: '#CCFFFF',
+        width: '90%',
+        height: '90%',
+
+        alignItems: 'center',
+        justifyContent: 'center',
+
+        borderWidth: 2,
+    },
+    downloadTitle: {
+        color: 'black',
+        fontSize: 25,
+        textAlign: 'center',
+    },
+    progressText: {
+        color: 'black',
+        fontSize: 20,
+        textAlign: 'center',
+    },
 });
 
 const mapStateToProps = (state: RootState, ownProps: any) => {
     return {
         deviceRemoteFiles: state.deviceFilesSlice[ownProps.deviceKey],
+
+        downloadState: state.downloadFilesSlice,
     };
 }
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) => {
     return {
         startDownloadingFile: (fileName: string, deviceKey: DeviceId) => {
-            
+            dispatch(startDownloadingFile(fileName, deviceKey));
         }
     };
 }
@@ -227,4 +272,4 @@ const connector = connect(mapStateToProps, mapDispatchToProps);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
-export default FilesPage;
+export default connector(FilesPage);

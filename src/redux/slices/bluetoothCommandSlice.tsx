@@ -12,7 +12,7 @@ export type CommandMap = {
     [key: string]: bluetoothCommand;
 }
 
-interface BluetoothCommandState {
+export interface BluetoothCommandState {
     isWritingMessage: boolean;
     commandQueue: CommandMap;
     commandKeys: string[];
@@ -71,8 +71,8 @@ export const bluetoothCommandSlice = createSlice({
         dequeueMessage: (state, action) => {
             return {
                 ...state,
-                commandKeys: state.commandKeys.filter(key => key != action.payload),
-                commandQueue: copyAndDelete(state.commandQueue, action.payload),
+                commandKeys: state.commandKeys.filter(key => key != action.payload.key),
+                commandQueue: copyAndDelete(state.commandQueue, action.payload.key),
             }
         },
     },

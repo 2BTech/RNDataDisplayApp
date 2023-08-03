@@ -46,7 +46,7 @@ const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
     }
 
     const renderSelectedPage = () => {
-        console.log('Rendering selected page: ', pageIndex);
+        // console.log('Rendering selected page: ', pageIndex);
         if (pageIndex == 0) {
             return (
                 <View style={styles.pageContainer}>

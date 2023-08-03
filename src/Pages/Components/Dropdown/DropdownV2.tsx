@@ -77,8 +77,6 @@ const Dropdown: FC<DropdownV2Props> = ({options, currentVal, onSelectItem, itemS
         );
     };
 
-    console.log('Selected item: ', currentVal.label);
-
     return (
         <TouchableOpacity style={dropdownStyles.container} onPress={toggleIsExpanded} ref={ref} onLayout={result => {
             const { x, y, width, height, } = result.nativeEvent.layout;

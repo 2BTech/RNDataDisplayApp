@@ -45,7 +45,7 @@ const ParameterValueCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
             <View style={styles.container}>
                 <View style={{width: '100%', height: '10%'}} />
                 <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={styles.parameterCellTitle}>{paramterName}</Text>
-                <View style={{width: '80%', height: '10%', marginLeft: '10%', borderBottomWidth: 1,}} />
+                <View style={{width: '80%', height: '5%', marginLeft: '10%', }} />
                 <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(paramterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
             </View>
         </TouchableHighlight>
@@ -173,16 +173,23 @@ const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = ({parameterNames, 
             toReturn.push(
                 <View key={'parameterRowlast'} style={styles.parameterRowContainer}>
                     <ParameterValueCell paramterName={parameterNames[parameterNames.length - 1]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                    <ParameterDateTimeCell paramterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                </View>
+            );
+
+            toReturn.push(
+                <View key={'parameterRow dt'} style={styles.parameterRowContainer}>
+                    <ParameterDateTimeCell paramterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                </View>
+            );
+        } else {
+            toReturn.push(
+                <View key={'parameterRow dt'} style={styles.parameterRowContainer}>
+                    <ParameterDateTimeCell paramterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                    <ParameterDateTimeCell paramterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
                 </View>
             );
         }
-
-        toReturn.push(
-            <View key={'parameterRow dt'} style={styles.parameterRowContainer}>
-                <ParameterDateTimeCell paramterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
-                <ParameterDateTimeCell paramterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
-            </View>
-            );
 
         return toReturn;
     }
@@ -222,17 +229,17 @@ const styles = StyleSheet.create({
         alignContent: 'center',
     },
     parameterCellTitle: {
-        fontSize: 22,
+        fontSize: 20,
         textAlign: 'center',
-        textAlignVertical: 'center',
-        height: '30%',
+        // textAlignVertical: 'center',
+        height: '33%',
         color: 'black',
     },
     parameterValueText: {
         fontSize: 25,
         textAlign: 'center',
-        textAlignVertical: 'center',
-        height: '40%',
+        // textAlignVertical: 'center',
+        height: '45%',
         width: '100%',
         color: 'black',
     },
