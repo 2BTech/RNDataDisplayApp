@@ -342,7 +342,7 @@ export const deviceDataSlice = createSlice({
                         min: getMin(val, existingBreakdown.min),
                         max: getMax(val, existingBreakdown.max),
                         exponentialMovingAverage: getExponentialMovingAverage(val, existingBreakdown.exponentialMovingAverage, 2, existingBreakdown.numberOfPoints + 1),
-                        mean: existingBreakdown.sum + val / (existingBreakdown.numberOfPoints + 1),
+                        mean: (existingBreakdown.sum + val) / (existingBreakdown.numberOfPoints + 1),
 
                         sum: existingBreakdown.sum + val,
                         numberOfPoints: existingBreakdown.numberOfPoints + 1,

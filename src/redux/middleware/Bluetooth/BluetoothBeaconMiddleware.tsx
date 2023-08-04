@@ -100,17 +100,12 @@ export function handleBeaconData(device: Peripheral) {
 
         };
 
-        Object.values(getState().deviceDataSlice.deviceData[device.id]?.data || {}).forEach(param => {
-            data[param.parameterName] = {
-                val: param.breakdown.current,
-                unt: param.parameterUnits,
-            };
-        })
-
         data[PackageConstantValueName[con]] = {
             val: value,
-            unt: ParameterDefaultUnits[con] || '',
+            unt: ParameterDefaultUnits[PackageConstantValueName[con]] || '',
         };
+
+        // console.log('Units for ', con, ' - ', PackageConstantValueName[con], ' ', ParameterDefaultUnits[PackageConstantValueName[con]]);
 
         dispatch(applyData({
             deviceKey: device.id,

@@ -54,7 +54,7 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
                 </View>
             );
         } else {
-            console.log('Selected parameter: ', parametersWithDescs[pageIndex - 1]);
+            // console.log('Selected parameter: ', parametersWithDescs[pageIndex - 1]);
             return (
                 <ScrollView style={styles.pageContainer}>
                     <ParameterView parameterName={parametersWithDescs[pageIndex - 1]} deviceKey={deviceKey} />

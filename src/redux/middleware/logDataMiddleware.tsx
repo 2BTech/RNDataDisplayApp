@@ -59,6 +59,20 @@ export function applyData(reading: DeviceReading) {
         // If a beacon device, wait for the first item in the data array to receive a second item before starting to log data
         const connType: ConnectionType = getState().deviceSlice.deviceDefinitions[reading.deviceKey].connectionType;
         if (connType == ConnectionType.Beacon) {
+
+            let data: ParameterPointMap = {
+                ...reading.data,
+            };
+
+            Object.values(getState().deviceDataSlice.deviceData[reading.deviceKey]?.data || {}).forEach(param => {
+                if (!Object.keys(data).includes(param.parameterName)) {
+                    data[param.parameterName] = {
+                        val: param.breakdown.current,
+                        unt: param.parameterUnits,
+                    };
+                }
+            })
+            
             const firstParamName = getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames[0];
             if (getState().deviceDataSlice.deviceData[reading.deviceKey].data[firstParamName].breakdown.numberOfPoints < 2) {
                 return;

@@ -33,7 +33,7 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
             case 'Files':
                 // console.log('Rendering files page');
                 return (
-                    <FilesPage deviceKey={selectedDevice.deviceKey} deviceRemoteFiles={[]} startDownloadingFile={(fileName, deviceKey) => {}} />
+                    <FilesPage deviceKey={selectedDevice.deviceKey} deviceRemoteFiles={[]} startDownloadingFile={(fileName: string, deviceKey: DeviceId) => {console.log('Start downloading ', fileName, ' from ', deviceKey)}} />
                 );
 
             case 'All Files':
