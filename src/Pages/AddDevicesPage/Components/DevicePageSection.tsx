@@ -6,11 +6,11 @@ interface DevicePageSectionProps {
     sectionName: string;
 };
 
-const DevicePageSection: FC<DevicePageSectionProps> = ({sectionName}) => {
+const DevicePageSection: FC<DevicePageSectionProps> = React.memo(({sectionName}) => {
     return (
         <Text style={styles.text}>{sectionName}</Text>
     );
-};
+});
 
 const styles = StyleSheet.create({
     // container: {

@@ -8,7 +8,7 @@ interface ToggleSettingComponentProps {
     onChangeValue: ((setting: SettingObj) => void);
 }
 
-const ToggleSettingComponent: FC<ToggleSettingComponentProps> = ({setting, level, onChangeValue}) => {
+const ToggleSettingComponent: FC<ToggleSettingComponentProps> = React.memo(({setting, level, onChangeValue}) => {
     // const [isEnabled, setIsEnabled] = useState<boolean>(true);
 
     return (
@@ -22,7 +22,7 @@ const ToggleSettingComponent: FC<ToggleSettingComponentProps> = ({setting, level
             }} value={typeof setting.currentVal == 'boolean' ? setting.currentVal : false} />
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

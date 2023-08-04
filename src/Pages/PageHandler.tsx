@@ -18,7 +18,7 @@ interface PageHandlerProps {
 
 }
 
-const PageHandler: FC<PageHandlerProps> = ({}) => {
+const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
     const deviceDefs: DeviceSliceState = useSelector((state: RootState) => state.deviceSlice);
     const [selectedDevice, setSelectedDevice] = useState<DeviceDefinition>(deviceDefs.deviceDefinitions['Default']);
     const [selectedPage, setSelectedPage] = useState<string>('Home');
@@ -38,7 +38,7 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
 
             case 'All Files':
                 return (
-                    <AllFilesPage devices={{}} startDownloadingFile={(fileName, deviceKey) => {}} />
+                    <AllFilesPage devices={{}} />
                 );
 
             case 'Devices':
@@ -125,7 +125,7 @@ const PageHandler: FC<PageHandlerProps> = ({}) => {
 
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

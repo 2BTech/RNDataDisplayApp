@@ -12,7 +12,7 @@ import BleManager, {
 import { ThunkDispatch } from "redux-thunk";
 import { RootState } from "../../redux/store";
 import { Action } from "redux";
-import { ConnectionType, clearAvailable, discoverDevice } from "../../redux/slices/deviceSlice";
+import { ConnectionType, DeviceId, clearAvailable, disconnectFromDevice, discoverDevice } from "../../redux/slices/deviceSlice";
 import { ConnectedProps, connect, } from "react-redux";
 import { handleBeaconData } from "../../redux/middleware/Bluetooth/BluetoothBeaconMiddleware";
 import { handleDirectConnectData } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
@@ -30,11 +30,11 @@ interface BluetoothProviderProps extends PropsFromRedux {
 
 }
 
-const SECONDS_TO_SCAN_FOR = 7;
+const SECONDS_TO_SCAN_FOR = 15;
 const SERVICE_UUIDS: string[] = ['6e400001-b5a3-f393-e0a9-e50e24dcca9e', '0061'];
 const ALLOW_DUPLICATES = true;
 
-const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDevice, onReceiveBeaconData, parseDirectConnectData}) => {
+const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDevice, onReceiveBeaconData, parseDirectConnectData, onDeviceDisconnect}) => {
     const [isScanning, setIsScanning] = useState<boolean>(false);
     // const [peripherals, setPeripherals] = useState(
     //     new Map<Peripheral['id'], Peripheral>(),
@@ -106,6 +106,9 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
         event: BleDisconnectPeripheralEvent,
       ) => {
         console.log('Peripheral disconnected: ', event.peripheral);
+
+        onDeviceDisconnect(event.peripheral);
+
         // let peripheral = peripherals.get(event.peripheral);
         // if (peripheral) {
         //   console.debug(
@@ -363,7 +366,11 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
 
         parseDirectConnectData: (data: BleManagerDidUpdateValueForCharacteristicEvent) => {
           dispatch(handleDirectConnectData(data));
-        }
+        },
+
+        onDeviceDisconnect: (deviceKey: DeviceId) => {
+          dispatch(disconnectFromDevice(deviceKey));
+        },
     };
 }
 

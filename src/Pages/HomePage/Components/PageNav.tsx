@@ -11,7 +11,7 @@ export interface PageNavProps {
     onRightClicked: (() => void) | undefined;
 }
 
-const PageNav: FC<PageNavProps> = ({currentIndex, numberOfPages, onLeftClicked, onRightClicked}) => {
+const PageNav: FC<PageNavProps> = React.memo(({currentIndex, numberOfPages, onLeftClicked, onRightClicked}) => {
     return (
         <View style={styles.pageNavContainer}>
             <TouchableOpacity style={styles.pageNavIcon} onPress={() => {
@@ -35,7 +35,7 @@ const PageNav: FC<PageNavProps> = ({currentIndex, numberOfPages, onLeftClicked, 
             </TouchableOpacity>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     pageNavContainer: {

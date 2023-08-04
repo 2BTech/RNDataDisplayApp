@@ -25,15 +25,15 @@ export interface DropdownV2Props {
     itemStartHeight: number;
 }
 
-const DropdownItemComponent: FC<DropdownItemComponentProps> = ({item, onSelectItem, isSelected}) => {
+const DropdownItemComponent: FC<DropdownItemComponentProps> = React.memo(({item, onSelectItem, isSelected}) => {
     return (
         <TouchableOpacity style={isSelected ? StyleSheet.compose(dropdownItemStyles.item, {backgroundColor: '#c0e6f0'}) : dropdownItemStyles.item} onPress={onSelectItem}>
             <Text style={dropdownItemStyles.dropDownText}>{item.label}</Text>
         </TouchableOpacity>
     );
-}
+});
 
-const Dropdown: FC<DropdownV2Props> = ({options, currentVal, onSelectItem, itemStartHeight}) => {
+const Dropdown: FC<DropdownV2Props> = React.memo(({options, currentVal, onSelectItem, itemStartHeight}) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [objectY, setObjY] = useState<number>(0);
 
@@ -90,7 +90,7 @@ const Dropdown: FC<DropdownV2Props> = ({options, currentVal, onSelectItem, itemS
             <FontAwesomeIcon style={dropdownStyles.icon} icon={isExpanded ? faChevronUp : faChevronDown} />
         </TouchableOpacity>
     );
-}
+});
 
 const dropdownStyles = StyleSheet.create({
     container: {

@@ -17,7 +17,7 @@ interface TreksPageProps {
     deviceKey: DeviceId;
 }
 
-const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
+const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
     const deviceDef = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey]);
     const timeData: TimeDataMap = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeData);
     const timeStamps = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps);
@@ -49,7 +49,7 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
             .catch(err => console.log('Failed to save trek: ', err));
     }
 
-    const testFunct = async () => {
+    const saveTreck = async () => {
         setBlockingPageActive(true);
         await createTrek()
         
@@ -145,7 +145,7 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
                 <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={testFunct}>Save Trek</Text>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={saveTreck}>Save Trek</Text>
                 </TouchableOpacity>
             </View>
 
@@ -156,7 +156,7 @@ const TreksPage: FC<TreksPageProps> = ({ deviceKey }) => {
                 />
         </ScrollView>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

@@ -13,7 +13,7 @@ interface HomePageProps {
     pageHeight: number;
 }
 
-const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
+const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
     const [pageIndex, setPageIndex] = useState(0);
     const parameterNames = useSelector((state: RootState) => (state.deviceDataSlice.deviceData[deviceKey] || {}).parameterNames) || [];
     
@@ -71,7 +71,7 @@ const HomePage: FC<HomePageProps> = ({deviceKey, pageHeight}) => {
             <PageNav currentIndex={pageIndex + 1} numberOfPages={parametersWithDescs.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

@@ -28,7 +28,7 @@ const stringToFileType: (fType: string) => FileTypes = (fType) => {
     return [FileTypes.LocalDataFile, FileTypes.TrekFile, FileTypes.DownloadedFile].find(typ => typ == fType) || FileTypes.LocalDataFile;
 }
 
-const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
+const AllFilesPage: FC<AllFilesPageProps> = React.memo(({devices}) => {
     const [allFiles, setAllFiles] = useState<DeviceFileTypeMap | undefined>(undefined);
     const [selectedDevice, setSelectedDevice] = useState<string | undefined>(undefined);
     const [selectedFileType, setSelectedFileType] = useState<FileTypes>(FileTypes.LocalDataFile);
@@ -151,7 +151,7 @@ const AllFilesPage: FC<AllFilesPageProps> = ({devices}) => {
             </View>
         );
     }
-}
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -187,15 +187,7 @@ const mapStateToProps = (state: RootState) => {
     };
 }
 
-const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) => {
-    return {
-        startDownloadingFile: (fileName: string, deviceKey: DeviceId) => {
-            
-        }
-    };
-}
-
-const connector = connect(mapStateToProps, mapDispatchToProps);
+const connector = connect(mapStateToProps, undefined);
 
 type PropsFromRedux = ConnectedProps<typeof connector>;
 

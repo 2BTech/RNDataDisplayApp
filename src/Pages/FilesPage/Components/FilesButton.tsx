@@ -11,7 +11,7 @@ export interface FileButtonProps {
     onDownloadClicked: undefined | (() => void);
 }
 
-const FileButton: FC<FileButtonProps> = ({fileName, onExportClicked: onSaveClicked, onDeleteClicked, onDownloadClicked}) => {
+const FileButton: FC<FileButtonProps> = React.memo(({fileName, onExportClicked: onSaveClicked, onDeleteClicked, onDownloadClicked}) => {
     const count = (onSaveClicked ? 1 : 0) + (onDeleteClicked ? 1 : 0) + (onDownloadClicked ? 1 : 0);
     const iconWidth = ((count == 3) ? '33%' : ((count == 2) ? '50%' : '100%'))
     
@@ -40,7 +40,7 @@ const FileButton: FC<FileButtonProps> = ({fileName, onExportClicked: onSaveClick
             </View>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

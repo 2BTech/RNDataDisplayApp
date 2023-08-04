@@ -5,14 +5,14 @@ interface LoadingFileButtonProps {
 
 }
 
-const LoadingFileButton: FC<LoadingFileButtonProps> = ({}) => {
+const LoadingFileButton: FC<LoadingFileButtonProps> = React.memo(({}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.fileNameText}>Loading</Text>
             <ActivityIndicator size={'large'} color={'lightblue'} />
         </View>
     );
-} 
+});
 
 const styles = StyleSheet.create({
     container: {

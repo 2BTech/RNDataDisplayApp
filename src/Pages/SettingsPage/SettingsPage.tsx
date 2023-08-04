@@ -1,7 +1,5 @@
 import React, { FC, useState, } from "react";
 import { View, StyleSheet, Text, Button, TouchableOpacity, ScrollView, } from 'react-native';
-import Accordian from "./Components/Accordian/Accordian";
-import { AccordianItemProps } from "./Components/Accordian/AccordianItem";
 import { ConnectedProps, connect, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { DeviceId } from "../../redux/slices/deviceSlice";
@@ -25,7 +23,7 @@ export type ChangedSettingsMap = {
     [key: string]: SettingObj;
 }
 
-const SettingsPage: FC<SettingsPageProps> = ({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings}) => {
+const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings}) => {
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
 
@@ -86,25 +84,6 @@ const SettingsPage: FC<SettingsPageProps> = ({deviceKey, applyUpdatedSettings, w
             updatedCol.push(temp);
         }
         return updatedCol;
-
-
-
-
-
-
-
-
-
-        // for (let i = 0; i < col.length; i++) {
-        //     if (col[i].description == updated.description) {
-        //         console.log('Updating setting: ', col[i].description, ' - ', col[i].currentVal, ' -> ', updated.currentVal);
-        //         col[i] = updated;
-        //         return col;
-        //     } else {
-        //         col[i].items = updateEntry(col[i].items, updated);
-        //     }
-        // }
-        // return col;
     }
 
     const onSaveClicked: (() => void) = () => {
@@ -115,31 +94,6 @@ const SettingsPage: FC<SettingsPageProps> = ({deviceKey, applyUpdatedSettings, w
         let updatedSettings = Object.values(changedSettings);
         console.log('Updated settings: ', updatedSettings.map(set => set.description));
         settings = updateEntry(settings, updatedSettings);
-
-        // for (let i = 0; i < updatedSettings.length; i++) {
-        //     settings = updateEntry(settings, updatedSettings);
-
-        //     // if (updateEntry(settings, updatedSettings[i])) {
-        //     //     console.log('Updated setting: ', updatedSettings[i]);
-        //     // } else {
-        //     //     console.log('Failed to update setting: ', updatedSettings[i]);
-        //     // }
-        // }
-        // console.dir(settings, {depth: null});
-        
-
-        // let mergedSettings: SettingObj[] = deviceSettings.map(set => {
-        //     if (changedSettings[set.description]) {
-        //         console.log('Applying change for ', set.description);
-        //         return changedSettings[set.description];
-        //     } else if (set.items) {
-
-        //     } else {
-        //         return set;
-        //     }
-
-        //     // return changedSettings[set.description] || set;
-        // });
 
         applyUpdatedSettings(settings, deviceKey);
         writeUpdatedSettings(settings, deviceKey);
@@ -189,7 +143,7 @@ const SettingsPage: FC<SettingsPageProps> = ({deviceKey, applyUpdatedSettings, w
                 </View>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

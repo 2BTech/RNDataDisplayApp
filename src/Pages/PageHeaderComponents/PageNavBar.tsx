@@ -15,7 +15,7 @@ interface PageNavBarProps {
     onSelectNewPage: ((name: string) => void);
 };
 
-const PageNavBar: FC<PageNavBarProps> = ({buttons, onSelectNewPage, selectedPage}) => {
+const PageNavBar: FC<PageNavBarProps> = React.memo(({buttons, onSelectNewPage, selectedPage}) => {
     const buttonWidth: `${number}%` = `${((1.0 / buttons.length) * 100)}%`;
     // console.log('Rendering nav bar v2: ', Object.keys(props.buttons), ' Button width: ', buttonWidth);
 
@@ -39,7 +39,7 @@ const PageNavBar: FC<PageNavBarProps> = ({buttons, onSelectNewPage, selectedPage
             }
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

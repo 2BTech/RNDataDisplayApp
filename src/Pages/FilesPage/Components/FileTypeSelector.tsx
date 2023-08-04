@@ -9,7 +9,7 @@ interface FileTypeSelectorProps {
     onSelectFileType: ((selectedType: FileTypes) => void)
 }
 
-const FileTypeSelector: FC<FileTypeSelectorProps> = ({availableFileTypes, selectedFileType, onSelectFileType}) => {
+const FileTypeSelector: FC<FileTypeSelectorProps> = React.memo(({availableFileTypes, selectedFileType, onSelectFileType}) => {
     let buttonWidth: DimensionValue = `${((1 / availableFileTypes.length) * 100)}%`;
     return (
         <View style={styles.container}>
@@ -27,7 +27,7 @@ const FileTypeSelector: FC<FileTypeSelectorProps> = ({availableFileTypes, select
             }
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     },
 
     buttonContainer: {
-        height: 50,
+        // height: 50,
         borderLeftWidth: 1,
         borderBottomWidth: 1,
 

@@ -18,7 +18,7 @@ interface FilesPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
 }
 
-const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownloadingFile, downloadState}) => {
+const FilesPage: FC<FilesPageProps> = React.memo(({deviceKey, deviceRemoteFiles, startDownloadingFile, downloadState}) => {
     const deviceName: DeviceId = useSelector((state: RootState) => (state.deviceSlice.deviceDefinitions[deviceKey].deviceName));
     const isBeacon: boolean = useSelector((state: RootState) => (state.deviceSlice.deviceDefinitions[deviceKey].connectionType == ConnectionType.Beacon));
 
@@ -195,7 +195,7 @@ const FilesPage: FC<FilesPageProps> = ({deviceKey, deviceRemoteFiles, startDownl
             }
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

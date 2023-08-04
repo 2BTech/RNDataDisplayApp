@@ -15,7 +15,7 @@ interface DeviceCardProps {
     isLast: boolean;
 }
 
-const DeviceCard: FC<DeviceCardProps> = ({deviceName, isConnected, cardFunct, connectionType, isEven, isFirst, isLast}) => {
+const DeviceCard: FC<DeviceCardProps> = React.memo(({deviceName, isConnected, cardFunct, connectionType, isEven, isFirst, isLast}) => {
     return (
         <View style={StyleSheet.compose(styles.container, {backgroundColor: isEven ? 'lightblue' : 'lightgray', borderTopRightRadius: isFirst ? 20 : 0, borderTopLeftRadius: isFirst ? 20 : 0})}>
             <View style={styles.rowContainer}>
@@ -38,7 +38,7 @@ const DeviceCard: FC<DeviceCardProps> = ({deviceName, isConnected, cardFunct, co
             </TouchableOpacity>
         </View>
     );
-}
+})
 
 const styles = StyleSheet.create({
     container: {

@@ -13,7 +13,7 @@ interface PageHeaderProps {
     selectDeviceFunction: ((selected: DropdownItem) => void);
 }
 
-const PageHeader: FC<PageHeaderProps> = ({availableDevices, selectedDevice, infoFunction, selectDeviceFunction}) => {
+const PageHeader: FC<PageHeaderProps> = React.memo(({availableDevices, selectedDevice, infoFunction, selectDeviceFunction}) => {
     const deviceOptions: Array<DropdownItem> = availableDevices.map((device: DeviceDefinition) => {
         const t: DropdownItem = {
             label: device.deviceName,
@@ -42,7 +42,7 @@ const PageHeader: FC<PageHeaderProps> = ({availableDevices, selectedDevice, info
             </TouchableOpacity>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

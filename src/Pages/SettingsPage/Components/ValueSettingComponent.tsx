@@ -8,14 +8,14 @@ interface ValueSettingComponentProps {
     onChangeValue: ((setting: SettingObj) => void);
 }
 
-const ValueSettingComponent: FC<ValueSettingComponentProps> = ({setting, level, onChangeValue, }) => {
+const ValueSettingComponent: FC<ValueSettingComponentProps> = React.memo(({setting, level, onChangeValue, }) => {
     return (
         <View style={StyleSheet.compose(styles.container, {marginLeft: level * 10})}>
             <Text style={styles.descriptionText}>{setting.description}</Text>
             <Text style={styles.valueText}>{setting.currentVal}</Text>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

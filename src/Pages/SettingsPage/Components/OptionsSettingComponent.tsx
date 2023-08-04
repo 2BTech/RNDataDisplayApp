@@ -1,7 +1,7 @@
-import { FC } from "react";
+import React, { FC } from "react";
 import { SettingObj } from "../../../redux/slices/deviceSettingsSlice";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
-import Dropdown from "../../Components/Dropdown/Dropdown";
+import Dropdown from "../../Components/Dropdown/DropdownV2";
 
 interface OptionsSettingComponentProps {
     setting: SettingObj;
@@ -9,20 +9,21 @@ interface OptionsSettingComponentProps {
     onChangeValue: ((setting: SettingObj) => void);
 }
 
-const OptionsSettingComponent: FC<OptionsSettingComponentProps> = ({setting, level, onChangeValue}) => {
+const OptionsSettingComponent: FC<OptionsSettingComponentProps> = React.memo(({setting, level, onChangeValue}) => {
     return (
         <View style={StyleSheet.compose(styles.container, {marginLeft: level * 10})}>
             <Text style={styles.descriptionText}>{setting.description}</Text>
             <View style={styles.dropdownContainer}>
             <Dropdown
-                    defaultLabel={setting.description}
-                    data={[]}
-                    onSelect={() => console.log('Selected')}
+                    currentVal={{label: setting.description, value: setting.description}}
+                    onSelectItem={(val) => console.log('Selected: ', val)}
+                    options={[]}
+                    itemStartHeight={0}
                 />
             </View>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

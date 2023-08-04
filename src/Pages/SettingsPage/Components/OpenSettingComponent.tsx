@@ -9,7 +9,7 @@ interface OpenSettingsProps {
     onChangeValue: ((setting: SettingObj) => void);
 }
 
-const OpenSettingComponent: FC<OpenSettingsProps> = ({setting, level, onChangeValue}) => {
+const OpenSettingComponent: FC<OpenSettingsProps> = React.memo(({setting, level, onChangeValue}) => {
     const onChangeText = (text: string) => {
         console.log('Setting text to ', text);
 
@@ -40,7 +40,7 @@ const OpenSettingComponent: FC<OpenSettingsProps> = ({setting, level, onChangeVa
             <TextInput style={styles.input} onEndEditing={event => onChangeText(event.nativeEvent.text)} defaultValue={'' + setting.currentVal} />
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

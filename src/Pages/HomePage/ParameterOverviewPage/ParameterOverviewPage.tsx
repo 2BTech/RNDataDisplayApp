@@ -30,15 +30,15 @@ interface CellSizeObj {
     height: number;
 }
 
-const LoadingCell: FC = ({}) => {
+const LoadingCell: FC = React.memo(({}) => {
     return (
         <View style={styles.parameterCellContainer}>
             <ActivityIndicator size={'large'} color={'lightblue'} />
         </View>
     );
-}
+});
 
-const ParameterValueCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, onPressParameter, cellHeight}) => {
+const ParameterValueCell: FC<ParamaterCellProps> = React.memo(({paramterName, deviceKey, onPressParameter, cellHeight}) => {
     const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[paramterName]);
     return (
         <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
@@ -50,9 +50,9 @@ const ParameterValueCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
             </View>
         </TouchableHighlight>
     );
-}
+})
 
-const ParameterDateTimeCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, onPressParameter, cellHeight}) => {
+const ParameterDateTimeCell: FC<ParamaterCellProps> = React.memo(({paramterName, deviceKey, onPressParameter, cellHeight}) => {
     const timeStamps: number[] = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps);
 
     const lastTime = moment(timeStamps.length > 0 ? new Date(timeStamps[timeStamps.length - 1]) : new Date())
@@ -67,9 +67,9 @@ const ParameterDateTimeCell: FC<ParamaterCellProps> = ({paramterName, deviceKey,
             </View>
         </TouchableHighlight>
     );
-}
+});
 
-const ParameterGraphCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, onPressParameter, cellHeight}) => {
+const ParameterGraphCell: FC<ParamaterCellProps> = React.memo(({paramterName, deviceKey, onPressParameter, cellHeight}) => {
     const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[paramterName]);
 
     const data = {
@@ -124,9 +124,9 @@ const ParameterGraphCell: FC<ParamaterCellProps> = ({paramterName, deviceKey, on
             </View>
         </TouchableHighlight>
     );
-};
+});
 
-const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = ({parameterNames, deviceKey, onPressParameter, pageHeight}) => {
+const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = React.memo(({parameterNames, deviceKey, onPressParameter, pageHeight}) => {
 
     const cellHeight = pageHeight / 3;
 
@@ -201,7 +201,7 @@ const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = ({parameterNames, 
             }
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

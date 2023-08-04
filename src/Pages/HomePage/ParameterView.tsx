@@ -23,7 +23,7 @@ interface ParameterSectionComponent {
     toggleIsExpanded: (() => void);
 }
 
-const ParameterSection: FC<ParameterSectionComponent> = ({sectionName, sectionContent, isExpanded, toggleIsExpanded}) => {
+const ParameterSection: FC<ParameterSectionComponent> = React.memo(({sectionName, sectionContent, isExpanded, toggleIsExpanded}) => {
     // const [isExpanded, setIsExpanded] = useState(true);
 
     // const toggleIsExpaned = () => {
@@ -45,7 +45,7 @@ const ParameterSection: FC<ParameterSectionComponent> = ({sectionName, sectionCo
             }
         </View>
     );
-}
+});
 
 const breakdownKeyToDisplay: (key: keyof ParameterBreakdownObj) => string = (key) => {
     switch (key) {

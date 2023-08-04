@@ -6,14 +6,14 @@ interface ValueSettingProps {
     value: number | string;
 }
 
-const ValueSetting: FC<ValueSettingProps> = ({description, value}) => {
+const ValueSetting: FC<ValueSettingProps> = React.memo(({description, value}) => {
     return (
         <View style={styles.container}>
             <Text style={styles.descriptionText}>{description}: </Text>
             <Text style={styles.valueText}>{value}</Text>
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {

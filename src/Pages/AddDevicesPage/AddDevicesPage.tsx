@@ -14,7 +14,7 @@ interface AddDevicesPageProps extends PropsFromRedux {
 
 };
 
-const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon, disconnectFromDirect}) => {
+const AddDevicesPage: FC<AddDevicesPageProps> = React.memo(({connectToDirectCon, disconnectFromDirect}) => {
     const deviceDefs: DeviceDefinitionMap = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions);
     const available = useSelector((state: RootState) => state.deviceSlice.availableDevices);
     const connected = useSelector((state: RootState) => state.deviceSlice.connectedDevices);
@@ -88,7 +88,7 @@ const AddDevicesPage: FC<AddDevicesPageProps> = ({connectToDirectCon, disconnect
 
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {

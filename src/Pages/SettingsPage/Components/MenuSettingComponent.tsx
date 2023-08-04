@@ -21,7 +21,7 @@ interface MenuSettingsProps {
     changedSettings: ChangedSettingsMap;
 }
 
-const MenuSettingsComponent: FC<MenuSettingsProps> = ({setting, level, onChangeValue, expandedMap, updateExpandedMap, changedSettings}) => {
+const MenuSettingsComponent: FC<MenuSettingsProps> = React.memo(({setting, level, onChangeValue, expandedMap, updateExpandedMap, changedSettings}) => {
 
     const isExpanded: boolean = expandedMap[setting.description];
 
@@ -62,7 +62,7 @@ const MenuSettingsComponent: FC<MenuSettingsProps> = ({setting, level, onChangeV
             }
         </View>
     );
-}
+});
 
 const styles = StyleSheet.create({
     container: {
