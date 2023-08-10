@@ -23,7 +23,7 @@ const InfoComponent: FC<InfoComponentProps> = React.memo(({finishCallback,}) => 
         switch (pageIndex) {
             case 0:
                 return (
-                    <WelcomePage />
+                    <WelcomePage jumpToPage={setPageIndex} />
                 );
 
             case 1:

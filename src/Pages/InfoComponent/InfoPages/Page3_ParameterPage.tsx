@@ -14,7 +14,7 @@ const ParameterViewDescription: FC<ParameterViewDescriptionProps> = React.memo((
         <View style={{width: '90%', marginHorizontal: '5%'}}>
             <View style={{height: '15%'}}>
                 <View style={{height: seperatorHeight}} />
-                <Text style={styles.titleText}>Paramter View Page</Text>
+                <Text style={styles.titleText}>Parameter Page</Text>
                 <View style={{height: seperatorHeight / 4}} />
             </View>
 
@@ -29,7 +29,7 @@ const ParameterViewDescription: FC<ParameterViewDescriptionProps> = React.memo((
                     </View>
 
                     <View style={{height: seperatorHeight}} />
-                    <Text style={styles.contentText}>The breakdown section provides numbers the help describe the data recevied from the device. The break down consists of 5 fields: Current, Min, Max, Mean, Moving Avg. The Current field displays the most recent measurement for the selected parameter. The Min and Max fields provide the bounds for the measuremnts receved from the device. The Mean field shows the average accross all of the readings. The Moving Avg field gived a weighted average where the most recent measurement have a stronger effect on the avg.</Text>
+                    <Text style={styles.contentText}>The breakdown section provides a collection of data to help describe the received data. The break down consists of 5 fields: Current, Min, Max, Mean, Moving Avg. The Current field displays the most recent measurement for the selected parameter. The Min and Max fields provide the bounds for the measuremnts receved from the device. The Mean field shows the average accross all of the readings. The Moving Avg field gived a weighted average where the most recent measurement have a stronger effect on the avg.</Text>
                     <View style={{height: seperatorHeight / 2}} />
 
                     <View style={{flex: 1, width: '100%', alignItems: 'center',}}>

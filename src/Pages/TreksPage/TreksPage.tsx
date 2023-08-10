@@ -1,5 +1,5 @@
 import React, { FC, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View, Button, TouchableOpacity, } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View, Button, TouchableOpacity, Modal, Image, } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { useSelector } from "react-redux";
 import { DeviceId } from "../../redux/slices/deviceSlice";
@@ -49,18 +49,21 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
             .catch(err => console.log('Failed to save trek: ', err));
     }
 
+    const setBlocking = async () => {
+        await setBlockingPageActive(true);
+    }
+    const clearBlocking = async () => {
+        setBlockingPageActive(false);
+    }
+
     const saveTreck = async () => {
-        setBlockingPageActive(true);
         await createTrek()
         
         alert('Finished saving trek');
-
-        setBlockingPageActive(false)
     }
 
     const createTrek = async () => {
         console.log('Creating trek: ', fileName);
-        setBlockingPageActive(true);
 
         const devData: DeviceDataObj = store.getState().deviceDataSlice.deviceData[deviceKey];
         const timeStamps: number[] = devData.timeStamps.filter(time => time >= startTime && time <= endTime);
@@ -98,19 +101,30 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
             content += cont.join('\n');
 
             AddPointToKML(kmlDoc, timeStamp.format('HH:mm:ss'), content, devData.timeData[time].gpsCoords);
-
-            setBlockingPageActive(false);
         });
 
         await saveTrek(kmlDoc);
 
-        setBlockingPageActive(false);
-
         console.log('Finished saving trek');
+    }
+
+    const renderDownloadProgressView = () => {
+        return (
+            <Modal visible={blockingPageActive} transparent animationType="none">
+                <View style={styles.overlay}>
+                    <Text style={styles.downloadTitle}>Creating Trek: {fileName}</Text>
+                    <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
+                </View>
+            </Modal>
+        );
     }
 
     return (
         <ScrollView style={styles.container}>
+            {
+                renderDownloadProgressView()
+            }
+
             {/* File Name Input */}
             <View style={styles.sectionContainer}>
                 <Text style={styles.sectionLabelText}>File Name</Text>
@@ -145,15 +159,19 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
                 <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={saveTreck}>Save Trek</Text>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={async () => {
+                        await setBlocking();
+                        await saveTreck();
+                        await clearBlocking();
+                    }}>Save Trek</Text>
                 </TouchableOpacity>
             </View>
 
-            <Spinner 
+            {/* <Spinner
                 visible={blockingPageActive}
                 textContent={'Creating and saving trek'}
                 textStyle={styles.spinnerTextStyle}
-                />
+                /> */}
         </ScrollView>
     );
 });
@@ -176,6 +194,7 @@ const styles = StyleSheet.create({
 
     sectionLabelText: {
         color: 'black',
+        fontSize: 18,
     },
 
     input: {
@@ -231,6 +250,33 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         color: 'white',
+    },
+
+
+    overlay: {
+        flex: 1,
+        position: 'absolute',
+        left: '5%',
+        top: '5%',
+        // opacity: 0.5,
+        backgroundColor: '#CCFFFF',
+        width: '90%',
+        height: '90%',
+
+        alignItems: 'center',
+        justifyContent: 'center',
+
+        borderWidth: 2,
+    },
+    downloadTitle: {
+        color: 'black',
+        fontSize: 25,
+        textAlign: 'center',
+    },
+    progressText: {
+        color: 'black',
+        fontSize: 20,
+        textAlign: 'center',
     },
 });
 
