@@ -16,6 +16,12 @@ const LocationProvider: FC<LocationProviderProps> = ({updateCoords}) => {
 
     useEffect(() => {
         initLocationManager();
+
+        return () => {
+          if (typeof watchId == "number") {
+            Geolocation.clearWatch(watchId);
+          }
+        }
     }, []);
 
     // Initialize the location manager to start collection the location on an interval

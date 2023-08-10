@@ -9,7 +9,7 @@ import Dropdown, { DropdownItem } from "../Components/Dropdown/DropdownV2";
 interface PageHeaderProps {
     availableDevices: Array<DeviceDefinition>;
     selectedDevice: DropdownItem;
-    infoFunction: undefined | (() => void);
+    infoFunction: () => void;
     selectDeviceFunction: ((selected: DropdownItem) => void);
 }
 
@@ -24,7 +24,7 @@ const PageHeader: FC<PageHeaderProps> = React.memo(({availableDevices, selectedD
 
     return (
         <View style={styles.container}>
-            <View style={{width: '80%', height: '100%'}}>
+            <View style={{width: '100%', height: '100%'}}>
                 <Dropdown 
                     currentVal={selectedDevice} 
                     options={availableDevices.map(dev => {
@@ -37,9 +37,9 @@ const PageHeader: FC<PageHeaderProps> = React.memo(({availableDevices, selectedD
                     itemStartHeight={0}
                     />
             </View>
-            <TouchableOpacity style={styles.iconContainer} onPress={infoFunction ? infoFunction : () => {}}>
+            {/* <TouchableOpacity style={styles.iconContainer} onPress={infoFunction}>
                 <FontAwesomeIcon icon={faQuestion} color='white' size={30} />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
         </View>
     );
 });

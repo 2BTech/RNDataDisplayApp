@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
         // flex: 1,
         flexDirection: 'row',
         width: '100%',
-        height: '10%',
+        height: '100%',
         borderTopWidth: 1,
 
         justifyContent: 'space-between',

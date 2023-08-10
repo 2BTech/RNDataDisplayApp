@@ -71,7 +71,7 @@ export function applyData(reading: DeviceReading) {
                         unt: param.parameterUnits,
                     };
                 }
-            })
+            });
             
             const firstParamName = getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames[0];
             if (getState().deviceDataSlice.deviceData[reading.deviceKey].data[firstParamName].breakdown.numberOfPoints < 2) {

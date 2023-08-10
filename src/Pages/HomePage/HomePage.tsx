@@ -68,7 +68,9 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
             {
                 renderSelectedPage()
             }
-            <PageNav currentIndex={pageIndex + 1} numberOfPages={parametersWithDescs.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
+            <View style={{height: '10%'}}>
+                <PageNav currentIndex={pageIndex + 1} numberOfPages={parametersWithDescs.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
+            </View>
         </View>
     );
 });

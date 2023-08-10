@@ -11,8 +11,10 @@ import FilesPage from "./FilesPage/FilesPage";
 import TreksPage from "./TreksPage/TreksPage";
 import SettingsPage from "./SettingsPage/SettingsPage";
 import AllFilesPage from "./AllFilesPage/AllFilesPage";
-import { faHome, faFolder, faGears, faMap, faFolderOpen, faPlus, } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faFolder, faGears, faMap, faFolderOpen, faPlus, faInfo, } from "@fortawesome/free-solid-svg-icons";
 import { DropdownItem } from "./Components/Dropdown/DropdownV2";
+import InfoComponent from "./InfoComponent/InfoComponent";
+import AboutPage from "./AboutPage/AboutPage";
 
 interface PageHandlerProps {
 
@@ -22,6 +24,8 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
     const deviceDefs: DeviceSliceState = useSelector((state: RootState) => state.deviceSlice);
     const [selectedDevice, setSelectedDevice] = useState<DeviceDefinition>(deviceDefs.deviceDefinitions['Default']);
     const [selectedPage, setSelectedPage] = useState<string>('Home');
+
+    const [displayHelp, setDisplayHelp] = useState<boolean>(false);
 
     const renderSelectedPage = (pageName: string) => {
         switch (pageName) {
@@ -56,12 +60,17 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
                     <SettingsPage deviceKey={selectedDevice.deviceKey} />
                 );
 
+            case 'About':
+                return (
+                    <AboutPage openTutorial={() => setDisplayHelp(true)}/>
+                );
+
             default:
                 return (
                     <View style={styles.container}>
                         <Text>Unhandled page type: {pageName}</Text>
                     </View>
-                )
+                );
         }
     }
 
@@ -99,16 +108,31 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
         icon: faPlus,
     });
 
+    navButtons.push({
+        title: 'About',
+        icon: faInfo
+    });
+
     const updateSelectedDevice: (selected: DropdownItem) => void = (selected) => {
         setSelectedDevice(Object.values(deviceDefs.deviceDefinitions).find(dev => dev.deviceKey == selected.value) || deviceDefs.deviceDefinitions['Default']);
+    }
+
+    const handleQuestion = () => {
+        console.log('Starting handle question');
+        setDisplayHelp(true);
     }
 
     return (
         <View style={styles.container}>
 
+            {/* Info component */}
+            {
+                displayHelp && <InfoComponent finishCallback={() => {setDisplayHelp(false)}}/>
+            }
+
             {/* Header */}
             <View style={styles.headerContainer}>
-                <PageHeader selectedDevice={{label: selectedDevice.deviceName, value: selectedDevice.deviceKey}} availableDevices={deviceDefs.connectedDevices.map(deviceKey => deviceDefs.deviceDefinitions[deviceKey])} selectDeviceFunction={updateSelectedDevice} infoFunction={undefined} />
+                <PageHeader selectedDevice={{label: selectedDevice.deviceName, value: selectedDevice.deviceKey}} availableDevices={deviceDefs.connectedDevices.map(deviceKey => deviceDefs.deviceDefinitions[deviceKey])} selectDeviceFunction={updateSelectedDevice} infoFunction={handleQuestion} />
             </View>
 
             {/* Content */}
