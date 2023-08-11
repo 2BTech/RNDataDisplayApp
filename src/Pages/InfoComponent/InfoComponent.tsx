@@ -9,7 +9,6 @@ import AddDevicesDescription from './InfoPages/Page5_AddDevicesPage';
 import SettingsDescription from './InfoPages/Page6_Settings';
 import TreksDescriptionPage from './InfoPages/Page7_TreksPage';
 import EndPage from './InfoPages/Page8_EndPage';
-// import Image from 'react-native-scalable-image';
 
 interface InfoComponentProps {
     finishCallback: () => void;

@@ -1,6 +1,6 @@
 import React, { FC, } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions, } from 'react-native';
-import Image from 'react-native-scalable-image';
+import Image from '../../Components/react-native-scalable-image';
 
 interface AddDevicesDescriptionProps {
 
