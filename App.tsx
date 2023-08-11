@@ -8,6 +8,7 @@ import DeviceTester from "./src/Testing/Devices/DeviceTesting";
 import LocationProvider from "./src/Providers/LocationProvider";
 import BluetoothProvider from "./src/Providers/Bluetooth/BluetoothProvider";
 import AsyncStorage, { useAsyncStorage, } from '@react-native-async-storage/async-storage';
+import InfoComponent from "./src/Pages/InfoComponent/InfoComponent";
 
 interface AppProps {
 
@@ -18,15 +19,28 @@ const App: FC<AppProps> = ({}) => {
   const [isFirstStart, setIsFirstStart] = useState<boolean>(false);
 
   const readItemFromStorage = async () => {
-    const item = await getItem();
+    const item: (string | null) = await getItem();
     
-    if (item == "null") {
+    console.log('Is the first launch: ', item);
+    if (item == "null" || item == null) {
       console.log('Is the first launch');
       setItem('0');
       setIsFirstStart(true);
     } else {
       console.log('Is not the fist launch. Number of launches: ', String(Number(item) + 1));
       setItem(String(Number(item) + 1));
+    }
+  }
+
+  const renderTutorial = () => {
+    if (isFirstStart) {
+      return (
+        <InfoComponent finishCallback={() => setIsFirstStart(false)} />
+      );
+    } else {
+      return (
+        <></>
+      )
     }
   }
 
@@ -37,6 +51,9 @@ const App: FC<AppProps> = ({}) => {
   return (
     <Provider store={store}>
       {/* <DeviceTester /> */}
+      {
+        renderTutorial()
+      }
       <LocationProvider />
       <BluetoothProvider />
       <SafeAreaProvider style={{backgroundColor: 'white',}}>

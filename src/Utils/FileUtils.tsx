@@ -29,7 +29,7 @@ export type FileSectionFilesMap = {
 }
 
 export const FileDirs = {
-    [FileTypes.DownloadedFile]: 'Downloaded',
+    [FileTypes.DownloadedFile]: 'Download',
     [FileTypes.LocalDataFile]: 'Local',
     [FileTypes.TrekFile]: 'Trek',
 }

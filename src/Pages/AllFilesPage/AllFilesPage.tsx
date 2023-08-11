@@ -25,6 +25,10 @@ export type DeviceFileTypeMap = {
 }
 
 const stringToFileType: (fType: string) => FileTypes = (fType) => {
+    if ([FileTypes.LocalDataFile, FileTypes.TrekFile, FileTypes.DownloadedFile].find(typ => typ == fType) == undefined) {
+        console.log('Failed to find: ', fType);
+    }
+
     return [FileTypes.LocalDataFile, FileTypes.TrekFile, FileTypes.DownloadedFile].find(typ => typ == fType) || FileTypes.LocalDataFile;
 }
 
