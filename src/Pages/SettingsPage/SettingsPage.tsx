@@ -1,5 +1,5 @@
-import React, { FC, useState, } from "react";
-import { View, StyleSheet, Text, Button, TouchableOpacity, ScrollView, } from 'react-native';
+import React, { FC, useState, useEffect, } from "react";
+import { View, StyleSheet, Text, Modal, TouchableOpacity, ScrollView, Image, } from 'react-native';
 import { ConnectedProps, connect, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { DeviceId } from "../../redux/slices/deviceSlice";
@@ -13,7 +13,8 @@ import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
 import { bluetoothCommand, getUniqueKeyForCommand, queueMessageForWrite } from "../../redux/slices/bluetoothCommandSlice";
 import { bluetoothWriteCommand } from "../../redux/middleware/Bluetooth/BluetoothWriteCommandMiddleware";
-import { BuildChangeSettingsCommand } from "../../Utils/Bluetooth/BluetoothCommandUtils";
+import { BuildChangeSettingsCommand, BuildFirmwareUploadMessage, requestSettingsCommand } from "../../Utils/Bluetooth/BluetoothCommandUtils";
+import ButtonSettingComponent from "./Components/ButtonSettingsComponent";
 
 interface SettingsPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
@@ -23,9 +24,46 @@ export type ChangedSettingsMap = {
     [key: string]: SettingObj;
 }
 
-const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings}) => {
+const fetchFirmwareSize = async (deviceName:string) => {
+    try {
+        console.log('https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName);
+        let response = await fetch(
+            'https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName,
+        );
+        let responseJson = await response.json();
+        const numSections = Math.ceil(Number(responseJson) / 50000);
+        console.log('Firmware size for ', deviceName, ': ', responseJson, ' -> ', numSections);
+        return numSections;
+    } catch (err) {
+        console.log('Fetch firmware size error: ', err);
+        return -1;
+    }
+}
+
+const fetchFirmware = async (deviceName:string, numSections: number) => {
+    console.log('Fetching firmware for ', deviceName, '. Num Sections: ', numSections);
+    let firmware: string[] = [];
+    for (let i = 0; i < numSections; i++) {
+        let response = await fetch(
+            'https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i
+        );
+
+        const text = await response.text();
+        firmware.push(text);
+
+        // console.log('https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i);
+        // console.log(text);
+    }
+    console.log('Finished grabbing firmware: ', firmware);
+
+    return firmware;
+}
+
+const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, createFirmwareMessage}) => {
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
+    const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
+    const [downloadingFirmware, setDownloadingFirmware] = useState<boolean>(false);
 
     let defaultExpandedMap:{[key: string]: boolean} = {
 
@@ -43,6 +81,12 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
             [setting.description]: setting,
         });
     }
+
+    useEffect(() => {
+        if (deviceSettings.length <= 1) {
+            querySettings(deviceKey);
+        }
+    }, [deviceSettings]);
 
     // console.log('Settings for ', deviceKey, ': ', deviceSettings);
 
@@ -109,8 +153,22 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
         updateChangedSettings({});
     }
 
+    const renderDownloadProgressView = () => {
+        return (
+            <Modal visible={downloadingFirmware} transparent animationType="none">
+                <View style={styles.overlay}>
+                    <Text style={styles.downloadTitle}>Downloading Firmware</Text>
+                    <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
+                </View>
+            </Modal>
+        );
+    }
+
     return (
         <View style={styles.container}>
+            {
+                renderDownloadProgressView()
+            }
             <ScrollView>
                 {
                     deviceSettings.map(setting => {
@@ -129,6 +187,18 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
                             case 'menu':
                                 return <MenuSettingsComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} expandedMap={expandedMap} updateExpandedMap={updateExpandedMap} changedSettings={changedSettings} />
+
+                            case 'button':
+                                return <ButtonSettingComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} onPress={() => {
+                                    setDownloadingFirmware(true);
+                                    fetchFirmwareSize(deviceID)
+                                        .then(numSections => fetchFirmware(deviceID, numSections))
+                                        .then(chunked => chunked.forEach((chunk, index) => {
+                                            createFirmwareMessage(deviceID, chunk, index, chunked.length);
+                                        }))
+                                        .then(_ => setDownloadingFirmware(false))
+                                    }}
+                                        />
                         }
                     })
                 }
@@ -211,11 +281,48 @@ const styles = StyleSheet.create({
         marginRight: 10, 
         borderRadius: 10,
     },
+
+
+
+    overlay: {
+        flex: 1,
+        position: 'absolute',
+        left: '5%',
+        top: '5%',
+        // opacity: 0.5,
+        backgroundColor: '#CCFFFF',
+        width: '90%',
+        height: '90%',
+
+        alignItems: 'center',
+        justifyContent: 'center',
+
+        borderWidth: 2,
+    },
+    downloadTitle: {
+        color: 'black',
+        fontSize: 25,
+        textAlign: 'center',
+    },
+    progressText: {
+        color: 'black',
+        fontSize: 20,
+        textAlign: 'center',
+    },
 })
 
 const mapStateToProps = (state: RootState, ownProps: any) => {
+    let sets = state.deviceSettingsSlice[ownProps.deviceKey] || [];
     return {
-        deviceSettings: state.deviceSettingsSlice[ownProps.deviceKey] || [],
+        deviceSettings: [...sets, {
+            currentVal: '',
+            description: 'Firmware Update',
+            id: 'Firmware Update',
+            isDevice: false,
+            items: [],
+            type: 'button',
+            valueType: '',
+        }],
     }
 }
 
@@ -236,6 +343,22 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
                 key: getUniqueKeyForCommand(),
             }));
         },
+
+        querySettings: (deviceKey: DeviceId) => {
+            dispatch(bluetoothWriteCommand({
+                deviceKey,
+                command: requestSettingsCommand,
+                key: getUniqueKeyForCommand(),
+            }))
+        },
+
+        createFirmwareMessage: (deviceKey: DeviceId, data: string, index: number, numParts: number) => {
+            dispatch(bluetoothWriteCommand({
+                deviceKey,
+                command: BuildFirmwareUploadMessage(data, index, numParts),
+                key: getUniqueKeyForCommand(),
+            }))
+        }
     }
 }
 
