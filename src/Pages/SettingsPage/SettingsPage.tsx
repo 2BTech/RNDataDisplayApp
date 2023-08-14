@@ -11,8 +11,8 @@ import MenuSettingsComponent from "./Components/MenuSettingComponent";
 import ValueSettingComponent from "./Components/ValueSettingComponent";
 import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
-import { bluetoothCommand, getUniqueKeyForCommand, queueMessageForWrite } from "../../redux/slices/bluetoothCommandSlice";
-import { bluetoothWriteCommand } from "../../redux/middleware/Bluetooth/BluetoothWriteCommandMiddleware";
+import { bluetoothCommand, getUniqueKeyForCommand, queueMessageForWrite, queueMultipleMessagesForWrite } from "../../redux/slices/bluetoothCommandSlice";
+import { bluetoothWriteCommand, bluetoothWriteMultipleCommands } from "../../redux/middleware/Bluetooth/BluetoothWriteCommandMiddleware";
 import { BuildChangeSettingsCommand, BuildFirmwareUploadMessage, requestSettingsCommand } from "../../Utils/Bluetooth/BluetoothCommandUtils";
 import ButtonSettingComponent from "./Components/ButtonSettingsComponent";
 
@@ -26,13 +26,13 @@ export type ChangedSettingsMap = {
 
 const fetchFirmwareSize = async (deviceName:string) => {
     try {
-        console.log('https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName);
+        // console.log('https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName);
         let response = await fetch(
             'https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName,
         );
         let responseJson = await response.json();
         const numSections = Math.ceil(Number(responseJson) / 50000);
-        console.log('Firmware size for ', deviceName, ': ', responseJson, ' -> ', numSections);
+        // console.log('Firmware size for ', deviceName, ': ', responseJson, ' -> ', numSections);
         return numSections;
     } catch (err) {
         console.log('Fetch firmware size error: ', err);
@@ -41,7 +41,7 @@ const fetchFirmwareSize = async (deviceName:string) => {
 }
 
 const fetchFirmware = async (deviceName:string, numSections: number) => {
-    console.log('Fetching firmware for ', deviceName, '. Num Sections: ', numSections);
+    // console.log('Fetching firmware for ', deviceName, '. Num Sections: ', numSections);
     let firmware: string[] = [];
     for (let i = 0; i < numSections; i++) {
         let response = await fetch(
@@ -54,12 +54,12 @@ const fetchFirmware = async (deviceName:string, numSections: number) => {
         // console.log('https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i);
         // console.log(text);
     }
-    console.log('Finished grabbing firmware: ', firmware);
+    // console.log('Finished grabbing firmware: ', firmware);
 
     return firmware;
 }
 
-const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, createFirmwareMessage}) => {
+const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, createFirmwareMessage, queueMultipleMessages}) => {
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
     const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
@@ -193,9 +193,15 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                                     setDownloadingFirmware(true);
                                     fetchFirmwareSize(deviceID)
                                         .then(numSections => fetchFirmware(deviceID, numSections))
-                                        .then(chunked => chunked.forEach((chunk, index) => {
-                                            createFirmwareMessage(deviceID, chunk, index, chunked.length);
-                                        }))
+                                        .then(chunked => {
+                                            queueMultipleMessagesForWrite(chunked.map((chunk, i) => {
+                                                let com: bluetoothCommand = {
+                                                    deviceKey,
+                                                    key: getUniqueKeyForCommand(),
+                                                    command: BuildFirmwareUploadMessage(chunk, i, chunked.length),
+                                                };
+                                            }));
+                                        })
                                         .then(_ => setDownloadingFirmware(false))
                                     }}
                                         />
@@ -358,7 +364,11 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
                 command: BuildFirmwareUploadMessage(data, index, numParts),
                 key: getUniqueKeyForCommand(),
             }))
-        }
+        },
+
+        queueMultipleMessages: (commands: bluetoothCommand[]) => {
+            dispatch(bluetoothWriteMultipleCommands(commands))
+        },
     }
 }
 

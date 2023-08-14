@@ -1,5 +1,5 @@
 import { ThunkDispatch } from "redux-thunk";
-import { CommandMap, bluetoothCommand, dequeueMessage, queueMessageForWrite, setIsWritingMessage } from "../../slices/bluetoothCommandSlice";
+import { CommandMap, bluetoothCommand, dequeueMessage, queueMessageForWrite, queueMultipleMessagesForWrite, setIsWritingMessage } from "../../slices/bluetoothCommandSlice";
 import { RootState } from "../../store";
 import { Action, CombinedState } from "redux";
 import { Platform } from "react-native";
@@ -103,7 +103,76 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
             success = await writeCommand(curCommand);
 
             if (!success) {
-                dispatch(queueMessageForWrite(command));
+                dispatch(queueMessageForWrite(curCommand));
+                break;
+            }
+
+            sleep(1000);
+
+            // ToDo, wait for an ack/response from the device to add a timeout
+        }
+
+        dispatch(setIsWritingMessage(false));
+
+        // console.log('Finished writing commands');
+    }
+}
+
+export function bluetoothWriteMultipleCommands(commands: bluetoothCommand[]) {
+    return async (dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) => {
+        // Check if the app is already writing a command to a device
+        if (getState().bluetoothCommandSlice.isWritingMessage) {
+            console.log('Queuing message: ', commands.length);
+            dispatch(queueMultipleMessagesForWrite(commands));
+            return;
+        }
+
+        // Signal that the device is now writing message to devices
+        dispatch(setIsWritingMessage(true));
+
+        let success: boolean = true;
+        for (let i = 0; i < commands.length; i++) {
+            success = await writeCommand(commands[i]);
+
+            if (!success) {
+                console.log('Write failed, queuing message');
+                dispatch(queueMultipleMessagesForWrite(commands.slice(i)));
+                dispatch(setIsWritingMessage(false));
+                return;
+            }
+    
+            sleep(250);
+        }
+
+        // Try to write the entire message queue
+        while (success) {
+            let {commandQueue, commandKeys, } = getState().bluetoothCommandSlice;
+
+            console.log('Command queue length: ', commandKeys.length);
+
+            // Break from the write loop if there are no commands left to write
+            if (commandKeys.length == 0) {
+                break;
+            }
+
+            // Get the first command to write
+            const curCommandKey = commandKeys[0];
+            const curCommand: bluetoothCommand = commandQueue[curCommandKey];
+
+            // Dequeue the message
+            console.log('Dequeuing message: ', curCommand);
+            await dispatch(dequeueMessage(curCommand));
+
+            commandKeys = getState().bluetoothCommandSlice.commandKeys;
+            if (commandKeys.includes(curCommandKey)) {
+                console.log('Failed to dequeue current message: ', curCommandKey, ' - ', commandKeys);
+            }
+
+            // Write the next command
+            success = await writeCommand(curCommand);
+
+            if (!success) {
+                dispatch(queueMessageForWrite(curCommand));
                 break;
             }
 

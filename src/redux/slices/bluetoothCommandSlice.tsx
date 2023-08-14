@@ -67,6 +67,23 @@ export const bluetoothCommandSlice = createSlice({
             }
         },
 
+        // Add a message to the write queue
+        queueMultipleMessagesForWrite: (state, action) => {
+            let commandQueue = {
+                ...state.commandQueue,
+            }
+            let commands: bluetoothCommand[] = action.payload;
+            commands.forEach(command => {
+                commandQueue[command.key] = command
+            })
+
+            return {
+                ...state,
+                commandQueue: commandQueue,
+                commandKeys: [...state.commandKeys, action.payload.key],
+            }
+        },
+
         // Remove a command from the queue
         dequeueMessage: (state, action) => {
             return {
@@ -78,5 +95,5 @@ export const bluetoothCommandSlice = createSlice({
     },
 });
 
-export const { setIsWritingMessage, queueMessageForWrite, dequeueMessage, } = bluetoothCommandSlice.actions;
+export const { setIsWritingMessage, queueMessageForWrite, dequeueMessage, queueMultipleMessagesForWrite, } = bluetoothCommandSlice.actions;
 export default bluetoothCommandSlice.reducer;
