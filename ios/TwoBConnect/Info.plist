@@ -35,10 +35,20 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>The app accesses the media drive to store data files</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>2B Connect requires the usage of bluetooth to communicate with the devices.</string>
+	<string>The app uses bluetooth to communicate with instruments. This is necessary for the app to communicate with the devices.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>The app uses bluetooth to communicate with instruments. This is necessary for the app to communicate with the devices.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>Location data is used by the app to map the location where data was recoreded. For example, when on a trek the app will record the location a reading was recorded. This data is included when exporting measurement data.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location data is used by the app to map the location where data was recoreded. For example, when on a trek the app will record the location a reading was recorded. This data is included when exporting measurement data. This also allows the app to collect data if running in the background.</string>
+    <key>NSCalendarsUsageDescription</key>
+    <string>Used as an option when exporting data files</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Used as an option when exporting data files</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
