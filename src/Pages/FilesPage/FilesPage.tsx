@@ -130,9 +130,12 @@ const FilesPage: FC<FilesPageProps> = React.memo(({deviceKey, deviceRemoteFiles,
             }
         }
 
+        console.log('Download files: ', deviceRemoteFiles);
         deviceRemoteFiles?.forEach(entry => {
-            const exists = fileSections[FileTypes.DownloadedFile].find(entry => entry.fileName == entry.fileName) != undefined;
-            
+            const exists = fileSections[FileTypes.DownloadedFile].find(file => file.fileName == entry) != undefined;
+
+            // console.log(entry, ' : ', exists);
+
             if (!exists) {
                 fileSections[FileTypes.DownloadedFile].push({
                     existsOnPhone: false,
@@ -148,7 +151,7 @@ const FilesPage: FC<FilesPageProps> = React.memo(({deviceKey, deviceRemoteFiles,
 
     useEffect(() => {
         queryDeviceFiles();
-    }, [deviceKey]);
+    }, [deviceKey, downloadState.downloadInProgress]);
 
     const renderFileObjects = () => {
         if (fileEntries == undefined) {

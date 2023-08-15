@@ -26,13 +26,11 @@ export type ChangedSettingsMap = {
 
 const fetchFirmwareSize = async (deviceName:string) => {
     try {
-        // console.log('https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName);
         let response = await fetch(
             'https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName,
         );
         let responseJson = await response.json();
         const numSections = Math.ceil(Number(responseJson) / 50000);
-        // console.log('Firmware size for ', deviceName, ': ', responseJson, ' -> ', numSections);
         return numSections;
     } catch (err) {
         console.log('Fetch firmware size error: ', err);
@@ -50,11 +48,7 @@ const fetchFirmware = async (deviceName:string, numSections: number) => {
 
         const text = await response.text();
         firmware.push(text);
-
-        // console.log('https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i);
-        // console.log(text);
     }
-    // console.log('Finished grabbing firmware: ', firmware);
 
     return firmware;
 }
@@ -75,20 +69,18 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
     const [changedSettings, updateChangedSettings] = useState<ChangedSettingsMap>({});
     const onChangeSetting: (setting: SettingObj) => void = (setting: SettingObj) => {
-        console.log('Changed setting: ', setting);
         updateChangedSettings({
             ...changedSettings,
             [setting.description]: setting,
         });
     }
 
-    useEffect(() => {
-        if (deviceSettings.length <= 1) {
-            querySettings(deviceKey);
-        }
-    }, [deviceSettings]);
-
-    // console.log('Settings for ', deviceKey, ': ', deviceSettings);
+    // Flag, Causing infinite sends
+    // useEffect(() => {
+    //     if (deviceSettings.length <= 1) {
+    //         querySettings(deviceKey);
+    //     }
+    // }, [deviceSettings]);
 
     const updateEntry: ((col: (SettingObj[] | undefined), updatedSettings: SettingObj[]) => (SettingObj[])) = (col: (SettingObj[] | undefined), updatedSettings: SettingObj[]) => {
         if (col == undefined || col.length == 0) {
@@ -108,8 +100,6 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
             if (updated != undefined) {
                 updatedSettings = updatedSettings.filter(set => set.description != updated?.description);
             }
-
-            console.log(col[i].description);
 
             let temp: SettingObj = {
                 currentVal: updated ? updated.currentVal : col[i].currentVal,
@@ -131,24 +121,34 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
     }
 
     const onSaveClicked: (() => void) = () => {
+        console.log('===========================================================');
         console.log('Save clicked. Changed settings: ', changedSettings);
 
-        let settings: SettingObj[] = [...deviceSettings];
+        let settings: SettingObj[] = deviceSettings.filter(setting => setting.description != "Firmware Update");
+        let updated: any[] = Object.values(changedSettings).map(val => {
+            let setObj: any = {
+                ...val
+            }
+            setObj['newValue'] = setObj['currentVal'];
+            delete setObj['currentVal'];
+            return setObj;
+        });
+        console.log(updated);
 
-        let updatedSettings = Object.values(changedSettings);
-        console.log('Updated settings: ', updatedSettings.map(set => set.description));
-        settings = updateEntry(settings, updatedSettings);
+
+        settings = updateEntry(settings, updated);
 
         applyUpdatedSettings(settings, deviceKey);
-        writeUpdatedSettings(settings, deviceKey);
+        writeUpdatedSettings(updated, deviceKey);
         updateChangedSettings({});
         updateExpandedMap(defaultExpandedMap);
 
         alert('Applying changes');
+
+        console.log('Changed: ', updated);
     }
 
     const onRefreshClicked: (() => void) = () => {
-        console.log('Refresh clicked');
         updateExpandedMap(defaultExpandedMap);
         updateChangedSettings({});
     }

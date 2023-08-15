@@ -1,43 +1,37 @@
 import React, { FC, useState, } from 'react';
-import { View, Text, StyleSheet, } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, } from 'react-native';
+import BulletPoint from '../../Components/bulletPoint';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 interface WelcomePageProps {
     jumpToPage: ((pageIndex: number) => void)
 }
 
 const WelcomePage: FC<WelcomePageProps> = React.memo(({jumpToPage}) => {
-
-    const bullet = (text: String, onPress: (() => void)) => {
-        return (
-          <View style={ styles.row }>
-            <View style={ styles.bullet }>
-              <Text style={styles.bulletPoint}>{'\u2022' + " "}</Text>
-            </View>
-            <View style={ styles.bulletText }>
-              <Text style={styles.bulletText} onPress={onPress}>{text}</Text>
-            </View>
-          </View>
-        );
-    }
+    const seperatorHeight = Dimensions.get('window').height / 20;
+    const picWidth = (Dimensions.get('window').width / 10) * 5;
 
     return (
-        <View style={{width: '90%', marginHorizontal: '5%'}}>
-            <View style={{height: '15%'}} />
-            <Text style={styles.titleText}>Welcome to the 2B Connect App!</Text>
+        <View style={{width: '100%',}}>
+            <View style={{height: '25%', backgroundColor: 'white', borderBottomWidth: 1}}>
+                <View style={{height: seperatorHeight}} />
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={styles.titleText}>Welcome to the 2B Connect App!</Text>
+                    </View>
+                <View style={{height: seperatorHeight / 4}} />
+            </View>
+
             <View style={{height: '10%'}} />
             <Text style={styles.contentText}>The 2B Connect app allows for easy access to Bluetooth enabled 2B Technologies devices.</Text>
 
             <View style={{height: '20%'}} />
             <Text style={styles.featuresText}>Features:</Text>
-            {
-                bullet('View Real Time Data', () => jumpToPage(1))
-            }
-            {
-                bullet('Log and Export Data', () => jumpToPage(3))
-            }
-            {
-                bullet('View and Change Device Settings', () => jumpToPage(5))
-            }
+            
+            <View style={{width: '90%', flex: 1, marginHorizontal: '5%'}}>
+                <BulletPoint onPress={() => jumpToPage(1)} text='View Real Time Data' />
+                <BulletPoint onPress={() => jumpToPage(3)} text='Log and Export Data' />
+                <BulletPoint onPress={() => jumpToPage(5)} text='View and Change Device Settings' />
+            </View>
         </View>
     );
 });
@@ -46,13 +40,16 @@ const styles = StyleSheet.create({
     contentText: {
         fontSize: 18,
         color: 'black',
-        width: '100%',
         textAlign: 'center',
+
+        width: '90%', marginHorizontal: '5%',
     },
 
     featuresText: {
         color: 'black',
         fontSize: 22,
+
+        width: '90%', marginHorizontal: '5%',
     },
 
     titleText: {
@@ -60,30 +57,6 @@ const styles = StyleSheet.create({
         color: 'black',
         width: '100%',
         textAlign: 'center',
-    },
-
-
-
-    row: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
-        flexWrap: 'wrap',
-        flex: 1,
-        marginVertical: 4,
-    },
-    bullet: {
-        width: 10,
-        color: 'black',
-    },
-    bulletText: {
-        flex: 1,
-        color: 'blue',
-        fontSize: 18,
-        textDecorationLine: 'underline',
-    },
-    bulletPoint: {
-        fontSize: 18,
-        color: 'black',
     },
 });
 

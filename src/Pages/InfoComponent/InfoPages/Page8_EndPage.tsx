@@ -1,6 +1,5 @@
 import React, { FC, } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity, } from 'react-native';
-import Image from '../../Components/react-native-scalable-image';
 
 interface EndPageProps {
     onCloseClicked: (() => void)
@@ -11,17 +10,19 @@ const EndPage: FC<EndPageProps> = React.memo(({onCloseClicked}) => {
     const picWidth = (Dimensions.get('window').width / 10) * 5;
 
     return (
-        <View style={{width: '90%', marginHorizontal: '5%'}}>
-            <View style={{height: '15%'}}>
+        <View style={{width: '100%'}}>
+            <View style={{height: '15%', backgroundColor: 'white', borderBottomWidth: 1}}>
                 <View style={{height: seperatorHeight}} />
-                <Text style={styles.titleText}>2B Connect</Text>
+                    <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={styles.titleText}>2B Connect</Text>
+                    </View>
                 <View style={{height: seperatorHeight / 4}} />
             </View>
 
             <View style={{height: '85%'}}>
-                <ScrollView style={{width: '100%', height: '100%'}}>
+                <ScrollView style={{width: '100%', height: '100%'}} showsVerticalScrollIndicator={false}>
                     <View style={{height: seperatorHeight}} />
-                    <Text style={styles.contentText}>This is the end of the tutorial. The tutoral can be accessed again through the About Page.</Text>
+                    <Text style={styles.contentText}>Thank you for completing the tutorial. You can access the tutorial through the About Page.</Text>
                     <View style={{height: seperatorHeight / 2}} />
 
                     <View style={{width: '100%', alignItems: 'center',}}>
@@ -39,10 +40,11 @@ const styles = StyleSheet.create({
     contentText: {
         fontSize: 18,
         color: 'black',
-        width: '100%',
         textAlign: 'center',
         flex: 1,
         alignSelf: 'stretch',
+
+        width: '90%', marginHorizontal: '5%',
     },
     titleText: {
         fontSize: 25,
