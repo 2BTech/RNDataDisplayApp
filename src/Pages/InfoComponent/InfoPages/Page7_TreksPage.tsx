@@ -30,7 +30,7 @@ const TreksDescriptionPage: FC<TreksDescriptionPageProps> = React.memo(({}) => {
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
-                    <Image width={picWidth} source={require('../../../../screenShots/SettingsPage/SettingsPage.png')} />
+                    <Image width={picWidth} source={require('../../../../screenShots/TreksPage/TreksPage.png')} />
                 </View>
 
                 <View style={{height: seperatorHeight}} />
