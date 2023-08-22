@@ -210,11 +210,11 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                 }
             </ScrollView>
                 <View style={styles.buttonContainerStyle}>
-                    <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                        <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={onSaveClicked}>Save</Text>
+                    <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onSaveClicked}>
+                        <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Save</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                        <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={onRefreshClicked}>Refresh</Text>
+                    <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onRefreshClicked}>
+                        <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Refresh</Text>
                     </TouchableOpacity>
                 </View>
         </View>

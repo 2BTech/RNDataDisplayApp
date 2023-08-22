@@ -28,8 +28,8 @@ const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
             <View style={{height: '30%'}} />
 
             <View style={{width: '100%', alignItems: 'center'}}>
-                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={openTutorial}>Tutorial</Text>
+                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={openTutorial}>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Tutorial</Text>
                 </TouchableOpacity>
             </View>
 

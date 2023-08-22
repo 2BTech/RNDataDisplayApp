@@ -158,12 +158,12 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
             </View>
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
-                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={async () => {
+                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={async () => {
                         await setBlocking();
                         await saveTreck();
                         await clearBlocking();
-                    }}>Save Trek</Text>
+                    }}>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Save Trek</Text>
                 </TouchableOpacity>
             </View>
 

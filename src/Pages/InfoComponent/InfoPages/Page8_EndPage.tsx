@@ -26,8 +26,8 @@ const EndPage: FC<EndPageProps> = React.memo(({onCloseClicked}) => {
                     <View style={{height: seperatorHeight / 2}} />
 
                     <View style={{width: '100%', alignItems: 'center',}}>
-                        <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)}>
-                            <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)} onPress={onCloseClicked}>Finish</Text>
+                        <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onCloseClicked}>
+                            <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Finish</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
