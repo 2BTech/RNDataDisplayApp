@@ -9,6 +9,7 @@ import LocationProvider from "./src/Providers/LocationProvider";
 import BluetoothProvider from "./src/Providers/Bluetooth/BluetoothProvider";
 import AsyncStorage, { useAsyncStorage, } from '@react-native-async-storage/async-storage';
 import InfoComponent from "./src/Pages/InfoComponent/InfoComponent";
+import { WithSplashScreen } from "./src/Splash/Splash";
 
 interface AppProps {
 
@@ -17,6 +18,9 @@ interface AppProps {
 const App: FC<AppProps> = ({}) => {
   const {getItem, setItem} = useAsyncStorage('isFirstStart');
   const [isFirstStart, setIsFirstStart] = useState<boolean>(false);
+
+  // For the splash screen
+  const [isAppReady, setIsAppReady] = useState(false);
 
   const readItemFromStorage = async () => {
     const item: (string | null) = await getItem();
@@ -46,22 +50,28 @@ const App: FC<AppProps> = ({}) => {
 
   useEffect(() => {
     readItemFromStorage();
+
+    setTimeout(() => {
+      setIsAppReady(true)
+    }, 2000);
   }, []);
 
   return (
-    <Provider store={store}>
-      {/* <DeviceTester /> */}
-      {
-        renderTutorial()
-      }
-      <LocationProvider />
-      <BluetoothProvider />
-      <SafeAreaProvider style={{backgroundColor: 'white',}}>
-        <SafeAreaView style={styles.container}>
-          <PageHandler />
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </Provider>
+    <WithSplashScreen isAppReady={isAppReady}>
+      <Provider store={store}>
+        {/* <DeviceTester /> */}
+        {
+          renderTutorial()
+        }
+        <LocationProvider />
+        <BluetoothProvider />
+        <SafeAreaProvider style={{backgroundColor: 'white',}}>
+          <SafeAreaView style={styles.container}>
+            <PageHandler />
+          </SafeAreaView>
+        </SafeAreaProvider>
+      </Provider>
+    </WithSplashScreen>
   );
 }
 
