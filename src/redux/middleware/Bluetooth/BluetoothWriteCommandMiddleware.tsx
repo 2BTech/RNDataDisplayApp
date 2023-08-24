@@ -167,7 +167,20 @@ export function bluetoothWriteMultipleCommands(commands: bluetoothCommand[]) {
                 return;
             }
     
-            sleep(250);
+            // Wait for a response from the device for a max of 15 seconds
+            let timeout: number = 0;
+            while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
+                timeout++;
+                await sleep(100);
+            }
+
+            if (getState().bluetoothCommandSlice.isWaitingForResponse) {
+                console.log('Timeout waiting for response');
+                dispatch(queueMessageForWrite(commands[i]));
+                dispatch(setIsWaitingForResponse(false));
+            } else {
+                console.log('Received response from device');
+            }
         }
 
         // Try to write the entire message queue
@@ -202,9 +215,20 @@ export function bluetoothWriteMultipleCommands(commands: bluetoothCommand[]) {
                 break;
             }
 
-            sleep(1000);
+            // Wait for a response from the device for a max of 15 seconds
+                let timeout: number = 0;
+                while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
+                    timeout++;
+                    await sleep(100);
+                }
 
-            // ToDo, wait for an ack/response from the device to add a timeout
+                if (getState().bluetoothCommandSlice.isWaitingForResponse) {
+                    console.log('Timeout waiting for response');
+                    dispatch(queueMessageForWrite(curCommand));
+                    dispatch(setIsWaitingForResponse(false));
+                } else {
+                    console.log('Received response from device');
+                }
         }
 
         dispatch(setIsWritingMessage(false));
