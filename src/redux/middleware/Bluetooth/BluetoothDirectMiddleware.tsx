@@ -141,7 +141,7 @@ interface BluetoothMessage {
 }
 
 async function parseSettings(settings: any, deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>) {
-    console.log('Device settings for ', deviceKey, ': ', settings);
+    // console.log('Device settings for ', deviceKey, ': ', settings);
 
     dispatch(setDeviceSettings({
         deviceKey,
@@ -176,7 +176,7 @@ async function parseMeasurement(measurements: Measurement[], deviceKey: DeviceId
 }
 
 async function parseDeviceFiles(fileNames:any, deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>) {
-    console.log(deviceKey, ' filenames: ', fileNames);
+    // console.log(deviceKey, ' filenames: ', fileNames);
 
     dispatch(updateDeviceFiles({
         deviceKey,

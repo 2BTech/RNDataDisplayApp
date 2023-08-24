@@ -57,39 +57,27 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
         // Check if the app is already writing a command to a device
         if (getState().bluetoothCommandSlice.isWritingMessage) {
             console.log('Queuing message: ', command);
+            // Queue the message
             dispatch(queueMessageForWrite(command));
+            // Exit the function since the app is already handling the queue
             return;
         }
 
-        // Signal that the device is now writing message to devices
+        // Signal that the device is now handling the queue
         dispatch(setIsWritingMessage(true));
 
-        let success: boolean = await writeCommand(command);
+        // Try to write the command to the device
+        let success: boolean = await bluetoothWriteSingleCommand(command, dispatch, getState);
 
+        // If the write failed, exit the function
         if (!success) {
-            console.log('Write failed, queuing message');
-            dispatch(queueMessageForWrite(command));
             dispatch(setIsWritingMessage(false));
             return;
         }
 
-        // Wait for a response from the device for a max of 15 seconds
-        let timeout: number = 0;
-        while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
-            timeout++;
-            await sleep(100);
-        }
-
-        if (getState().bluetoothCommandSlice.isWaitingForResponse) {
-            console.log('Timeout waiting for response');
-            dispatch(queueMessageForWrite(command));
-            dispatch(setIsWaitingForResponse(false));
-        } else {
-            console.log('Received response from device');
-        }
-
-        // Try to write the entire message queue
+        // Start working through the queue
         while (success) {
+            // Access the command queue
             let { commandQueue, commandKeys, } = getState().bluetoothCommandSlice;
 
             console.log('Command queue length: ', commandKeys.length);
@@ -99,7 +87,7 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
                 break;
             }
 
-            // Get the first command to write
+            // Get the next command from the queue
             const curCommandKey = commandKeys[0];
             const curCommand: bluetoothCommand = commandQueue[curCommandKey];
 
@@ -107,34 +95,11 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
             console.log('Dequeuing message: ', curCommand);
             await dispatch(dequeueMessage(curCommand));
 
-            commandKeys = getState().bluetoothCommandSlice.commandKeys;
-            if (commandKeys.includes(curCommandKey)) {
-                console.log('Failed to dequeue current message: ', curCommandKey, ' - ', commandKeys);
-            }
-
-            // Write the next command
-            success = await writeCommand(curCommand);
+            // Try to write the command to the device
+            success = await bluetoothWriteSingleCommand(curCommand, dispatch, getState);
 
             if (!success) {
-                dispatch(queueMessageForWrite(curCommand));
                 break;
-            }
-            // Acknowledge that the app is waiting for a response
-            setIsWaitingForResponse(true);
-            
-            // Wait for a response from the device for a max of 15 seconds
-            let timeout: number = 0;
-            while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
-                timeout++;
-                await sleep(100);
-            }
-
-            if (getState().bluetoothCommandSlice.isWaitingForResponse) {
-                console.log('Timeout waiting for response');
-                dispatch(queueMessageForWrite(curCommand));
-                dispatch(setIsWaitingForResponse(false));
-            } else {
-                console.log('Received response from device');
             }
         }
 
@@ -234,5 +199,40 @@ export function bluetoothWriteMultipleCommands(commands: bluetoothCommand[]) {
         dispatch(setIsWritingMessage(false));
 
         // console.log('Finished writing commands');
+    }
+}
+
+// Function that will handle writing the given command to the device and will return a boolean indicating if the write was successful
+export async function bluetoothWriteSingleCommand(command: bluetoothCommand, dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) {
+    // Start by trying to write the command to the device
+    let success: boolean = await writeCommand(command);
+
+    // If the write failed, queue the message and return false
+    if (!success) {
+        console.log('Write failed, queuing message');
+        dispatch(queueMessageForWrite(command));
+        return false;
+    }
+
+    // Wait for a response from the device for a max of 15 seconds
+    let timeout: number = 0;
+    while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
+        timeout++;
+        await sleep(100);
+    }
+
+    // Check if the device responded in time
+    if (getState().bluetoothCommandSlice.isWaitingForResponse) {
+        console.log('Timeout waiting for response');
+        // Requeue the message
+        dispatch(queueMessageForWrite(command));
+        // Clear the waiting for response flag
+        dispatch(setIsWaitingForResponse(false));
+        // Return false to signal error
+        return false;
+    } else {
+        console.log('Received response from device');
+        // REeturn true to signal success
+        return true;
     }
 }

@@ -130,7 +130,7 @@ const FilesPage: FC<FilesPageProps> = React.memo(({deviceKey, deviceRemoteFiles,
             }
         }
 
-        console.log('Download files: ', deviceRemoteFiles);
+        // console.log('Download files: ', deviceRemoteFiles);
         deviceRemoteFiles?.forEach(entry => {
             const exists = fileSections[FileTypes.DownloadedFile].find(file => file.fileName == entry) != undefined;
 
