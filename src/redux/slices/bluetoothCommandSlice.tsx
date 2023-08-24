@@ -14,12 +14,14 @@ export type CommandMap = {
 
 export interface BluetoothCommandState {
     isWritingMessage: boolean;
+    isWaitingForResponse: boolean;
     commandQueue: CommandMap;
     commandKeys: string[];
 }
 
 const initialState: BluetoothCommandState = {
     isWritingMessage: false,
+    isWaitingForResponse: false,
     commandQueue: {},
     commandKeys: [],
 }
@@ -52,6 +54,14 @@ export const bluetoothCommandSlice = createSlice({
             return {
                 ...state,
                 isWritingMessage: action.payload,
+            }
+        },
+
+        // Set the isWaitingForResponse flag
+        setIsWaitingForResponse: (state, action) => {
+            return {
+                ...state,
+                isWaitingForResponse: action.payload,
             }
         },
 
@@ -95,5 +105,5 @@ export const bluetoothCommandSlice = createSlice({
     },
 });
 
-export const { setIsWritingMessage, queueMessageForWrite, dequeueMessage, queueMultipleMessagesForWrite, } = bluetoothCommandSlice.actions;
+export const { setIsWritingMessage, queueMessageForWrite, dequeueMessage, queueMultipleMessagesForWrite, setIsWaitingForResponse, } = bluetoothCommandSlice.actions;
 export default bluetoothCommandSlice.reducer;

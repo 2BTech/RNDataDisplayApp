@@ -9,14 +9,14 @@ import { addDeviceData } from '../../slices/deviceDataSlice';
 import { ParameterPointMap, applyData } from '../logDataMiddleware';
 import { bluetoothWriteCommand } from './BluetoothWriteCommandMiddleware';
 import { BuildRequestDataFileCommand, BuildRequestFilePartCommand, requestDataFileNamesCommand, requestSettingsCommand } from '../../../Utils/Bluetooth/BluetoothCommandUtils';
-import { getUniqueKeyForCommand, queueMessageForWrite } from '../../slices/bluetoothCommandSlice';
+import { getUniqueKeyForCommand, queueMessageForWrite, setIsWaitingForResponse } from '../../slices/bluetoothCommandSlice';
 import { setDeviceSettings } from '../../slices/deviceSettingsSlice';
 import { updateDeviceFiles } from '../../slices/deviceFilesSlice';
 import { addFileChunk, onFinishDownload, onStartDownload } from '../../slices/fileDownloadSlice';
 import * as RNFS from 'react-native-fs';
 import { FileTypes, writeFile } from '../../../Utils/FileUtils';
 
-var convertString = {
+const convertString = {
     bytesToString: function(bytes: number[]) {
       return bytes.map(function(x){ return String.fromCharCode(x) }).join('')
     },
@@ -208,6 +208,8 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
 
     switch (message.type) {
         case 'settings': 
+            // Awcknowledge that the settings were received
+            dispatch(setIsWaitingForResponse(false));
             await parseSettings(message.body, deviceKey, dispatch);
             break;
 
@@ -217,19 +219,27 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
             break;
 
         case 'confirmation':
+            // Awcknowledge that the message was received
+            dispatch(setIsWaitingForResponse(false));
             console.log('Received confirmation message. Not handled.');
             break;
 
         case 'sd card':
         case 'filenames':
+            // Awcknowledge that the settings were received
+            dispatch(setIsWaitingForResponse(false));
             await parseDeviceFiles(message.body, deviceKey, dispatch);
             break;
 
         case 'file':
+            // Awcknowledge that the settings were received
+            dispatch(setIsWaitingForResponse(false));
             await parseFileData(message.body, deviceKey, dispatch);
             break;
 
         case 'networks':
+            // Awcknowledge that the settings were received
+            dispatch(setIsWaitingForResponse(false));
             await parseAvailableNetworks(deviceKey, message.body);
             break;
 

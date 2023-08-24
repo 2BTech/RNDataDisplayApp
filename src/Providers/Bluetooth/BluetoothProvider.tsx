@@ -19,7 +19,7 @@ import { handleDirectConnectData } from "../../redux/middleware/Bluetooth/Blueto
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 declare module 'react-native-ble-manager' {
-    // enrich local contract with custom state properties needed by App.tsx
+    // enrich local contract with custom state properties
     interface Peripheral {
       connected?: boolean;
       connecting?: boolean;

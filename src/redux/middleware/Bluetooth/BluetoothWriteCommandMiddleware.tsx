@@ -1,5 +1,5 @@
 import { ThunkDispatch } from "redux-thunk";
-import { CommandMap, bluetoothCommand, dequeueMessage, queueMessageForWrite, queueMultipleMessagesForWrite, setIsWritingMessage } from "../../slices/bluetoothCommandSlice";
+import { CommandMap, bluetoothCommand, dequeueMessage, queueMessageForWrite, queueMultipleMessagesForWrite, setIsWaitingForResponse, setIsWritingMessage } from "../../slices/bluetoothCommandSlice";
 import { RootState } from "../../store";
 import { Action, CombinedState } from "redux";
 import { Platform } from "react-native";
@@ -73,11 +73,24 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
             return;
         }
 
-        sleep(250);
+        // Wait for a response from the device for a max of 15 seconds
+        let timeout: number = 0;
+        while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
+            timeout++;
+            await sleep(100);
+        }
+
+        if (getState().bluetoothCommandSlice.isWaitingForResponse) {
+            console.log('Timeout waiting for response');
+            dispatch(queueMessageForWrite(command));
+            dispatch(setIsWaitingForResponse(false));
+        } else {
+            console.log('Received response from device');
+        }
 
         // Try to write the entire message queue
         while (success) {
-            let {commandQueue, commandKeys, } = getState().bluetoothCommandSlice;
+            let { commandQueue, commandKeys, } = getState().bluetoothCommandSlice;
 
             console.log('Command queue length: ', commandKeys.length);
 
@@ -106,10 +119,23 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
                 dispatch(queueMessageForWrite(curCommand));
                 break;
             }
+            // Acknowledge that the app is waiting for a response
+            setIsWaitingForResponse(true);
+            
+            // Wait for a response from the device for a max of 15 seconds
+            let timeout: number = 0;
+            while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
+                timeout++;
+                await sleep(100);
+            }
 
-            sleep(1000);
-
-            // ToDo, wait for an ack/response from the device to add a timeout
+            if (getState().bluetoothCommandSlice.isWaitingForResponse) {
+                console.log('Timeout waiting for response');
+                dispatch(queueMessageForWrite(curCommand));
+                dispatch(setIsWaitingForResponse(false));
+            } else {
+                console.log('Received response from device');
+            }
         }
 
         dispatch(setIsWritingMessage(false));
