@@ -15,6 +15,8 @@ import { bluetoothCommand, getUniqueKeyForCommand, queueMessageForWrite, queueMu
 import { bluetoothWriteCommand, bluetoothWriteMultipleCommands } from "../../redux/middleware/Bluetooth/BluetoothWriteCommandMiddleware";
 import { BuildChangeSettingsCommand, BuildFirmwareUploadMessage, requestSettingsCommand } from "../../Utils/Bluetooth/BluetoothCommandUtils";
 import ButtonSettingComponent from "./Components/ButtonSettingsComponent";
+import { setFirmwareDevice, setFirmwareSections } from "../../redux/slices/firmwareSlice";
+import { queueNextFirmwareSection } from "../../redux/middleware/Firmware/writeFirmwareMiddleware";
 
 interface SettingsPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
@@ -38,10 +40,11 @@ const fetchFirmwareSize = async (deviceName:string) => {
     }
 }
 
-const fetchFirmware = async (deviceName:string, numSections: number) => {
+const fetchFirmware = async (deviceName:string, numSections: number, updateProgress: ((index: number) => void)) => {
     // console.log('Fetching firmware for ', deviceName, '. Num Sections: ', numSections);
     let firmware: string[] = [];
     for (let i = 0; i < numSections; i++) {
+        updateProgress(i);
         let response = await fetch(
             'https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i
         );
@@ -57,7 +60,9 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
     const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
-    const [downloadingFirmware, setDownloadingFirmware] = useState<boolean>(false);
+    const [isDownloadingFirmware, setIsDownloadingFirmware] = useState<boolean>(false);
+    const [firmwareDownloadProgress, setFirmwareDownloadProgress] = useState<number>(0);
+    const [numFirmwareSections, setNumFirmwareSections] = useState<number>(0);
 
     let defaultExpandedMap:{[key: string]: boolean} = {
 
@@ -155,9 +160,11 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
     const renderDownloadProgressView = () => {
         return (
-            <Modal visible={downloadingFirmware} transparent animationType="none">
+            <Modal visible={isDownloadingFirmware} transparent animationType="none">
                 <View style={styles.overlay}>
                     <Text style={styles.downloadTitle}>Downloading Firmware</Text>
+                    <Text style={styles.downloadTitle}>Progresss: {firmwareDownloadProgress} / {numFirmwareSections}</Text>
+                    <View style={{height: '10%'}} />
                     <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
                 </View>
             </Modal>
@@ -190,19 +197,19 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
                             case 'button':
                                 return <ButtonSettingComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} onPress={() => {
-                                    setDownloadingFirmware(true);
+                                    setIsDownloadingFirmware(true);
                                     fetchFirmwareSize(deviceID)
-                                        .then(numSections => fetchFirmware(deviceID, numSections))
-                                        .then(chunked => {
-                                            queueMultipleMessagesForWrite(chunked.map((chunk, i) => {
-                                                let com: bluetoothCommand = {
-                                                    deviceKey,
-                                                    key: getUniqueKeyForCommand(),
-                                                    command: BuildFirmwareUploadMessage(chunk, i, chunked.length),
-                                                };
-                                            }));
+                                        .then(numSections => {
+                                            setFirmwareDownloadProgress(0);
+                                            setNumFirmwareSections(numSections);
+                                            return fetchFirmware(deviceID, numSections, setFirmwareDownloadProgress)
                                         })
-                                        .then(_ => setDownloadingFirmware(false))
+                                        .then(chunked => {
+                                            setIsDownloadingFirmware(false);
+
+                                            // Update the firmware slice with the firmware chunks
+                                            
+                                        })
                                     }}
                                         />
                         }
@@ -368,6 +375,14 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
 
         queueMultipleMessages: (commands: bluetoothCommand[]) => {
             dispatch(bluetoothWriteMultipleCommands(commands))
+        },
+
+        // Update the firmware slice with the firmware chunks
+        updateFirmware: (deviceKey: DeviceId, firmware: string[]) => {
+            dispatch(setFirmwareSections(firmware));
+            dispatch(setFirmwareDevice(deviceKey));
+            // Start writing the firmware to the device
+            dispatch(queueNextFirmwareSection());
         },
     }
 }

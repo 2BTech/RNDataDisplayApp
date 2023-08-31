@@ -15,6 +15,8 @@ import { updateDeviceFiles } from '../../slices/deviceFilesSlice';
 import { addFileChunk, onFinishDownload, onStartDownload } from '../../slices/fileDownloadSlice';
 import * as RNFS from 'react-native-fs';
 import { FileTypes, writeFile } from '../../../Utils/FileUtils';
+import { queueNextFirmwareSection } from '../Firmware/writeFirmwareMiddleware';
+import { incrementCurrentSection } from '../../slices/firmwareSlice';
 
 const convertString = {
     bytesToString: function(bytes: number[]) {
@@ -59,7 +61,7 @@ export function connectToDirectConnect(deviceId: DeviceId) {
             `[connectPeripheral][${deviceId}] retrieved current RSSI value: ${rssi}.`,
         );
 
-        // There is some wierd casting? issue causing a crash. Not sure if needed though
+        // There is some wierd casting? issue causing a crash on IOS. Not sure if this code is needed though
         if (Platform.OS == 'android') {
             if (peripheralData.characteristics) {
                 for (let characteristic of peripheralData.characteristics) {
@@ -209,6 +211,7 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
     switch (message.type) {
         case 'settings': 
             // Awcknowledge that the settings were received
+            console.log('Received settings message');
             dispatch(setIsWaitingForResponse(false));
             await parseSettings(message.body, deviceKey, dispatch);
             break;
@@ -220,6 +223,7 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
 
         case 'confirmation':
             // Awcknowledge that the message was received
+            console.log('Received confirmation message');
             dispatch(setIsWaitingForResponse(false));
             console.log('Received confirmation message. Not handled.');
             break;
@@ -227,20 +231,32 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
         case 'sd card':
         case 'filenames':
             // Awcknowledge that the settings were received
+            console.log('Received sd card message');
             dispatch(setIsWaitingForResponse(false));
             await parseDeviceFiles(message.body, deviceKey, dispatch);
             break;
 
         case 'file':
             // Awcknowledge that the settings were received
+            console.log('Received file message');
             dispatch(setIsWaitingForResponse(false));
             await parseFileData(message.body, deviceKey, dispatch);
             break;
 
         case 'networks':
             // Awcknowledge that the settings were received
+            console.log('Received networks message');
             dispatch(setIsWaitingForResponse(false));
             await parseAvailableNetworks(deviceKey, message.body);
+            break;
+
+        case 'firmware':
+            // Acknowledge that the firmware was received
+            console.log('Received firmware message');
+            dispatch(setIsWaitingForResponse(false));
+            // Queue up the next part of the firmware message
+            dispatch(incrementCurrentSection());
+            dispatch(queueNextFirmwareSection());
             break;
 
         default:

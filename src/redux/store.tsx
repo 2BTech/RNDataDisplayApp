@@ -10,6 +10,8 @@ import bluetoothCommandReducer from './slices/bluetoothCommandSlice';
 import deviceSettingsReducer from './slices/deviceSettingsSlice';
 import deviceFilesReducer from './slices/deviceFilesSlice';
 import downloadFilesReducer from './slices/fileDownloadSlice';
+// Import the fimware slice
+import firmwareReducer from './slices/firmwareSlice';
 
 // Middlewares
 import { logDataMiddleware } from './middleware/logDataMiddleware';
@@ -25,6 +27,8 @@ const rootReducer = combineReducers({
     deviceSettingsSlice: deviceSettingsReducer,
     deviceFilesSlice: deviceFilesReducer,
     downloadFilesSlice: downloadFilesReducer,
+    // Add the firmware slice to the root reducer
+    firmwareSlice: firmwareReducer,
 })
 
 export const store = configureStore({
