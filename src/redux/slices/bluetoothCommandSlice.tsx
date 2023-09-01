@@ -32,7 +32,7 @@ export const getUniqueKeyForCommand: (() => string) = () => {
     if (typeof t == 'string') {
         return t;
     } else {
-        return '' + Math.random();
+        return '' + t;
     }
 }
 
@@ -82,15 +82,17 @@ export const bluetoothCommandSlice = createSlice({
             let commandQueue = {
                 ...state.commandQueue,
             }
+            let keys = [...state.commandKeys];
             let commands: bluetoothCommand[] = action.payload;
             commands.forEach(command => {
-                commandQueue[command.key] = command
+                commandQueue[command.key] = command;
+                keys.push(command.key);
             })
 
             return {
                 ...state,
                 commandQueue: commandQueue,
-                commandKeys: [...state.commandKeys, action.payload.key],
+                commandKeys: keys,
             }
         },
 

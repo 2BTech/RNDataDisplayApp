@@ -36,6 +36,7 @@ export const firmwareSlice = createSlice({
                 currentSection: 0,
                 totalSections: action.payload.length,
                 firmwareSections: action.payload,
+                isWriting: true,
             }
         },
 

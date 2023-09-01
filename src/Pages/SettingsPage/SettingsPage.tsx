@@ -56,7 +56,7 @@ const fetchFirmware = async (deviceName:string, numSections: number, updateProgr
     return firmware;
 }
 
-const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, createFirmwareMessage, queueMultipleMessages, isWritingFirmware, updateFirmware}) => {
+const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, queueMultipleMessages, isWritingFirmware, updateFirmware, currentSection, totalSections}) => {
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
     const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
@@ -163,7 +163,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
             <Modal visible={isDownloadingFirmware || isWritingFirmware} transparent animationType="none">
                 <View style={styles.overlay}>
                     <Text style={styles.downloadTitle}>{isWritingFirmware ? 'Pushing Firmware' : 'Downloading Firmware'}</Text>
-                    <Text style={styles.downloadTitle}>Progresss: {firmwareDownloadProgress} / {numFirmwareSections}</Text>
+                    <Text style={styles.downloadTitle}>Progresss: { isWritingFirmware ? currentSection : firmwareDownloadProgress} / {isWritingFirmware ? totalSections : numFirmwareSections}</Text>
                     <View style={{height: '10%'}} />
                     <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
                 </View>
@@ -207,8 +207,50 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                                         .then(chunked => {
                                             setIsDownloadingFirmware(false);
 
-                                            // Update the firmware slice with the firmware chunks
-                                            updateFirmware(deviceKey, chunked);
+                                            const firmwareChunkSize: number = 3500;
+
+                                            let combined = chunked.join('');
+
+                                            // Convert the combined firmware chuncks into chuncks of firmwareChunkSize bytes
+                                            let firmware: string[] = [];
+                                            // let commands: bluetoothCommand[] = [];
+                                            for (let i = 0; i < combined.length; i += firmwareChunkSize) {
+                                                firmware.push(combined.substring(i, i + firmwareChunkSize));
+                                            }
+                                            // queueMultipleMessages(commands);
+
+                                            updateFirmware(deviceKey, firmware);
+
+                                            // let commands: bluetoothCommand[] = [];
+                                            // for (let i = 3; i < 5; i++)
+                                            // {
+                                            //     let testMessage: string = '';
+                                            //     for (let k = 0; k < i; k++)
+                                            //     {
+                                            //         for (let j = 0; j < 1000; j++)
+                                            //         {
+                                            //             testMessage += 'a';
+                                            //         }
+                                            //     }
+                                            //     let command: bluetoothCommand = {
+                                            //         deviceKey,
+                                            //         command: testMessage,
+                                            //         key: getUniqueKeyForCommand(),
+                                            //     }
+                                            //     // console.log(command);
+
+                                            //     // queueMultipleMessages([command]);
+                                            //     commands.push(command);
+                                            // }
+                                            // queueMultipleMessages(commands);
+
+                                            // let smaller: string[] = [];
+                                            // chunked.forEach(chunk => smaller.push(chunk.substring(0, chunk.length / 2), chunk.substring(chunk.length / 2)));
+
+                                            // console.log('Finished downloading firmware. Starting to write to device');
+
+                                            // // Update the firmware slice with the firmware chunks
+                                            // updateFirmware(deviceKey, chunked);
                                         })
                                     }}
                                         />
@@ -338,6 +380,8 @@ const mapStateToProps = (state: RootState, ownProps: any) => {
         }],
 
         isWritingFirmware: state.firmwareSlice.isWriting,
+        totalSections: state.firmwareSlice.totalSections,
+        currentSection: state.firmwareSlice.currentSection,
     }
 }
 
@@ -363,14 +407,6 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
             dispatch(bluetoothWriteCommand({
                 deviceKey,
                 command: requestSettingsCommand,
-                key: getUniqueKeyForCommand(),
-            }))
-        },
-
-        createFirmwareMessage: (deviceKey: DeviceId, data: string, index: number, numParts: number) => {
-            dispatch(bluetoothWriteCommand({
-                deviceKey,
-                command: BuildFirmwareUploadMessage(data, index, numParts),
                 key: getUniqueKeyForCommand(),
             }))
         },

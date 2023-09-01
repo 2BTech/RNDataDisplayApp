@@ -16,6 +16,11 @@ var convertString = {
 }
 
 async function writeCommand(command:bluetoothCommand) {
+    if (command == undefined) {
+        console.log('Command is undefined');
+        return false;
+    }
+
     // Make sure the command ends with the proper string
     let com: string = command.command;
     if (!com.endsWith('end')) {
@@ -59,23 +64,25 @@ export function bluetoothWriteCommand(command: bluetoothCommand) {
 
         // If the app is not currently writing a command to a device, start working through the queue'
         if (!getState().bluetoothCommandSlice.isWritingMessage) {
-            // Signal that the device is now handling the queue
-            dispatch(setIsWritingMessage(true));
             await handleBluetoothCommandQueue(dispatch, getState);
+        } else {
+            console.log('Already writing a message (1)');
         }
     }
 }
 
 export function bluetoothWriteMultipleCommands(commands: bluetoothCommand[]) {
     return async (dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) => {
+        console.log('Queueing multiple commands: ', commands.length, ' - ', commands.filter(com => com != undefined).length);
+        
         // Queue the messages
         dispatch(queueMultipleMessagesForWrite(commands));
 
         // If the app is not currently writing a command to a device, start working through the queue'
         if (!getState().bluetoothCommandSlice.isWritingMessage) {
-            // Signal that the device is now handling the queue
-            dispatch(setIsWritingMessage(true));
             await handleBluetoothCommandQueue(dispatch, getState);
+        } else {
+            console.log('Already writing a message (2)');
         }
     }
 }
@@ -120,6 +127,8 @@ export async function bluetoothWriteSingleCommand(command: bluetoothCommand, dis
 async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) {
     console.log('Starting to write commands');
     
+    dispatch(setIsWritingMessage(true));
+
     // Collection of the keys that were written to the device
     let writtenKeys: string[] = [];
 
@@ -131,11 +140,21 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
         commandQueue = getState().bluetoothCommandSlice.commandQueue;
         commandKeys = getState().bluetoothCommandSlice.commandKeys.filter(key => !writtenKeys.includes(key));
 
+        console.log('Command queue size: ', commandKeys.length);
+
         // Loop through the command queue
         for (let i = 0; i < commandKeys.length; i++) {
             // Get the current command
             const curCommandKey = commandKeys[i];
             const curCommand: bluetoothCommand = commandQueue[curCommandKey];
+
+            if (curCommand == undefined) {
+                console.log('Command is undefined');
+                dispatch(dequeueMessage({ key: curCommandKey,}));
+                continue;
+            }
+
+            // console.log('Cur command: ', JSON.stringify(curCommand));
 
             // Try to write the command to the device
             let success: boolean = await writeCommand(curCommand);
@@ -161,11 +180,15 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
             // If the write succeeded, remove the command from the queue
             if (success) {
                 // Dequeue the message
-                console.log('Dequeuing message: ', curCommand);
+                // console.log('Dequeuing message: ', curCommand);
                 await dispatch(dequeueMessage(curCommand));
             }
+
+            // await sleep(1000);
         }
     } while (commandKeys.length > 0);
 
     console.log('Finished writing commands');
+
+    dispatch(setIsWritingMessage(false));
 }

@@ -34,7 +34,7 @@ export const BuildRequestFilePartCommand = (fileName: string, partIndex: number)
 
 export const BuildFirmwareUploadMessage = (data: string, index: number, numParts: number) => {
     return JSON.stringify({
-        command: 103,
+        command: 102,
         body: data,
     });
 }
