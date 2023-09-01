@@ -19,7 +19,7 @@ interface TreksPageProps {
 
 const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
     const deviceDef = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey]);
-    const timeData: TimeDataMap = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeData);
+    // const timeData: TimeDataMap = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeData);
     const timeStamps = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps);
 
     const earliest: Date = new Date(timeStamps.length > 0 ? timeStamps[0] : 0);

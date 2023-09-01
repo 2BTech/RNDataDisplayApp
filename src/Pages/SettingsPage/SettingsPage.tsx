@@ -56,7 +56,7 @@ const fetchFirmware = async (deviceName:string, numSections: number, updateProgr
     return firmware;
 }
 
-const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, createFirmwareMessage, queueMultipleMessages}) => {
+const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, createFirmwareMessage, queueMultipleMessages, isWritingFirmware, updateFirmware}) => {
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
     const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
@@ -160,9 +160,9 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
     const renderDownloadProgressView = () => {
         return (
-            <Modal visible={isDownloadingFirmware} transparent animationType="none">
+            <Modal visible={isDownloadingFirmware || isWritingFirmware} transparent animationType="none">
                 <View style={styles.overlay}>
-                    <Text style={styles.downloadTitle}>Downloading Firmware</Text>
+                    <Text style={styles.downloadTitle}>{isWritingFirmware ? 'Pushing Firmware' : 'Downloading Firmware'}</Text>
                     <Text style={styles.downloadTitle}>Progresss: {firmwareDownloadProgress} / {numFirmwareSections}</Text>
                     <View style={{height: '10%'}} />
                     <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
@@ -208,7 +208,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                                             setIsDownloadingFirmware(false);
 
                                             // Update the firmware slice with the firmware chunks
-                                            
+                                            updateFirmware(deviceKey, chunked);
                                         })
                                     }}
                                         />
@@ -336,6 +336,8 @@ const mapStateToProps = (state: RootState, ownProps: any) => {
             type: 'button',
             valueType: '',
         }],
+
+        isWritingFirmware: state.firmwareSlice.isWriting,
     }
 }
 

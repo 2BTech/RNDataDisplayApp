@@ -140,6 +140,7 @@ interface BluetoothMessage {
     status: number;
     type: string;
     body: any;
+    error: string | null;
 }
 
 async function parseSettings(settings: any, deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>) {
@@ -199,6 +200,14 @@ async function parseAvailableNetworks(networks:any, deviceKey: DeviceId) {
 async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) {
     if (message.status == 400) {
         console.log("Message is marked as error: ", message);
+        if (message.type == 'sd card') {
+            if (message.error == 'No Files Found') {
+                // Ignore the error and continue on
+                dispatch(setIsWaitingForResponse(false));
+            }
+        }
+
+
         return;
     } else if (message.status == 404) {
         console.log('Sent command is either invalid or unknown: ', message);
