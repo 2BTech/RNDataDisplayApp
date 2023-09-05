@@ -27,6 +27,20 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
 
     const [displayHelp, setDisplayHelp] = useState<boolean>(false);
 
+    // If the selected device is not connected, set it to default
+    if (selectedDevice.deviceKey != 'Default' && !deviceDefs.connectedDevices.includes(selectedDevice.deviceKey)) {
+        setSelectedDevice(deviceDefs.deviceDefinitions['Default']);
+        return <></>
+    }
+
+    const updateSelectedPage: (pageName: string) => void = (pageName) => {
+        if (pageName == 'Home' && selectedPage == 'Home') {
+            setSelectedPage('');
+        } else {
+            setSelectedPage('Home');
+        }
+    }
+
     const renderSelectedPage = (pageName: string) => {
         switch (pageName) {
             case 'Home':
@@ -66,11 +80,16 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
                 );
 
             default:
-                return (
-                    <View style={styles.container}>
-                        <Text>Unhandled page type: {pageName}</Text>
-                    </View>
-                );
+                // Default back to the home page
+                setSelectedPage('Home');
+                // Return an empty object
+                return <></>;
+
+                // return (
+                //     <View style={styles.container}>
+                //         <Text>Unhandled page type: {pageName}</Text>
+                //     </View>
+                // );
         }
     }
 

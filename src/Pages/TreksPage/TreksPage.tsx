@@ -120,20 +120,19 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
     }
 
     return (
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
             {
                 renderDownloadProgressView()
             }
 
             {/* File Name Input */}
             <View style={styles.sectionContainer}>
-                <Text style={styles.sectionLabelText}>File Name</Text>
+                <Text style={styles.sectionLabelText}>File Name:</Text>
                 <TextInput style={styles.input} onEndEditing={e => setFileName(e.nativeEvent.text)} defaultValue={fileName} />
             </View>
 
             {/* Start Time Selector */}
             <View style={styles.sectionContainer}>
-                <Text style={styles.sectionLabelText}>Start Time</Text>
                 <DatePicker 
                     minimumDate={earliest}
                     maximumDate={new Date(endTime)}
@@ -142,11 +141,11 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
                     textColor="black"
                     onDateChange={nDate => setStartTime(nDate.getTime())}
                     />
+                <Text style={StyleSheet.compose(styles.sectionLabelText, {position: 'absolute'})}>Start Time:</Text>
             </View>
 
             {/* End Time Selector */}
             <View style={styles.sectionContainer}>
-                <Text style={styles.sectionLabelText}>End Time</Text>
                 <DatePicker 
                     minimumDate={new Date(startTime)}
                     maximumDate={latest}
@@ -155,6 +154,7 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
                     textColor="black"
                     onDateChange={nDate => setEndTime(nDate.getTime())}
                     />
+                <Text style={StyleSheet.compose(styles.sectionLabelText, {position: 'absolute'})}>End Time:</Text>
             </View>
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
@@ -172,7 +172,7 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
                 textContent={'Creating and saving trek'}
                 textStyle={styles.spinnerTextStyle}
                 /> */}
-        </ScrollView>
+        </View>
     );
 });
 

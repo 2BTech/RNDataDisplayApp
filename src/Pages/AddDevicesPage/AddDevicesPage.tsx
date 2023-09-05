@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
 import { connectToDirectConnect, disconnectFromDirectConnect } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
+import { addDeviceToData } from "../../redux/slices/deviceDataSlice";
 
 interface AddDevicesPageProps extends PropsFromRedux {
 
@@ -45,10 +46,12 @@ const AddDevicesPage: FC<AddDevicesPageProps> = React.memo(({connectToDirectCon,
     const connectToBeacon = (deviceKey: DeviceId): void => {
         console.log('Connect to beacon: ', deviceDefs[deviceKey].deviceName);
         dispatch(connectToDevice(deviceKey));
+        dispatch(addDeviceToData({deviceKey}));
     }
     const connectToDirect = (deviceKey: DeviceId): void => {
         console.log('Connect to direct: ', deviceDefs[deviceKey].deviceName);
         connectToDirectCon(deviceKey);
+        dispatch(addDeviceToData({deviceKey}));
     }
     const disconnectBeacon = (deviceKey: DeviceId): void => {
         console.log('Disconnect from beacon: ', deviceDefs[deviceKey].deviceName);

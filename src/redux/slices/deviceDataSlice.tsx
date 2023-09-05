@@ -304,6 +304,25 @@ export const deviceDataSlice = createSlice({
     name: 'deviceDataSlice',
     initialState,
     reducers: {
+        // Create initial objects for the given device
+        // action.payload: {
+        //  deviceKey: string,
+        // }
+        addDeviceToData: (state, action) => {
+            return {
+                ...state,
+                deviceData: {
+                    ...state.deviceData,
+                    [action.payload.deviceKey]: {
+                        parameterNames: [],
+                        data: {},
+                        timeData: {},
+                        timeStamps: [],
+                    },
+                },
+            }
+        },
+
         // Add data to a device
         addDeviceData: (state, action) => {
             // console.log('Adding device data: ', state.deviceData[action.payload.deviceKey]);
@@ -377,5 +396,5 @@ export const deviceDataSlice = createSlice({
     },
 });
 
-export const { addDeviceData, } = deviceDataSlice.actions;
+export const { addDeviceData, addDeviceToData, } = deviceDataSlice.actions;
 export default deviceDataSlice.reducer;

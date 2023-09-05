@@ -217,40 +217,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                                             for (let i = 0; i < combined.length; i += firmwareChunkSize) {
                                                 firmware.push(combined.substring(i, i + firmwareChunkSize));
                                             }
-                                            // queueMultipleMessages(commands);
-
                                             updateFirmware(deviceKey, firmware);
-
-                                            // let commands: bluetoothCommand[] = [];
-                                            // for (let i = 3; i < 5; i++)
-                                            // {
-                                            //     let testMessage: string = '';
-                                            //     for (let k = 0; k < i; k++)
-                                            //     {
-                                            //         for (let j = 0; j < 1000; j++)
-                                            //         {
-                                            //             testMessage += 'a';
-                                            //         }
-                                            //     }
-                                            //     let command: bluetoothCommand = {
-                                            //         deviceKey,
-                                            //         command: testMessage,
-                                            //         key: getUniqueKeyForCommand(),
-                                            //     }
-                                            //     // console.log(command);
-
-                                            //     // queueMultipleMessages([command]);
-                                            //     commands.push(command);
-                                            // }
-                                            // queueMultipleMessages(commands);
-
-                                            // let smaller: string[] = [];
-                                            // chunked.forEach(chunk => smaller.push(chunk.substring(0, chunk.length / 2), chunk.substring(chunk.length / 2)));
-
-                                            // console.log('Finished downloading firmware. Starting to write to device');
-
-                                            // // Update the firmware slice with the firmware chunks
-                                            // updateFirmware(deviceKey, chunked);
                                         })
                                     }}
                                         />
