@@ -129,28 +129,82 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
         console.log('===========================================================');
         console.log('Save clicked. Changed settings: ', changedSettings);
 
-        let settings: SettingObj[] = deviceSettings.filter(setting => setting.description != "Firmware Update");
-        let updated: any[] = Object.values(changedSettings).map(val => {
-            let setObj: any = {
-                ...val
-            }
-            setObj['newValue'] = setObj['currentVal'];
-            delete setObj['currentVal'];
-            return setObj;
+        const updated: SettingObj[] = Object.values(changedSettings).filter(set => set.id != 'Firmware Update');
+        
+        let updatedSettings = updateEntry(deviceSettings, updated).filter(set => set.id != 'Firmware Update');
+        console.log('Updated: ', JSON.stringify(updatedSettings));
+
+        // console.log('Updated settings: ', updatedSettings);
+
+        applyUpdatedSettings(updatedSettings, deviceKey);
+
+        // Create list of all values to send to device
+        let toWrite: SettingObj[] = [];
+
+        updated.forEach(setting => {
+            let temp: any = {
+                ...setting,
+            };
+
+            temp['newValue'] = temp['currentVal'];
+            delete temp['currentVal'];
+
+            toWrite.push(temp);
         });
-        console.log(updated);
 
-
-        settings = updateEntry(settings, updated);
-
-        applyUpdatedSettings(settings, deviceKey);
-        writeUpdatedSettings(updated, deviceKey);
         updateChangedSettings({});
-        updateExpandedMap(defaultExpandedMap);
+        writeUpdatedSettings(toWrite, deviceKey);
 
-        alert('Applying changes');
+        return;
 
-        console.log('Changed: ', updated);
+
+        // Get the settings that are not firmware update
+        const settings: SettingObj[] = deviceSettings.filter(setting => setting.description != "Firmware Update");
+        
+
+        // Create an array to hold the updated settings for the device
+        let settingsForDevice: SettingObj[] = [];
+        // Create an array to hold the updated settings for the app
+        let settingsForApp: SettingObj[] = [];
+
+        settings.forEach(setting => {
+            const updatedVer = updated.find(set => set.description == setting.description);
+
+            let forDevice: any = {
+                ...setting,
+            };
+            let forApp = {
+                ...setting,
+            };
+
+            // Update the currentVal field with the updated value
+            if (updatedVer) {
+                forDevice['currentVal'] = updatedVer.currentVal;
+                forApp['currentVal'] = updatedVer.currentVal;
+            }
+
+            forDevice['newValue'] = forDevice['currentVal'];
+            delete forDevice['currentVal'];
+
+            settingsForDevice.push(forDevice);
+            settingsForApp.push(forApp);
+        });
+
+        console.log('Original: ', settings);
+        console.log('Updated: ', settingsForApp);
+
+        // let appCol = updateEntry(settings, settingsForApp);
+
+        // settings = updateEntry(settings, updated);
+
+        // applyUpdatedSettings(settings, deviceKey);
+        // writeUpdatedSettings(updated, deviceKey);
+        // updateChangedSettings({});
+        // updateExpandedMap(defaultExpandedMap);
+
+        // alert('Applying changes');
+
+        // console.log('Changed: ', updated);
     }
 
     const onRefreshClicked: (() => void) = () => {
@@ -335,6 +389,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state: RootState, ownProps: any) => {
     let sets = state.deviceSettingsSlice[ownProps.deviceKey] || [];
+    
     return {
         deviceSettings: [...sets, {
             currentVal: '',

@@ -32,7 +32,6 @@ const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
                     <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Tutorial</Text>
                 </TouchableOpacity>
             </View>
-
         </View>
     );
 });

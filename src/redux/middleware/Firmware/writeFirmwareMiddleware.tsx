@@ -2,7 +2,7 @@ import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../../store';
 import { Action, CombinedState, } from 'redux';
 import { clearIsWriting } from '../../slices/firmwareSlice';
-import { bluetoothWriteCommand, bluetoothWriteSingleCommand } from '../Bluetooth/BluetoothWriteCommandMiddleware';
+import { bluetoothWriteCommand, } from '../Bluetooth/BluetoothWriteCommandMiddleware';
 import { bluetoothCommand, getUniqueKeyForCommand } from '../../slices/bluetoothCommandSlice';
 import { BuildFirmwareUploadMessage } from '../../../Utils/Bluetooth/BluetoothCommandUtils';
 

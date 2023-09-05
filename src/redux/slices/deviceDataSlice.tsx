@@ -323,38 +323,40 @@ export const deviceDataSlice = createSlice({
             }
         },
 
-        // Add data to a device
+        // Updated version of AddDeviceData that contains less if statements
+        // action.payload: {
+        //  deviceKey: string,
+        //  data: {
+        //      [key: string]: {
+        //          val: number,
+        //          unt: string,
+        //      }
+        //  },
+        //  gpsCoords: GPSCoordinate,
+        // }
         addDeviceData: (state, action) => {
-            // console.log('Adding device data: ', state.deviceData[action.payload.deviceKey]);
-            // console.log('addDeviceData: ', action.payload);
+            // Used to relate the measurement to the time it was taken
+            const timeStamp = Date.now();
 
+            // Build the updated parameter data object
             let parameterData: ParameterMap = {
+                ...state.deviceData[action.payload.deviceKey].data
+            };
 
-            }
-
+            // Add the new data to the parameter data object
             Object.keys(action.payload.data).forEach((parameterName: string) => {
+                // Get the new values for the parameter
                 const {val, unt} = action.payload.data[parameterName];
-                // console.log('Parameter name: ', parameterName);
 
-                const existingDataPoints = (((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName] || {[parameterName]: {dataPoints: []}}).dataPoints || []);
-                const existingBreakdown: ParameterBreakdownObj = (((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}}}}).data[parameterName] || {[parameterName]: {breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}}}).breakdown || {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0});
+                // Get the existing data for the parameter
+                const existingData = (state.deviceData[action.payload.deviceKey].data[parameterName] || {dataPoints: [], parameterName: parameterName, parameterUnits: unt, breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}});
+                // Get the existing breakdown for the parameter
+                const existingBreakdown = existingData.breakdown;
 
-                // console.log('Existing data: ', existingDataPoints);
-
-                // console.log(parameterName, ' = ', val);
-                // console.log('dataPoints: ', [...((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName].dataPoints), {value: val, time: new Date().getTime()}]);
-                // console.log('parameterName: ', parameterName);
-                // console.log('breakdown.current: ', val);
-                // console.log('breakdown.min: ', getMin(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {min: val}}}}).data[parameterName].breakdown.min));
-                // console.log('breakdown.max: ', getMax(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {max: val}}}}).data[parameterName].breakdown.max));
-                // console.log('breakdown.exponentialMovingAverage: ', getExponentialMovingAverage(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {exponentialMovingAverage: val}}}}).data[parameterName].breakdown.exponentialMovingAverage, 2, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1));
-                // console.log('breakdown.mean: ', ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {sum: 0}}}}).data[parameterName].breakdown.sum + val) / ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1));
-                // console.log('breakdown.sum: ', ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {sum: 0}}}}).data[parameterName].breakdown.sum + val));
-                // console.log('breakdown.numberOfPoints: ', (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1);
-
+                // Add the parameter data to the parameter data object
                 parameterData[parameterName] = {
-                    dataPoints: [...existingDataPoints, {value: val, time: new Date().getTime()}],
-                    parameterName: parameterName,
+                    dataPoints: [...existingData.dataPoints, {value: val, time: timeStamp}],
+                    parameterName,
                     parameterUnits: unt,
                     breakdown: {
                         current: val,
@@ -366,13 +368,9 @@ export const deviceDataSlice = createSlice({
                         sum: existingBreakdown.sum + val,
                         numberOfPoints: existingBreakdown.numberOfPoints + 1,
                     },
-
-                }
+                } 
             });
 
-            const timeStamp = Date.now();
-
-            // console.log('Finished building parameter data');
             return {
                 ...state,
                 deviceData: {
@@ -380,19 +378,87 @@ export const deviceDataSlice = createSlice({
                     [action.payload.deviceKey]: {
                         ...state.deviceData[action.payload.deviceKey],
                         parameterNames: getUnique((state.deviceData[action.payload.deviceKey] || {parameterNames: []}).parameterNames, Object.keys(action.payload.data)),
-                        data: {
-                            ...(state.deviceData[action.payload.deviceKey] || {data: {}}).data,
-                            ...parameterData,
-                        },
                         timeData: {
-                            ...(state.deviceData[action.payload.deviceKey] || {timeData: {}}).timeData,
+                            ...state.deviceData[action.payload.deviceKey].timeData,
                             [timeStamp]: buildTimeData(parameterData, action.payload.gpsCoords),
                         },
-                        timeStamps: [...(state.deviceData[action.payload.deviceKey] || {timeStamps: []}).timeStamps, timeStamp],
+                        timeStamps: [...state.deviceData[action.payload.deviceKey].timeStamps, timeStamp],
+                        data: parameterData,
                     },
                 },
-            };
+            }
         },
+
+        // // Add data to a device
+        // addDeviceData: (state, action) => {
+        //     // console.log('Adding device data: ', state.deviceData[action.payload.deviceKey]);
+        //     // console.log('addDeviceData: ', action.payload);
+
+        //     let parameterData: ParameterMap = {
+
+        //     }
+
+        //     Object.keys(action.payload.data).forEach((parameterName: string) => {
+        //         const {val, unt} = action.payload.data[parameterName];
+        //         // console.log('Parameter name: ', parameterName);
+
+        //         const existingDataPoints = (((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName] || {[parameterName]: {dataPoints: []}}).dataPoints || []);
+        //         const existingBreakdown: ParameterBreakdownObj = (((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}}}}).data[parameterName] || {[parameterName]: {breakdown: {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0}}}).breakdown || {min: val, max: val, sum: 0, exponentialMovingAverage: 0, numberOfPoints: 0});
+
+        //         // console.log('Existing data: ', existingDataPoints);
+
+        //         // console.log(parameterName, ' = ', val);
+        //         // console.log('dataPoints: ', [...((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {dataPoints: []}}}).data[parameterName].dataPoints), {value: val, time: new Date().getTime()}]);
+        //         // console.log('parameterName: ', parameterName);
+        //         // console.log('breakdown.current: ', val);
+        //         // console.log('breakdown.min: ', getMin(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {min: val}}}}).data[parameterName].breakdown.min));
+        //         // console.log('breakdown.max: ', getMax(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {max: val}}}}).data[parameterName].breakdown.max));
+        //         // console.log('breakdown.exponentialMovingAverage: ', getExponentialMovingAverage(val, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {exponentialMovingAverage: val}}}}).data[parameterName].breakdown.exponentialMovingAverage, 2, (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1));
+        //         // console.log('breakdown.mean: ', ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {sum: 0}}}}).data[parameterName].breakdown.sum + val) / ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1));
+        //         // console.log('breakdown.sum: ', ((state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {sum: 0}}}}).data[parameterName].breakdown.sum + val));
+        //         // console.log('breakdown.numberOfPoints: ', (state.deviceData[action.payload.deviceKey] || {data: {[parameterName]: {breakdown: {numberOfPoints: 0}}}}).data[parameterName].breakdown.numberOfPoints + 1);
+
+        //         parameterData[parameterName] = {
+        //             dataPoints: [...existingDataPoints, {value: val, time: new Date().getTime()}],
+        //             parameterName: parameterName,
+        //             parameterUnits: unt,
+        //             breakdown: {
+        //                 current: val,
+        //                 min: getMin(val, existingBreakdown.min),
+        //                 max: getMax(val, existingBreakdown.max),
+        //                 exponentialMovingAverage: getExponentialMovingAverage(val, existingBreakdown.exponentialMovingAverage, 2, existingBreakdown.numberOfPoints + 1),
+        //                 mean: (existingBreakdown.sum + val) / (existingBreakdown.numberOfPoints + 1),
+
+        //                 sum: existingBreakdown.sum + val,
+        //                 numberOfPoints: existingBreakdown.numberOfPoints + 1,
+        //             },
+
+        //         }
+        //     });
+
+        //     const timeStamp = Date.now();
+
+        //     // console.log('Finished building parameter data');
+        //     return {
+        //         ...state,
+        //         deviceData: {
+        //             ...state.deviceData,
+        //             [action.payload.deviceKey]: {
+        //                 ...state.deviceData[action.payload.deviceKey],
+        //                 parameterNames: getUnique((state.deviceData[action.payload.deviceKey] || {parameterNames: []}).parameterNames, Object.keys(action.payload.data)),
+        //                 data: {
+        //                     ...(state.deviceData[action.payload.deviceKey] || {data: {}}).data,
+        //                     ...parameterData,
+        //                 },
+        //                 timeData: {
+        //                     ...(state.deviceData[action.payload.deviceKey] || {timeData: {}}).timeData,
+        //                     [timeStamp]: buildTimeData(parameterData, action.payload.gpsCoords),
+        //                 },
+        //                 timeStamps: [...(state.deviceData[action.payload.deviceKey] || {timeStamps: []}).timeStamps, timeStamp],
+        //             },
+        //         },
+        //     };
+        // },
     },
 });
 

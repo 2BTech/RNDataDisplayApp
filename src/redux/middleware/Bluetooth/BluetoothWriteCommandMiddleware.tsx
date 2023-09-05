@@ -87,43 +87,6 @@ export function bluetoothWriteMultipleCommands(commands: bluetoothCommand[]) {
     }
 }
 
-// Function that will handle writing the given command to the device and will return a boolean indicating if the write was successful
-export async function bluetoothWriteSingleCommand(command: bluetoothCommand, dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) {
-    // Start by trying to write the command to the device
-    let success: boolean = await writeCommand(command);
-
-    // If the write failed, queue the message and return false
-    if (!success) {
-        console.log('Write failed, queuing message');
-        dispatch(queueMessageForWrite(command));
-        return false;
-    }
-
-    dispatch(setIsWaitingForResponse(true));
-
-    // Wait for a response from the device for a max of 15 seconds
-    let timeout: number = 0;
-    while (getState().bluetoothCommandSlice.isWaitingForResponse && timeout < 150) {
-        timeout++;
-        await sleep(100);
-    }
-
-    // Check if the device responded in time
-    if (getState().bluetoothCommandSlice.isWaitingForResponse) {
-        console.log('Timeout waiting for response');
-        // Requeue the message
-        dispatch(queueMessageForWrite(command));
-        // Clear the waiting for response flag
-        dispatch(setIsWaitingForResponse(false));
-        // Return false to signal error
-        return false;
-    } else {
-        console.log('Received response from device');
-        // REeturn true to signal success
-        return true;
-    }
-}
-
 async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) {
     console.log('Starting to write commands');
     
@@ -134,6 +97,8 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
 
     let commandQueue: CommandMap;
     let commandKeys: string[];
+
+    let retryMap: Map<string, number> = new Map<string, number>();
     
     do {
         // Gather the command queue
@@ -172,10 +137,26 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
             // Check if the device responded in time
             if (getState().bluetoothCommandSlice.isWaitingForResponse) {
                 success = false;
-            }
+                console.log('Device did not respond in time');
 
-            // Add the key to the written keys collection
-            writtenKeys.push(curCommandKey);
+                // Get the number of times the message has failed
+                let numFails = retryMap.get(curCommandKey) || 0;
+
+                // If it has failed less than 3 times, retry the message
+                if (numFails < 3) {
+                    console.log('Retrying message: ', curCommandKey);
+                    retryMap.set(curCommandKey, numFails + 1);
+                    i--;
+                    continue;
+                } else {
+                    console.log('Failed to write message: ', curCommandKey);
+                    // Add the key to the written keys collection to not try it again
+                writtenKeys.push(curCommandKey);
+                }
+            } else {
+                // Add the key to the written keys collection
+                writtenKeys.push(curCommandKey);
+            }
 
             // If the write succeeded, remove the command from the queue
             if (success) {
