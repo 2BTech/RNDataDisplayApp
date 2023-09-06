@@ -151,7 +151,7 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
                 } else {
                     console.log('Failed to write message: ', curCommandKey);
                     // Add the key to the written keys collection to not try it again
-                writtenKeys.push(curCommandKey);
+                    writtenKeys.push(curCommandKey);
                 }
             } else {
                 // Add the key to the written keys collection

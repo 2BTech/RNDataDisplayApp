@@ -25,7 +25,7 @@ const ParameterViewDescription: FC<ParameterViewDescriptionProps> = React.memo((
 
             <ScrollView style={{width: '100%', height: '85%'}} showsVerticalScrollIndicator={false}>
                 <View style={{height: seperatorHeight}} />
-                <Text style={styles.contentText}>The Paramter View Page displays a detailed view of a given parameter. The page consists of upto 4 sections: Break Down, Description, Ranges, Graph.</Text>
+                <Text style={styles.contentText}>The Paramter View Page displays a detailed view of a given parameter. The page consists of up to 4 sections: Break Down, Description, Ranges, Graph.</Text>
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>

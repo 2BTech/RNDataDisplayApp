@@ -154,57 +154,6 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
         updateChangedSettings({});
         writeUpdatedSettings(toWrite, deviceKey);
-
-        return;
-
-
-        // Get the settings that are not firmware update
-        const settings: SettingObj[] = deviceSettings.filter(setting => setting.description != "Firmware Update");
-        
-
-        // Create an array to hold the updated settings for the device
-        let settingsForDevice: SettingObj[] = [];
-        // Create an array to hold the updated settings for the app
-        let settingsForApp: SettingObj[] = [];
-
-        settings.forEach(setting => {
-            const updatedVer = updated.find(set => set.description == setting.description);
-
-            let forDevice: any = {
-                ...setting,
-            };
-            let forApp = {
-                ...setting,
-            };
-
-            // Update the currentVal field with the updated value
-            if (updatedVer) {
-                forDevice['currentVal'] = updatedVer.currentVal;
-                forApp['currentVal'] = updatedVer.currentVal;
-            }
-
-            forDevice['newValue'] = forDevice['currentVal'];
-            delete forDevice['currentVal'];
-
-            settingsForDevice.push(forDevice);
-            settingsForApp.push(forApp);
-        });
-
-        console.log('Original: ', settings);
-        console.log('Updated: ', settingsForApp);
-
-        // let appCol = updateEntry(settings, settingsForApp);
-
-        // settings = updateEntry(settings, updated);
-
-        // applyUpdatedSettings(settings, deviceKey);
-        // writeUpdatedSettings(updated, deviceKey);
-        // updateChangedSettings({});
-        // updateExpandedMap(defaultExpandedMap);
-
-        // alert('Applying changes');
-
-        // console.log('Changed: ', updated);
     }
 
     const onRefreshClicked: (() => void) = () => {
