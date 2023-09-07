@@ -193,8 +193,8 @@ type SigFigMap = {
 }
 
 export const ParameterSigFigs: SigFigMap = {
-    CO: 1,
-    CO2: 2,
+    CO: 2,
+    CO2: 1,
     O3: 1,
     PM1: 1,
     'PM 2.5': 1,
@@ -204,6 +204,10 @@ export const ParameterSigFigs: SigFigMap = {
     NO2: 1,
     NOx: 1,
     Methane: 1,
+    TEMP: 1,
+    PRESS: 1,
+    Battery: 2,
+    RELHUM: 1,
 }
 
 // Returns the color that should be used for the given parameter with the given value. Based on value health ranges

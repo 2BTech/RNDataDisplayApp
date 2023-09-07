@@ -16,7 +16,7 @@ const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
             <View style={{height: '10%'}} />
 
             <View>
-                <Text style={styles.infoText}>Build Version: 2.1.2</Text>
+                <Text style={styles.infoText}>Build Version: 2.1.3</Text>
                 <Text style={styles.infoText}>Build Date: Sep 2023</Text>
             </View>
 

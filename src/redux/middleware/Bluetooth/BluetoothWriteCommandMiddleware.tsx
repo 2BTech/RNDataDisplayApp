@@ -101,9 +101,11 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
     let retryMap: Map<string, number> = new Map<string, number>();
     
     do {
+        // Gather the ids of all connected devices
+        const connectedDevices: string[] = getState().deviceSlice.connectedDevices;
         // Gather the command queue
         commandQueue = getState().bluetoothCommandSlice.commandQueue;
-        commandKeys = getState().bluetoothCommandSlice.commandKeys.filter(key => !writtenKeys.includes(key));
+        commandKeys = getState().bluetoothCommandSlice.commandKeys.filter(key => !writtenKeys.includes(key) && connectedDevices.includes(commandQueue[key].deviceKey));
 
         console.log('Command queue size: ', commandKeys.length);
 

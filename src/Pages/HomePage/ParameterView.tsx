@@ -215,6 +215,12 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             y: point.value,
         };
     }).filter(val => !Number.isNaN(val.y));
+
+    // Fix issue where the the xRange is not set correctly
+    if (xRange.min < cutoffTime) {
+        xRange.min = cutoffTime;
+    }
+
     // console.log('Number of filtered data points: ', graphData.length);
     if (Number.isNaN(yRange.min)) {
         yRange = {min: 0, max: 1};
