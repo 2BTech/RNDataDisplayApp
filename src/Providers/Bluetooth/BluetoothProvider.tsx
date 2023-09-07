@@ -16,6 +16,7 @@ import { ConnectionType, DeviceId, clearAvailable, disconnectFromDevice, discove
 import { ConnectedProps, connect, } from "react-redux";
 import { handleBeaconData } from "../../redux/middleware/Bluetooth/BluetoothBeaconMiddleware";
 import { handleDirectConnectData } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
+import { clearMessagesForDevice } from "../../redux/slices/bluetoothCommandSlice";
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 declare module 'react-native-ble-manager' {
@@ -370,6 +371,7 @@ const mapDispatchToProps = (dispatch: ThunkDispatch<RootState, void, Action>) =>
 
         onDeviceDisconnect: (deviceKey: DeviceId) => {
           dispatch(disconnectFromDevice(deviceKey));
+          dispatch(clearMessagesForDevice(deviceKey));
         },
     };
 }

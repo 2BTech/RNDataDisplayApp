@@ -104,8 +104,17 @@ export const bluetoothCommandSlice = createSlice({
                 commandQueue: copyAndDelete(state.commandQueue, action.payload.key),
             }
         },
+
+        // Clear messages for the given device
+        clearMessagesForDevice: (state, action) => {
+            return {
+                ...state,
+                commandKeys: state.commandKeys.filter(key => state.commandQueue[key].deviceKey != action.payload),
+                commandQueue: Object.fromEntries(Object.entries(state.commandQueue).filter(([key, value]) => value.deviceKey != action.payload)),
+            }
+        },
     },
 });
 
-export const { setIsWritingMessage, queueMessageForWrite, dequeueMessage, queueMultipleMessagesForWrite, setIsWaitingForResponse, } = bluetoothCommandSlice.actions;
+export const { setIsWritingMessage, queueMessageForWrite, dequeueMessage, queueMultipleMessagesForWrite, setIsWaitingForResponse, clearMessagesForDevice, } = bluetoothCommandSlice.actions;
 export default bluetoothCommandSlice.reducer;

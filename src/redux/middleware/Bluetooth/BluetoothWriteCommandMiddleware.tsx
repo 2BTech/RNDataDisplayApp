@@ -102,10 +102,20 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
     
     do {
         // Gather the ids of all connected devices
-        const connectedDevices: string[] = getState().deviceSlice.connectedDevices;
+        let connectedDevices: string[] = getState().deviceSlice.connectedDevices;
         // Gather the command queue
         commandQueue = getState().bluetoothCommandSlice.commandQueue;
         commandKeys = getState().bluetoothCommandSlice.commandKeys.filter(key => !writtenKeys.includes(key) && connectedDevices.includes(commandQueue[key].deviceKey));
+
+        // Gather all messages that are for not connected devices
+        let notConnectedKeys: string[] = getState().bluetoothCommandSlice.commandKeys.filter(key => !connectedDevices.includes(commandQueue[key].deviceKey));
+        // If the list is not empty, remove the messages from the queue
+        if (notConnectedKeys.length > 0) {
+            console.log('Removing messages for not connected devices: ', notConnectedKeys.length);
+            notConnectedKeys.forEach(key => {
+                dispatch(dequeueMessage({ key: key, }));
+            });
+        }
 
         console.log('Command queue size: ', commandKeys.length);
 
@@ -140,6 +150,14 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
             if (getState().bluetoothCommandSlice.isWaitingForResponse) {
                 success = false;
                 console.log('Device did not respond in time');
+
+                // Update the connected devices list
+                connectedDevices = getState().deviceSlice.connectedDevices;
+
+                if (!connectedDevices.includes(curCommand.deviceKey)) {
+                    console.log('Device is no longer connected');
+                    break;
+                }
 
                 // Get the number of times the message has failed
                 let numFails = retryMap.get(curCommandKey) || 0;
