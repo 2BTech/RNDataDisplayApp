@@ -4,7 +4,7 @@ import { Action, CombinedState, } from 'redux';
 import { clearIsWriting } from '../../slices/firmwareSlice';
 import { bluetoothWriteCommand, } from '../Bluetooth/BluetoothWriteCommandMiddleware';
 import { bluetoothCommand, getUniqueKeyForCommand } from '../../slices/bluetoothCommandSlice';
-import { BuildFirmwareUploadMessage } from '../../../Utils/Bluetooth/BluetoothCommandUtils';
+import { BuildFirmwareUploadMessage, BuildRestartCommand, } from '../../../Utils/Bluetooth/BluetoothCommandUtils';
 
 // Function that will handle queuing the next firmware section to write to the current device
 export function queueNextFirmwareSection() {
@@ -18,6 +18,19 @@ export function queueNextFirmwareSection() {
         if (currentSection >= totalSections) {
             console.log('Finished writing firmware');
             dispatch(clearIsWriting());
+
+            // Wait for 10 seconds
+            await new Promise(r => setTimeout(r, 10000));
+
+            // Write command 103 to restart the PAM
+            let command: bluetoothCommand = {
+                deviceKey,
+                key: getUniqueKeyForCommand(),
+                command: BuildRestartCommand(),
+            }
+
+            dispatch(bluetoothWriteCommand(command));
+            
             return;
         }
 
@@ -28,6 +41,12 @@ export function queueNextFirmwareSection() {
         }
 
         console.log('Queuing firmware section ', currentSection, ' / ', totalSections);
+
+        // // Every 10 sections, wait 1/2 second
+        // if (currentSection % 10 == 0) {
+        //     console.log('Waiting 1/2 second');
+        //     await new Promise(r => setTimeout(r, 500));
+        // }
 
         // Queue the next firmware section
         dispatch(bluetoothWriteCommand(command));

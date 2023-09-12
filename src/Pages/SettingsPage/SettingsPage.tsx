@@ -210,7 +210,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                                         .then(chunked => {
                                             setIsDownloadingFirmware(false);
 
-                                            const firmwareChunkSize: number = 3500;
+                                            const firmwareChunkSize: number = 995 + 1024;
 
                                             let combined = chunked.join('');
 

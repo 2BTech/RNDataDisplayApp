@@ -38,3 +38,10 @@ export const BuildFirmwareUploadMessage = (data: string, index: number, numParts
         body: data,
     });
 }
+
+export const BuildRestartCommand = () => {
+    return JSON.stringify({
+        command: 103,
+        body: [],
+    });
+}
