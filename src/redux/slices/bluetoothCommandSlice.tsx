@@ -3,9 +3,14 @@ import { DeviceId } from "./deviceSlice";
 import uuid from 'react-native-uuid';
 
 export interface bluetoothCommand {
+    // The device to send the command to
     deviceKey: DeviceId;
+    // The command to send
     command: string;
+    // The unique key for this command
     key: string;
+    // The callback to call when the response is received
+    callback?: (response: string) => void;
 }
 
 export type CommandMap = {

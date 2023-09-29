@@ -274,6 +274,16 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
     }
 }
 
+// Check if each character in the given string a number
+function isNumeric(str: string) {
+    for (let i = 0; i < str.length; i++) {
+        if (str.charAt(i) < '0' || str.charAt(i) > '9') {
+            return false;
+        }
+    }   
+    return true;
+}
+
 export function handleDirectConnectData(data: BleManagerDidUpdateValueForCharacteristicEvent) {
     return async (dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) => {
         if (data.peripheral == undefined) {
@@ -315,8 +325,17 @@ export function handleDirectConnectData(data: BleManagerDidUpdateValueForCharact
                 dispatch(clearDeviceMessage(data.peripheral));
             }
         } catch (err) {
+            // Check if the message is numeric
+            if (isNumeric(fullMessage)) {
+                // Acknowledge that the firmware was received
+                console.log('Received firmware message');
+                dispatch(setIsWaitingForResponse(false));
+                // Queue up the next part of the firmware message
+                dispatch(incrementCurrentSection());
+                return;
+            } 
             // If there is existing data and the current data could be its own message
-            if (existingData != null && currentData.length > 3) {
+            else if (existingData != null && currentData.length > 3) {
                 currentData = currentData.substring(0, currentData.length - 3);
 
                 try {

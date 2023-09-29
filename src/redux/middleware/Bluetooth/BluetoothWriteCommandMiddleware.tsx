@@ -183,6 +183,13 @@ async function handleBluetoothCommandQueue(dispatch: ThunkDispatch<RootState, vo
                 // Dequeue the message
                 // console.log('Dequeuing message: ', curCommand);
                 await dispatch(dequeueMessage(curCommand));
+
+                // If success, call the callback function
+                if (curCommand.callback != undefined) {
+                    curCommand.callback('Success');
+                }
+                // FLAG: ToDo, add parameter to bluetooth command the sets the max number 
+                // of fails before the command is removed from the queue
             }
 
             // await sleep(1000);

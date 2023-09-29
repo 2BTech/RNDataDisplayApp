@@ -17,6 +17,8 @@ import { BuildChangeSettingsCommand, BuildFirmwareUploadMessage, requestSettings
 import ButtonSettingComponent from "./Components/ButtonSettingsComponent";
 import { setFirmwareDevice, setFirmwareSections } from "../../redux/slices/firmwareSlice";
 import { queueNextFirmwareSection } from "../../redux/middleware/Firmware/writeFirmwareMiddleware";
+import { checkFirmwareFileExists, getFirmwareFilePath } from "../../Utils/Firmware/DownloadFirmwareUtils";
+import * as RNFS from 'react-native-fs';
 
 interface SettingsPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
@@ -26,34 +28,45 @@ export type ChangedSettingsMap = {
     [key: string]: SettingObj;
 }
 
-const fetchFirmwareSize = async (deviceName:string) => {
-    try {
-        let response = await fetch(
-            'https://air.api.dev.airqdb.com/v2/update/size?id=' + deviceName,
-        );
-        let responseJson = await response.json();
-        const numSections = Math.ceil(Number(responseJson) / 50000);
-        return numSections;
-    } catch (err) {
-        console.log('Fetch firmware size error: ', err);
-        return -1;
-    }
-}
+// Read in the existing firmware file, chunk the contents, and queue the chunks to be written to the device
+const writeFirmwareToDevice = async (deviceKey: DeviceId, updateFirmware: (deviceKey: DeviceId, firmware: string[]) => void) => {
 
-const fetchFirmware = async (deviceName:string, numSections: number, updateProgress: ((index: number) => void)) => {
-    // console.log('Fetching firmware for ', deviceName, '. Num Sections: ', numSections);
+    // Check if a firmware file exists
+    const firmwareFileExists = await checkFirmwareFileExists();
+
+    // If the firmware file does not exist return
+    if (!firmwareFileExists) {
+        // Log the error
+        console.log('Firmware file does not exist');
+        return;
+    }
+
+    // Get the firmware file path
+    const firmwareFilePath = await getFirmwareFilePath();
+
+    // If the firmware file path is undefined return
+    if (firmwareFilePath == undefined) {
+        // Log the error
+        console.log('Firmware file path is undefined');
+        return;
+    }
+
+    // Read the firmware file
+    const firmwareFileContents = await RNFS.readFile(firmwareFilePath);
+
+    // Size of each chunk of firmware to send to the device
+    const firmwareChunkSize: number = 2019; //995 + 1024 + 2048;
+    // const firmwareChunkSize: number = 4067; //995 + 1024 + 2048;
+
+    // Convert the firmware file contents into chuncks of firmwareChunkSize bytes
     let firmware: string[] = [];
-    for (let i = 0; i < numSections; i++) {
-        updateProgress(i);
-        let response = await fetch(
-            'https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i
-        );
 
-        const text = await response.text();
-        firmware.push(text);
+    for (let i = 0; i < firmwareFileContents.length; i += firmwareChunkSize) {
+        firmware.push(firmwareFileContents.substring(i, i + firmwareChunkSize));
     }
 
-    return firmware;
+    // Update the firmware slice with the firmware chunks
+    updateFirmware(deviceKey, firmware);
 }
 
 const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, queueMultipleMessages, isWritingFirmware, updateFirmware, currentSection, totalSections}) => {
@@ -79,13 +92,6 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
             [setting.description]: setting,
         });
     }
-
-    // Flag, Causing infinite sends
-    // useEffect(() => {
-    //     if (deviceSettings.length <= 1) {
-    //         querySettings(deviceKey);
-    //     }
-    // }, [deviceSettings]);
 
     const updateEntry: ((col: (SettingObj[] | undefined), updatedSettings: SettingObj[]) => (SettingObj[])) = (col: (SettingObj[] | undefined), updatedSettings: SettingObj[]) => {
         if (col == undefined || col.length == 0) {
@@ -200,29 +206,9 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
                             case 'button':
                                 return <ButtonSettingComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} onPress={() => {
-                                    setIsDownloadingFirmware(true);
-                                    fetchFirmwareSize(deviceID)
-                                        .then(numSections => {
-                                            setFirmwareDownloadProgress(0);
-                                            setNumFirmwareSections(numSections);
-                                            return fetchFirmware(deviceID, numSections, setFirmwareDownloadProgress)
-                                        })
-                                        .then(chunked => {
-                                            setIsDownloadingFirmware(false);
-
-                                            const firmwareChunkSize: number = 995 + 1024;
-
-                                            let combined = chunked.join('');
-
-                                            // Convert the combined firmware chuncks into chuncks of firmwareChunkSize bytes
-                                            let firmware: string[] = [];
-                                            // let commands: bluetoothCommand[] = [];
-                                            for (let i = 0; i < combined.length; i += firmwareChunkSize) {
-                                                firmware.push(combined.substring(i, i + firmwareChunkSize));
-                                            }
-                                            updateFirmware(deviceKey, firmware);
-                                        })
-                                    }}
+                                    if (setting.id == 'Firmware Update') {
+                                        writeFirmwareToDevice(deviceKey, updateFirmware);
+                                    }}}
                                         />
                         }
                     })

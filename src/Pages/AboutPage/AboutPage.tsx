@@ -1,11 +1,22 @@
-import React, { FC, } from "react";
+import React, { FC, useEffect, } from "react";
 import { StyleSheet, View, Text,TouchableOpacity, Linking, } from "react-native";
+import { downloadFirmware, getFirmwareVersion } from "../../Utils/Firmware/DownloadFirmwareUtils";
 
 interface AboutPageProps {
     openTutorial: (() => void)
 }
 
 const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
+    // Holds the current firmware version
+    const [firmwareVersion, setFirmwareVersion] = React.useState<string | undefined>(undefined);
+
+    useEffect(() => {
+        // Get the current downloaded firmware version
+        getFirmwareVersion().then((version) => {
+            setFirmwareVersion(version || 'Not Downloaded');
+        });
+    }, []);
+
     return (
         <View style={styles.container}>
             <View style={{height: '5%'}} />
@@ -25,7 +36,16 @@ const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
                 <Text style={StyleSheet.compose(styles.supportText, {color: 'blue', textDecorationLine: 'underline'})} onPress={() => Linking.openURL('https://twobtech.com')}>https://twobtech.com</Text>
             </View>
 
-            <View style={{height: '30%'}} />
+            <View style={{height: '10%'}} />
+
+            <View style={{width: '100%', alignItems: 'center'}}>
+                <Text style={styles.firmwareText}>Firmware Version: {firmwareVersion}</Text>
+                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={() => {downloadFirmware('PAM', (progress: number) => { console.log('Progress: ', progress); })}}>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Download Firmware</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={{height: '10%'}} />
 
             <View style={{width: '100%', alignItems: 'center'}}>
                 <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={openTutorial}>
@@ -101,6 +121,13 @@ const styles = StyleSheet.create({
     buttonText: {
         fontSize: 16,
         color: 'white',
+    },
+
+    firmwareText: {
+        color: 'black',
+        fontSize: 20,
+        textAlign: 'left',
+        width: '100%',
     },
 });
 

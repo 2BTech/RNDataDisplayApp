@@ -255,7 +255,7 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
         xDomain={xRange}
         yDomain={yRange}
         // Creates room for axis labels
-        padding={{ left: 30, top: 20, bottom: 20, right: 20, }}
+        padding={{ left: 50, top: 20, bottom: 20, right: 20, }}
         >
             <VerticalAxis tickCount={5} />
             <HorizontalAxisTime tickCount={5} />
