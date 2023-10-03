@@ -76,6 +76,33 @@ const writeFirmwareToDevice = async (deviceKey: DeviceId, deviceName: string, up
 }
 
 const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, queueMultipleMessages, isWritingFirmware, updateFirmware, currentSection, totalSections, deviceName}) => {
+    // Create a copy of the device settings array to update
+    let devSettings: SettingObj[] = deviceSettings || [];
+        // // Always add the download PAM firmware option
+        devSettings.push({
+        currentVal: '',
+        description: 'Download PAM Firmware',
+        id: 'Download Firmware',
+        isDevice: false,
+        items: [],
+        type: 'download',
+        valueType: '',
+    });
+
+    // If this is not the default device, add the option to upload data
+    // FLAG: to do, once more devices are integrated, I will need to filter this by device type
+    if (deviceKey != 'Default') {
+        devSettings.push({
+            currentVal: '',
+            description: 'Firmware Update',
+            id: 'Firmware Update',
+            isDevice: false,
+            items: [],
+            type: 'button',
+            valueType: '',
+        });
+    }
+    
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
     const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
@@ -86,7 +113,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
     let defaultExpandedMap:{[key: string]: boolean} = {
 
     };
-    deviceSettings.forEach(set => {
+    devSettings.forEach(set => {
         defaultExpandedMap[set.description] = false;
     });
     const [expandedMap, updateExpandedMap] = useState(defaultExpandedMap);
@@ -143,7 +170,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
 
         const updated: SettingObj[] = Object.values(changedSettings).filter(set => set.id != 'Firmware Update');
         
-        let updatedSettings = updateEntry(deviceSettings, updated).filter(set => set.id != 'Firmware Update');
+        let updatedSettings = updateEntry(devSettings, updated).filter(set => set.id != 'Firmware Update');
         console.log('Updated: ', JSON.stringify(updatedSettings));
 
         // console.log('Updated settings: ', updatedSettings);
@@ -193,7 +220,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
             }
             <ScrollView>
                 {
-                    deviceSettings.map(setting => {
+                    devSettings.map(setting => {
                         switch (setting.type) {
                             case 'value':
                                 return <ValueSettingComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} />
@@ -332,37 +359,8 @@ const styles = StyleSheet.create({
 })
 
 const mapStateToProps = (state: RootState, ownProps: any) => {
-    let sets = state.deviceSettingsSlice[ownProps.deviceKey] || [];
-
-    console.log('Device settings: ', ownProps.deviceKey);
-
-    // Always add the download PAM firmware option
-    sets.push({
-        currentVal: '',
-        description: 'Download PAM Firmware',
-        id: 'Download Firmware',
-        isDevice: false,
-        items: [],
-        type: 'download',
-        valueType: '',
-    });
-
-    // If this is not the default device, add the option to upload data
-    // FLAG: to do, once more devices are integrated, I will need to filter this by device type
-    if (ownProps.deviceKey != 'Default') {
-        sets.push({
-            currentVal: '',
-            description: 'Firmware Update',
-            id: 'Firmware Update',
-            isDevice: false,
-            items: [],
-            type: 'button',
-            valueType: '',
-        });
-    }
-
     return {
-        deviceSettings: sets,
+        deviceSettings: state.deviceSettingsSlice[ownProps.deviceKey],
         isWritingFirmware: state.firmwareSlice.isWriting,
         totalSections: state.firmwareSlice.totalSections,
         currentSection: state.firmwareSlice.currentSection,
