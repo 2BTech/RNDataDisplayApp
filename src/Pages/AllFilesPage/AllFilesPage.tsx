@@ -36,13 +36,16 @@ const AllFilesPage: FC<AllFilesPageProps> = React.memo(({devices}) => {
     const [allFiles, setAllFiles] = useState<DeviceFileTypeMap | undefined>(undefined);
     const [selectedDevice, setSelectedDevice] = useState<string | undefined>(undefined);
     const [selectedFileType, setSelectedFileType] = useState<FileTypes>(FileTypes.LocalDataFile);
-    
+
     // Drop down state values
     const [dropdownIsOpen, setDropDownIsOpen] = useState<boolean>(false);
     const [dropdownValue, setDropdownValue] = useState(null);
 
     const gatherAllFiles: () => Promise<void> = async () => {
-        const filesMap = await queryAllFiles(RNFS.DocumentDirectoryPath) || {};
+        let filesMap = await queryAllFiles(RNFS.DocumentDirectoryPath) || {};
+
+        // Delete the firmware entry if it exists
+        delete filesMap['firmware'];
 
         // console.log('Files map:', filesMap);
 
@@ -51,6 +54,7 @@ const AllFilesPage: FC<AllFilesPageProps> = React.memo(({devices}) => {
             const selected = Object.keys(filesMap).sort()[0];
             setSelectedDevice(selected);
             if (Object.keys(filesMap[selected])) {
+                console.log('A');
                 setSelectedFileType(stringToFileType(Object.keys(filesMap[selected]).sort()[0]));
             }
         }
@@ -71,6 +75,7 @@ const AllFilesPage: FC<AllFilesPageProps> = React.memo(({devices}) => {
         const deviceDropdown = Object.keys(allFiles).map(item => {return {label: item, value: item}});
         
         if (allFiles[selectedDevice][selectedFileType] == null) {
+            console.log('B');
             setSelectedFileType(stringToFileType(Object.keys(allFiles[selectedDevice])[0]));
         }
         return (

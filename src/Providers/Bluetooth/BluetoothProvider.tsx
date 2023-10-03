@@ -10,10 +10,10 @@ import BleManager, {
     Peripheral,
 } from 'react-native-ble-manager';
 import { ThunkDispatch } from "redux-thunk";
-import { RootState } from "../../redux/store";
+import { RootState, store } from "../../redux/store";
 import { Action } from "redux";
 import { ConnectionType, DeviceId, clearAvailable, disconnectFromDevice, discoverDevice } from "../../redux/slices/deviceSlice";
-import { ConnectedProps, connect, } from "react-redux";
+import { ConnectedProps, connect, useSelector, } from "react-redux";
 import { handleBeaconData } from "../../redux/middleware/Bluetooth/BluetoothBeaconMiddleware";
 import { handleDirectConnectData } from "../../redux/middleware/Bluetooth/BluetoothDirectMiddleware";
 import { clearMessagesForDevice } from "../../redux/slices/bluetoothCommandSlice";
@@ -96,11 +96,22 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
         return;
       }
 
-      discoverDevice(updatedPeripheral);
-
-      if (updatedPeripheral.advertising.serviceUUIDs?.includes('0061')) {
-        onReceiveBeaconData(updatedPeripheral);
+      // Check if the device is in the connected list
+      if (store.getState().deviceSlice.connectedDevices.find((deviceKey) => deviceKey == id) != undefined) {
+        // If the device is a beaon, parse the data, else ignore it
+        if (updatedPeripheral.advertising.serviceUUIDs?.includes('0061')) {
+          onReceiveBeaconData(updatedPeripheral);
+        } else {
+          // ToDo, FLAG, this is probably an error edge case where a direct connect device that was once
+          // connected has disconnected. We should now reconnect to it
+          return;
+        }
       }
+      // Check if the device is not in the available list. If not, then 'discover' it
+      else if (store.getState().deviceSlice.availableDevices.find((deviceKey) => deviceKey == id) == undefined) {
+        discoverDevice(updatedPeripheral);
+      }
+      // If a device reaches here, it is in the available list so ignore it
     };
 
     const handleDisconnectedPeripheral = (

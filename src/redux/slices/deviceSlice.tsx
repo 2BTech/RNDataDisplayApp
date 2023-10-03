@@ -11,8 +11,11 @@ export interface DeviceDefinition {
 }
 
 export interface DeviceSliceState {
+    // The devices that the app is currently connected to
     connectedDevices: Array<DeviceId>;
+    // The devices that the app has discovered but is not connected to
     availableDevices: Array<DeviceId>;
+    // The device definitions for all devices
     deviceDefinitions: DeviceDefinitionMap;
 }
 
