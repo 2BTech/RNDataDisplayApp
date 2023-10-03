@@ -1,14 +1,9 @@
-import React, { FC, useState, useEffect, } from "react";
+import React, { FC, useState, } from "react";
 import { View, StyleSheet, Text, Modal, TouchableOpacity, ScrollView, Image, } from 'react-native';
 import { ConnectedProps, connect, useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { DeviceId } from "../../redux/slices/deviceSlice";
 import { SettingObj, setDeviceSettings } from "../../redux/slices/deviceSettingsSlice";
-import OpenSettingComponent from "./Components/OpenSettingComponent";
-import ToggleSettingComponent from "./Components/ToggleSettingComponent";
-import OptionsSettingComponent from "./Components/OptionsSettingComponent";
-import MenuSettingsComponent from "./Components/MenuSettingComponent";
-import ValueSettingComponent from "./Components/ValueSettingComponent";
 import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
 import { bluetoothCommand, getUniqueKeyForCommand, queueMessageForWrite, queueMultipleMessagesForWrite } from "../../redux/slices/bluetoothCommandSlice";
@@ -20,6 +15,13 @@ import { queueNextFirmwareSection } from "../../redux/middleware/Firmware/writeF
 import { checkFirmwareFileExists, getFirmwareFilePath } from "../../Utils/Firmware/DownloadFirmwareUtils";
 import * as RNFS from 'react-native-fs';
 
+import OpenSettingComponent from "./Components/OpenSettingComponent";
+import ToggleSettingComponent from "./Components/ToggleSettingComponent";
+import OptionsSettingComponent from "./Components/OptionsSettingComponent";
+import MenuSettingsComponent from "./Components/MenuSettingComponent";
+import ValueSettingComponent from "./Components/ValueSettingComponent";
+import DownloadFirmwareComponent from "./Components/DownloadFirmwareComponent";
+
 interface SettingsPageProps extends PropsFromRedux {
     deviceKey: DeviceId;
 }
@@ -28,11 +30,15 @@ export type ChangedSettingsMap = {
     [key: string]: SettingObj;
 }
 
+const DownloadFirmware = async (deviceKey: DeviceId) => {
+    
+}
+
 // Read in the existing firmware file, chunk the contents, and queue the chunks to be written to the device
-const writeFirmwareToDevice = async (deviceKey: DeviceId, updateFirmware: (deviceKey: DeviceId, firmware: string[]) => void) => {
+const writeFirmwareToDevice = async (deviceKey: DeviceId, deviceName: string, updateFirmware: (deviceKey: DeviceId, firmware: string[]) => void) => {
 
     // Check if a firmware file exists
-    const firmwareFileExists = await checkFirmwareFileExists();
+    const firmwareFileExists = await checkFirmwareFileExists(deviceName);
 
     // If the firmware file does not exist return
     if (!firmwareFileExists) {
@@ -42,7 +48,7 @@ const writeFirmwareToDevice = async (deviceKey: DeviceId, updateFirmware: (devic
     }
 
     // Get the firmware file path
-    const firmwareFilePath = await getFirmwareFilePath();
+    const firmwareFilePath = await getFirmwareFilePath(deviceName);
 
     // If the firmware file path is undefined return
     if (firmwareFilePath == undefined) {
@@ -69,7 +75,7 @@ const writeFirmwareToDevice = async (deviceKey: DeviceId, updateFirmware: (devic
     updateFirmware(deviceKey, firmware);
 }
 
-const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, queueMultipleMessages, isWritingFirmware, updateFirmware, currentSection, totalSections}) => {
+const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, queueMultipleMessages, isWritingFirmware, updateFirmware, currentSection, totalSections, deviceName}) => {
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];
     const deviceID: string = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey].deviceName);
@@ -204,24 +210,27 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                             case 'menu':
                                 return <MenuSettingsComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} expandedMap={expandedMap} updateExpandedMap={updateExpandedMap} changedSettings={changedSettings} />
 
+                            case 'download':
+                                return <DownloadFirmwareComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} deviceName={deviceName} />
+
                             case 'button':
                                 return <ButtonSettingComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} onPress={() => {
                                     if (setting.id == 'Firmware Update') {
-                                        writeFirmwareToDevice(deviceKey, updateFirmware);
+                                        writeFirmwareToDevice(deviceKey, deviceName, updateFirmware);
                                     }}}
                                         />
                         }
                     })
                 }
             </ScrollView>
-                <View style={styles.buttonContainerStyle}>
-                    <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onSaveClicked}>
-                        <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Save</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onRefreshClicked}>
-                        <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Refresh</Text>
-                    </TouchableOpacity>
-                </View>
+            <View style={styles.buttonContainerStyle}>
+                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onSaveClicked}>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onRefreshClicked}>
+                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Refresh</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 });
@@ -324,9 +333,24 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state: RootState, ownProps: any) => {
     let sets = state.deviceSettingsSlice[ownProps.deviceKey] || [];
-    
-    return {
-        deviceSettings: [...sets, {
+
+    console.log('Device settings: ', ownProps.deviceKey);
+
+    // Always add the download PAM firmware option
+    sets.push({
+        currentVal: '',
+        description: 'Download PAM Firmware',
+        id: 'Download Firmware',
+        isDevice: false,
+        items: [],
+        type: 'download',
+        valueType: '',
+    });
+
+    // If this is not the default device, add the option to upload data
+    // FLAG: to do, once more devices are integrated, I will need to filter this by device type
+    if (ownProps.deviceKey != 'Default') {
+        sets.push({
             currentVal: '',
             description: 'Firmware Update',
             id: 'Firmware Update',
@@ -334,11 +358,15 @@ const mapStateToProps = (state: RootState, ownProps: any) => {
             items: [],
             type: 'button',
             valueType: '',
-        }],
+        });
+    }
 
+    return {
+        deviceSettings: sets,
         isWritingFirmware: state.firmwareSlice.isWriting,
         totalSections: state.firmwareSlice.totalSections,
         currentSection: state.firmwareSlice.currentSection,
+        deviceName: state.deviceSlice.deviceDefinitions[ownProps.deviceKey].deviceName,
     }
 }
 

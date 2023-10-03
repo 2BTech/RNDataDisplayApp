@@ -1,6 +1,5 @@
 import React, { FC, useEffect, } from "react";
 import { StyleSheet, View, Text,TouchableOpacity, Linking, } from "react-native";
-import { downloadFirmware, getFirmwareVersion } from "../../Utils/Firmware/DownloadFirmwareUtils";
 
 interface AboutPageProps {
     openTutorial: (() => void)
@@ -9,13 +8,6 @@ interface AboutPageProps {
 const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
     // Holds the current firmware version
     const [firmwareVersion, setFirmwareVersion] = React.useState<string | undefined>(undefined);
-
-    useEffect(() => {
-        // Get the current downloaded firmware version
-        getFirmwareVersion().then((version) => {
-            setFirmwareVersion(version || 'Not Downloaded');
-        });
-    }, []);
 
     return (
         <View style={styles.container}>
@@ -27,22 +19,13 @@ const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
             <View style={{height: '10%'}} />
 
             <View>
-                <Text style={styles.infoText}>Build Version: 2.1.3</Text>
+                <Text style={styles.infoText}>Build Version: 2.1.4</Text>
                 <Text style={styles.infoText}>Build Date: Sep 2023</Text>
             </View>
 
             <View style={{width: '100%', flexDirection: 'row'}}>
                 <Text style={styles.supportText}>Support: </Text>
                 <Text style={StyleSheet.compose(styles.supportText, {color: 'blue', textDecorationLine: 'underline'})} onPress={() => Linking.openURL('https://twobtech.com')}>https://twobtech.com</Text>
-            </View>
-
-            <View style={{height: '10%'}} />
-
-            <View style={{width: '100%', alignItems: 'center'}}>
-                <Text style={styles.firmwareText}>Firmware Version: {firmwareVersion}</Text>
-                <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={() => {downloadFirmware('PAM', (progress: number) => { console.log('Progress: ', progress); })}}>
-                    <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Download Firmware</Text>
-                </TouchableOpacity>
             </View>
 
             <View style={{height: '10%'}} />

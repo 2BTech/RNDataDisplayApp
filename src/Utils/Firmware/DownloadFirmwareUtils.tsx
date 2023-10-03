@@ -1,9 +1,15 @@
 import * as RNFS from 'react-native-fs';
 
-// Returns true if the firmware file exists
-export const checkFirmwareFileExists = async (): Promise<boolean> => {
+// Returns the anticipated path to the firmware file
+export const getBaseFirmwareDir = (deviceName: string): string => {
     // Create the path to the directory that holds the firmware files
-    const firmwareDirectoryPath = `${RNFS.DocumentDirectoryPath}/firmware/`;
+    return `${RNFS.DocumentDirectoryPath}/firmware/` + deviceName + '/';
+}
+
+// Returns true if the firmware file exists
+export const checkFirmwareFileExists = async (deviceName: string): Promise<boolean> => {
+    // Create the path to the directory that holds the firmware files
+    const firmwareDirectoryPath = getBaseFirmwareDir(deviceName);
 
     // The firmware directory does not exist return false
     if (!(await RNFS.exists(firmwareDirectoryPath))) {
@@ -14,17 +20,15 @@ export const checkFirmwareFileExists = async (): Promise<boolean> => {
     const firmwareDirectoryEntries = await RNFS.readDir(firmwareDirectoryPath);
 
     // Check if the firmware file exists
-    const firmwareFileExists = firmwareDirectoryEntries.find((entry) => entry.isFile() && entry.name.endsWith('firmware.bin'));
-
-    return firmwareFileExists != undefined;
+    return firmwareDirectoryEntries.some((entry) => entry.isFile() && entry.name.endsWith('firmware.bin'));
 };
 
-// Returns the firmware version if the file exists, else returns undefined
-export const getFirmwareVersion = async (): Promise<string | undefined> => {
+// Returns the firmware file path if the file exists, else returns undefined
+export const getFirmwareFilePath = async (deviceName: string): Promise<string | undefined> => {
     // Create the path to the directory that holds the firmware files
-    const firmwareDirectoryPath = `${RNFS.DocumentDirectoryPath}/firmware/`;
+    const firmwareDirectoryPath = getBaseFirmwareDir(deviceName);
 
-    // The firmware directory does not exist return undefined
+    // The firmware directory does not exist return false
     if (!(await RNFS.exists(firmwareDirectoryPath))) {
         return undefined;
     }
@@ -32,41 +36,46 @@ export const getFirmwareVersion = async (): Promise<string | undefined> => {
     // Read all entries in the firmware directory
     const firmwareDirectoryEntries = await RNFS.readDir(firmwareDirectoryPath);
 
-    // Check if the firmware file exists
-    const firmwareFileEntry = firmwareDirectoryEntries.find((entry) => entry.isFile() && entry.name.endsWith('firmware.bin'));
+    // Get the firmware file entry
+    const entry = firmwareDirectoryEntries.find((entry) => entry.isFile() && entry.name.endsWith('firmware.bin'));
 
     // If the firmware file does not exist return undefined
-    if (firmwareFileEntry == undefined) {
+    if (entry == undefined) {
         return undefined;
+    } else {
+        return entry.path;
     }
-
-    // Get the firmware version from the file name by removing the 'firmware.bin' from the end
-    return firmwareFileEntry.name.slice(0, - 'firmware.bin'.length);
 }
 
-// Returns the firmware file path if the file exists, else returns undefined
-export const getFirmwareFilePath = async (): Promise<string | undefined> => {
+// Returns the firmware version if the file exists, else returns undefined
+export const getFirmwareVersion = async (deviceName: string): Promise<string | undefined> => {
     // Create the path to the directory that holds the firmware files
-    const firmwareDirectoryPath = `${RNFS.DocumentDirectoryPath}/firmware/`;
+    const firmwareDirectoryPath = getBaseFirmwareDir(deviceName);
 
-    // The firmware directory does not exist return undefined
+    console.log('Firmware directory path: ', firmwareDirectoryPath);
+
+    // The firmware directory does not exist return false
     if (!(await RNFS.exists(firmwareDirectoryPath))) {
+        console.log('Firmware directory does not exist');
         return undefined;
     }
 
     // Read all entries in the firmware directory
     const firmwareDirectoryEntries = await RNFS.readDir(firmwareDirectoryPath);
 
-    // Check if the firmware file exists
-    const firmwareFileEntry = firmwareDirectoryEntries.find((entry) => entry.isFile() && entry.name.endsWith('firmware.bin'));
+    console.log('Number of entries: ', firmwareDirectoryEntries.length);
+
+    // Get the firmware file entry
+    const entry = firmwareDirectoryEntries.find((entry) => entry.isFile() && entry.name.endsWith('firmware.bin'));
 
     // If the firmware file does not exist return undefined
-    if (firmwareFileEntry == undefined) {
+    if (entry == undefined) {
+        console.log('Firmware file does not exist');
         return undefined;
+    } else {
+        // Return the firmware version
+        return entry.name.split('firmware.bin')[0];
     }
-
-    // Return the firmware file path
-    return firmwareFileEntry.path;
 }
 
 export const fetchFirmwareSize = async (deviceName: string): Promise<number> => {
@@ -86,7 +95,7 @@ export const fetchFirmwareSize = async (deviceName: string): Promise<number> => 
 export const fetchFirmwareUrl = async (deviceName:string, numSections: number, updateProgress: ((index: number) => void)): Promise<string[]> => {
     let firmware: string[] = [];
     for (let i = 0; i < numSections; i++) {
-        updateProgress(i);
+        updateProgress((i + 1) / numSections);
         let response = await fetch(
             'https://air.api.dev.airqdb.com/v2/update?id=' + deviceName + '&count=' + i
         );
@@ -101,10 +110,11 @@ export const fetchFirmwareUrl = async (deviceName:string, numSections: number, u
 // Handles downloading the firmware and saving it to a file
 export const downloadFirmware = async (deviceName: string, onProgress: (progress: number) => void): Promise<boolean> => {
     // Create the path to the directory that holds the firmware files
-    const firmwareDirectoryPath = `${RNFS.DocumentDirectoryPath}/firmware/`;
+    const firmwareDirectoryPath = getBaseFirmwareDir(deviceName);
 
     // Create the firmware directory if it does not exist
     if (!(await RNFS.exists(firmwareDirectoryPath))) {
+        console.log('Creating firmware directory');
         await RNFS.mkdir(firmwareDirectoryPath);
     }
 
@@ -113,7 +123,7 @@ export const downloadFirmware = async (deviceName: string, onProgress: (progress
     const firmwareVersion: string = 'Test';
 
     // Create the path to the firmware file
-    const firmwareFilePath = `${firmwareDirectoryPath}/${firmwareVersion}firmware.bin`;
+    const firmwareFilePath = firmwareDirectoryPath + firmwareVersion + 'firmware.bin';
 
     // Get the size of the firmware file
     const firmwareSize = await fetchFirmwareSize(deviceName);
@@ -134,7 +144,7 @@ export const downloadFirmware = async (deviceName: string, onProgress: (progress
     await RNFS.writeFile(firmwareFilePath, firmwareContents, 'utf8');
 
     // Check if the firmware file exists
-    const firmwareFileExists = await checkFirmwareFileExists();
+    const firmwareFileExists = await checkFirmwareFileExists(deviceName);
 
     // If the firmware file does not exist throw an error
     if (!firmwareFileExists) {

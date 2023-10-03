@@ -104,13 +104,21 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
             title: 'Files',
             icon: faFolder,
         });
+    }
 
-        if (selectedDevice.connectionType == ConnectionType.DirectConnect) {
-            navButtons.push({
-                title: 'Settings',
-                icon: faGears,
-            });
-        }
+    // if (selectedDevice.connectionType == ConnectionType.DirectConnect) {
+    //     navButtons.push({
+    //         title: 'Settings',
+    //         icon: faGears,
+    //     });
+    // }
+
+    navButtons.push({
+        title: 'Settings',
+        icon: faGears,
+    });
+
+    if (selectedDevice.deviceKey != 'Default') {
         navButtons.push({
             title: 'Treks',
             icon: faMap,
