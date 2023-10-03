@@ -200,12 +200,26 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
         updateChangedSettings({});
     }
 
+    // Sets the is downloading firmware flag to true
+    const onStartDownloadingFirmware = () => {
+        setIsDownloadingFirmware(true);
+    }
+    // Set the is downloading firmware flag to false
+    const onFinishDownloadingFirmware = () => {
+        setIsDownloadingFirmware(false);
+    }
+    // Update the firmware download progress view with the current progress
+    const updateFirmwareDownloadProgress = (progress: number) => {
+        setFirmwareDownloadProgress(progress);
+    }
+
     const renderDownloadProgressView = () => {
         return (
             <Modal visible={isDownloadingFirmware || isWritingFirmware} transparent animationType="none">
                 <View style={styles.overlay}>
                     <Text style={styles.downloadTitle}>{isWritingFirmware ? 'Pushing Firmware' : 'Downloading Firmware'}</Text>
-                    <Text style={styles.downloadTitle}>Progresss: { isWritingFirmware ? currentSection : firmwareDownloadProgress} / {isWritingFirmware ? totalSections : numFirmwareSections}</Text>
+                    {/* <Text style={styles.downloadTitle}>Progresss: { isWritingFirmware ? currentSection : firmwareDownloadProgress.toFixed(2)} / {isWritingFirmware ? totalSections : numFirmwareSections}</Text> */}
+                    <Text style={styles.downloadTitle}>Progresss: { isWritingFirmware ? currentSection : firmwareDownloadProgress.toFixed(2)}</Text>
                     <View style={{height: '10%'}} />
                     <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
                 </View>
@@ -238,7 +252,7 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
                                 return <MenuSettingsComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} expandedMap={expandedMap} updateExpandedMap={updateExpandedMap} changedSettings={changedSettings} />
 
                             case 'download':
-                                return <DownloadFirmwareComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} deviceName={deviceName} />
+                                return <DownloadFirmwareComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} deviceName={deviceName} onStartDownloadingFirmware={onStartDownloadingFirmware} onFinishDownloadingFirmware={onFinishDownloadingFirmware} updateFirmwareDownloadProgress={updateFirmwareDownloadProgress} />
 
                             case 'button':
                                 return <ButtonSettingComponent key={setting.id} setting={changedSettings[setting.description] || setting} level={1} onChangeValue={onChangeSetting} onPress={() => {

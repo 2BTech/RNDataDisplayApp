@@ -7,9 +7,13 @@ interface DownloadFirmwareComponentProps {
     setting: SettingObj;
     level: number;
     deviceName: string;
+
+    onStartDownloadingFirmware: () => void;
+    onFinishDownloadingFirmware: () => void;
+    updateFirmwareDownloadProgress: (progress: number) => void;
 }
 
-const DownloadFirmwareComponent: FC<DownloadFirmwareComponentProps> = React.memo(({setting, level, deviceName}) => {
+const DownloadFirmwareComponent: FC<DownloadFirmwareComponentProps> = React.memo(({setting, level, deviceName, onStartDownloadingFirmware, onFinishDownloadingFirmware, updateFirmwareDownloadProgress}) => {
     const [textVal, setTextVal] = useState<string>('');
     const [firmwareVersion, setFirmwareVersion] = useState<string | undefined>(undefined);
 
@@ -34,6 +38,11 @@ const DownloadFirmwareComponent: FC<DownloadFirmwareComponentProps> = React.memo
     // Receives the firmware download progress
     const onDownloadProgress = (progress: number) => {
         console.log('Download progress: ', progress);
+
+        updateFirmwareDownloadProgress(progress);
+        if (progress == 1) {
+            onFinishDownloadingFirmware();
+        }
     }
 
     // Called when the download button is pressed
@@ -42,6 +51,8 @@ const DownloadFirmwareComponent: FC<DownloadFirmwareComponentProps> = React.memo
         if (textVal == '') {
             return;
         }
+
+        onStartDownloadingFirmware();
 
         // Start downloading the firmware file
         downloadFirmware(textVal, onDownloadProgress)
