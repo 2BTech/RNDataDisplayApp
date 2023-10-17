@@ -78,30 +78,30 @@ const writeFirmwareToDevice = async (deviceKey: DeviceId, deviceName: string, up
 const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdatedSettings, writeUpdatedSettings, deviceSettings, querySettings, queueMultipleMessages, isWritingFirmware, updateFirmware, currentSection, totalSections, deviceName}) => {
     // Create a copy of the device settings array to update
     let devSettings: SettingObj[] = deviceSettings || [];
-        // // Always add the download PAM firmware option
-        devSettings.push({
-        currentVal: '',
-        description: 'Download PAM Firmware',
-        id: 'Download Firmware',
-        isDevice: false,
-        items: [],
-        type: 'download',
-        valueType: '',
-    });
+    // // Always add the download PAM firmware option
+    // devSettings.push({
+    //     currentVal: '',
+    //     description: 'Download PAM Firmware',
+    //     id: 'Download Firmware',
+    //     isDevice: false,
+    //     items: [],
+    //     type: 'download',
+    //     valueType: '',
+    // });
 
     // If this is not the default device, add the option to upload data
     // FLAG: to do, once more devices are integrated, I will need to filter this by device type
-    if (deviceKey != 'Default') {
-        devSettings.push({
-            currentVal: '',
-            description: 'Firmware Update',
-            id: 'Firmware Update',
-            isDevice: false,
-            items: [],
-            type: 'button',
-            valueType: '',
-        });
-    }
+    // if (deviceKey != 'Default') {
+    //     devSettings.push({
+    //         currentVal: '',
+    //         description: 'Firmware Update',
+    //         id: 'Firmware Update',
+    //         isDevice: false,
+    //         items: [],
+    //         type: 'button',
+    //         valueType: '',
+    //     });
+    // }
     
     // Access the device settings objects
     // const deviceSettings: SettingObj[] = useSelector((state: RootState) => state.deviceSettingsSlice[deviceKey]) || [];

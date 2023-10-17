@@ -103,10 +103,10 @@ const styles = StyleSheet.create({
         borderWidth: 1, 
         borderRadius: 4, 
         height: 35, 
-        margin:0, 
+        margin: 0, 
         textAlign: 'center', 
         minWidth: 60, 
-        color:"black",
+        color: "black",
         backgroundColor: 'white',
         
         // Fill all available width
