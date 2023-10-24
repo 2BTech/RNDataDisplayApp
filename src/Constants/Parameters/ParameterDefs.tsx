@@ -186,6 +186,7 @@ export const ParameterDefaultUnits: {[key: string]: string} = {
     'Temp(F)': 'F',
     Press: 'mbar',
     Battery: '%',
+    VOC: 'PPB',
 }
 
 type SigFigMap = {

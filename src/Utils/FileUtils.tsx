@@ -149,28 +149,51 @@ export const queryAllFiles: (dirPath: string) => Promise<DeviceFileTypeMap | und
 }
 
 export const deleteFile = async (file: FileEntry) => {
-    // console.log('Delete file: ', file.fileName);
+    // Get the file's directory
+    const dirPath = file.filePath.slice(0, file.filePath.lastIndexOf('/'));
+
+    console.log('Delete file: ', file.fileName, ' from ', dirPath);
+
+    // Delete the file
     await RNFS.unlink(file.filePath);
 
-    let dirPath = file.filePath;
-    dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1);
-
-    let entries = await RNFS.readDir(dirPath);
+    // Check if the directory is empty
+    let entries: RNFS.ReadDirItem[] = await RNFS.readDir(dirPath);
 
     // Check if the directory is empty
     if (entries.length == 0) {
+        console.log('Delete dir: ', dirPath);
+
         // Delete dir because it is empty
         await RNFS.unlink(dirPath);
-
-        dirPath = file.filePath;
-        dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1)
-
-        entries = await RNFS.readDir(dirPath);
-
-        if (entries.length == 0) {
-            await RNFS.unlink(dirPath);
-        }
     }
+
+
+
+
+
+    
+    // await RNFS.unlink(file.filePath);
+
+    // let dirPath = file.filePath;
+    // dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1);
+
+    // let entries = await RNFS.readDir(dirPath);
+
+    // // Check if the directory is empty
+    // if (entries.length == 0) {
+    //     // Delete dir because it is empty
+    //     await RNFS.unlink(dirPath);
+
+    //     dirPath = file.filePath;
+    //     dirPath = dirPath.slice(0, dirPath.lastIndexOf('/') - 1)
+
+    //     entries = await RNFS.readDir(dirPath);
+
+    //     if (entries.length == 0) {
+    //         await RNFS.unlink(dirPath);
+    //     }
+    // }
 }
 
 export const exportFile = async (file: FileEntry) => {

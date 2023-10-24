@@ -41,6 +41,28 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
     //     new Map<Peripheral['id'], Peripheral>(),
     // );
 
+    useEffect(() => {
+      BleManager.checkState().then((state) => {
+        console.log(`current BLE state = '${state}'.`);
+        // If Bluetooth is turned off, prompt the user to turn it on
+        if (state == 'off') {
+          // Handle android
+          if (Platform.OS == 'android') {
+            BleManager.enableBluetooth()
+              .then(() => {
+                console.log('Bluetooth is now enabled');
+              })
+              .catch(error => {
+                console.error('Failed to enable bluetooth', error);
+              });
+          } else {
+            alert('Please turn on Bluetooth.');
+          }
+        }
+      }
+      );
+    }, []);
+
     const startScanning = () => {
         if (!isScanning) {
             // reset found peripherals before scan

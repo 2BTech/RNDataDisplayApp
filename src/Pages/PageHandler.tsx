@@ -113,10 +113,12 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
     //     });
     // }
 
-    navButtons.push({
-        title: 'Settings',
-        icon: faGears,
-    });
+    if (selectedDevice.deviceKey == 'Default' || selectedDevice.connectionType == ConnectionType.DirectConnect) {
+        navButtons.push({
+            title: 'Settings',
+            icon: faGears,
+        });
+    }
 
     if (selectedDevice.deviceKey != 'Default') {
         navButtons.push({

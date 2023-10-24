@@ -69,6 +69,8 @@ export function handleBeaconData(device: Peripheral) {
             // console.log('Beacon data has not changed for ', device.name);
             return;
         }
+        
+        // console.log('Parsing beacon data for ', device.name);
 
         // console.log('Cur: ', curData);
         // console.log('Pre: ', prevData);
@@ -93,7 +95,7 @@ export function handleBeaconData(device: Peripheral) {
 
         // console.log(PackageConstantValueName[con], ' = ', value);
         if (ParameterDefaultUnits[PackageConstantValueName[con]] == undefined) {
-            console.log('No units for ', PackageConstantValueName[con]);
+            console.log('No units for `', PackageConstantValueName[con], '`');
         }
 
         let data: ParameterPointMap = {
