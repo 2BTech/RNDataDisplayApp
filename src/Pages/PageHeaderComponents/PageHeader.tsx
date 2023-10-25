@@ -35,6 +35,7 @@ const PageHeader: FC<PageHeaderProps> = React.memo(({availableDevices, selectedD
                     })} 
                     onSelectItem={selectDeviceFunction}
                     itemStartHeight={0}
+                    headerFontSize={15}
                     />
             </View>
             {/* <TouchableOpacity style={styles.iconContainer} onPress={infoFunction}>

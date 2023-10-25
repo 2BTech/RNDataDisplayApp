@@ -10,6 +10,7 @@ import BluetoothProvider from "./src/Providers/Bluetooth/BluetoothProvider";
 import AsyncStorage, { useAsyncStorage, } from '@react-native-async-storage/async-storage';
 import InfoComponent from "./src/Pages/InfoComponent/InfoComponent";
 import { WithSplashScreen } from "./src/Splash/Splash";
+import Orientation from 'react-native-orientation-locker';
 
 interface AppProps {
 
@@ -18,6 +19,8 @@ interface AppProps {
 const App: FC<AppProps> = ({}) => {
   const {getItem, setItem} = useAsyncStorage('isFirstStart');
   const [isFirstStart, setIsFirstStart] = useState<boolean>(false);
+
+  Orientation.lockToPortrait();
 
   // For the splash screen
   const [isAppReady, setIsAppReady] = useState(false);

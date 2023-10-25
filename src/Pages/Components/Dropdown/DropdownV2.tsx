@@ -23,6 +23,7 @@ export interface DropdownV2Props {
     currentVal: DropdownItem;
     onSelectItem: (undefined | ((item: DropdownItem) => void));
     itemStartHeight: number;
+    headerFontSize: number;
 }
 
 const DropdownItemComponent: FC<DropdownItemComponentProps> = React.memo(({item, onSelectItem, isSelected}) => {
@@ -33,7 +34,7 @@ const DropdownItemComponent: FC<DropdownItemComponentProps> = React.memo(({item,
     );
 });
 
-const Dropdown: FC<DropdownV2Props> = React.memo(({options, currentVal, onSelectItem, itemStartHeight}) => {
+const Dropdown: FC<DropdownV2Props> = React.memo(({options, currentVal, onSelectItem, itemStartHeight, headerFontSize}) => {
     const [isExpanded, setIsExpanded] = useState<boolean>(false);
     const [objectY, setObjY] = useState<number>(0);
 
@@ -86,7 +87,7 @@ const Dropdown: FC<DropdownV2Props> = React.memo(({options, currentVal, onSelect
             // console.log('ObjY: ', height, ' Y: ', y, ' Height: ', height);
         }}>
             {renderDropdown()}
-            <Text adjustsFontSizeToFit={true} style={dropdownStyles.dropdownText}>{currentVal.label}</Text>
+            <Text adjustsFontSizeToFit={true} style={StyleSheet.compose(dropdownStyles.dropdownText, {fontSize: headerFontSize})}>{currentVal.label}</Text>
             <FontAwesomeIcon style={dropdownStyles.icon} icon={isExpanded ? faChevronUp : faChevronDown} />
         </TouchableOpacity>
     );
