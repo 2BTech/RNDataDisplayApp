@@ -1,14 +1,15 @@
-import React, { FC, } from 'react';
+import React, { FC, } from "react";
 import { View, Text, StyleSheet, ScrollView, Dimensions, } from 'react-native';
 import Image from '../../Components/react-native-scalable-image';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faFolderOpen, } from '@fortawesome/free-solid-svg-icons';
+import BulletPoint from "../../Components/bulletPoint";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faFolder, } from '@fortawesome/free-solid-svg-icons';
 
-interface AllFilesPageDescriptionProps {
+interface Info_LocalFilesPageProps {
 
 }
 
-const AllFilesPageDescription: FC<AllFilesPageDescriptionProps> = React.memo(({}) => {
+const Info_LocalFilesPage: FC<Info_LocalFilesPageProps> = React.memo(({}) => {
     const seperatorHeight = Dimensions.get('window').height / 20;
     const picWidth = (Dimensions.get('window').width / 10) * 5;
 
@@ -17,15 +18,15 @@ const AllFilesPageDescription: FC<AllFilesPageDescriptionProps> = React.memo(({}
             <View style={{height: '15%', backgroundColor: 'white', borderBottomWidth: 1}}>
                 <View style={{height: seperatorHeight}} />
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-                        <FontAwesomeIcon icon={faFolderOpen} size={35} />
-                        <Text style={styles.titleText}>All Files Page</Text>
+                        <FontAwesomeIcon icon={faFolder} size={35} />
+                        <Text style={styles.titleText}>Local Files Page</Text>
                     </View>
                 <View style={{height: seperatorHeight / 4}} />
             </View>
 
             <ScrollView style={{width: '100%', height: '85%'}} showsVerticalScrollIndicator={false}>
                 <View style={{height: seperatorHeight}} />
-                <Text style={styles.contentText}>The all Files Page gives access to all device files that are stored on your phone. This can be used to access device files even when the device is not connected. It can be accessed by pressing the button with the open folder icon on the bottom bar.</Text>
+                <Text style={styles.contentText}>The Local Files Page provides access to all files pertaining to the selected device. It can be accessed by pressing the button with the closed folder icon on the bottom bar.</Text>
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
@@ -33,19 +34,19 @@ const AllFilesPageDescription: FC<AllFilesPageDescriptionProps> = React.memo(({}
                 </View>
 
                 <View style={{height: seperatorHeight}} />
-                <Text style={styles.contentText}>Files are seperated first by the device that created it, and then by type. Devices are displayed in order of creation, with the newest at the top of the list. To select a new device, press on the select box at the top of the page and then the desired device.</Text>
+                <Text style={styles.contentText}>The page divides the files into two or three sections depending on the connection type of the device. For beacon devices, there are options for Local and Trek. For direct connect devices, there is an additional option for remote files. Local files are files created by the phone that contains all of the received data from the device. The Remote files section contains files that are present on the connected device. The Trek files section contains the kml files created when generating a Trek.</Text>
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
-                    <Image width={picWidth * (4/3)} source={require('../../../../screenShots/LocalFilesPage/LocalFilesPageLocal.jpg')} />
+                    <Image width={picWidth * (4/3)} source={require('../../../../screenShots/AllFilesPage/SelectDevice.png')} />
                 </View>
 
                 <View style={{height: seperatorHeight}} />
-                <Text style={styles.contentText}>Each file is represented by a Files Widget. The widget displays the file name and has buttons to export and delete the file.</Text>
+                <Text style={styles.contentText}>Each file is represented by a Files Widget. The widget displays the file name and has buttons to export, delete, and sometimes download the file. The download option is only available under the Remote files section.</Text>
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
-                    <Image width={picWidth * (4/3)} source={require('../../../../screenShots/LocalFilesPage/LocalFilesPageTrek.jpg')} />
+                    <Image width={picWidth * (4/3)} source={require('../../../../screenShots/AllFilesPage/FilesButton.png')} />
                 </View>
 
                 <View style={{height: seperatorHeight}} />
@@ -53,7 +54,7 @@ const AllFilesPageDescription: FC<AllFilesPageDescriptionProps> = React.memo(({}
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
-                    <Image width={picWidth * (4/3)} source={require('../../../../screenShots/LocalFilesPage/LocalFilesShare.jpg')} />
+                    <Image width={picWidth * (4/3)} source={require('../../../../screenShots/AllFilesPage/ShareMenu.png')} />
                 </View>
 
                 <View style={{height: seperatorHeight}} />
@@ -90,4 +91,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default AllFilesPageDescription;
+export default Info_LocalFilesPage;

@@ -9,6 +9,7 @@ import AddDevicesDescription from './InfoPages/Page5_AddDevicesPage';
 import SettingsDescription from './InfoPages/Page6_Settings';
 import TreksDescriptionPage from './InfoPages/Page7_TreksPage';
 import EndPage from './InfoPages/Page8_EndPage';
+import Info_LocalFilesPage from './InfoPages/Info_LocalFilesPage';
 
 interface InfoComponentProps {
     finishCallback: () => void;
@@ -16,7 +17,7 @@ interface InfoComponentProps {
 
 const InfoComponent: FC<InfoComponentProps> = React.memo(({finishCallback,}) => {
     const [pageIndex, setPageIndex] = useState<number>(0);
-    const numberOfPages = 8;
+    const numberOfPages = 9;
 
     const renderPage = () => {
         switch (pageIndex) {
@@ -42,20 +43,25 @@ const InfoComponent: FC<InfoComponentProps> = React.memo(({finishCallback,}) => 
 
             case 4:
                 return (
-                    <AddDevicesDescription />
+                    <Info_LocalFilesPage />
                 );
 
             case 5:
                 return (
-                    <SettingsDescription />
+                    <AddDevicesDescription />
                 );
 
             case 6:
                 return (
-                    <TreksDescriptionPage />
+                    <SettingsDescription />
                 );
 
             case 7:
+                return (
+                    <TreksDescriptionPage />
+                );
+
+            case 8:
                 return (
                     <EndPage onCloseClicked={finishCallback} />
                 );
@@ -66,7 +72,6 @@ const InfoComponent: FC<InfoComponentProps> = React.memo(({finishCallback,}) => 
                 )
         }
     }
-
 
     const moveBack = () => {
         if (pageIndex > 0) {

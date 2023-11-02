@@ -1,0 +1,21 @@
+https://blog.logrocket.com/how-to-deploy-a-react-native-app-to-the-google-play-store/
+
+// Do the actual build
+cd android
+./gradlew bundleRelease
+
+// Test the build
+yarn react-native run-android --variant=release
+
+// Location of build aab file
+2BDataDisplayApp\android\app\build\outputs\bundle\release
+
+Extra Notes:
+
+Change Version Number Android
+    android/app/build.gradle
+    Change versionCode in defaultConfig
+
+IOS:
+
+    Set build and bundle version in Info.plist

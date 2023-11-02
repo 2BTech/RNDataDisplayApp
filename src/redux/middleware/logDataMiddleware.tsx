@@ -7,6 +7,7 @@ import { FileTypes, buildFullDataFilePath, mkpath } from '../../Utils/FileUtils'
 import { Action, ActionCreator, AnyAction, CombinedState, Middleware, ThunkAction, ThunkDispatch } from '@reduxjs/toolkit';
 import { RootState, store } from '../store';
 import { Dispatch } from 'react';
+import { convertGPSToString } from '../../Utils/GPSUtils';
 
 const buildDataDate: (() => string) = () => {
     const d = new Date();
@@ -15,13 +16,13 @@ const buildDataDate: (() => string) = () => {
     d.getFullYear() + "," + ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2);
 }
 
-const buildDataLine: ((data: ParameterMap, parameterNames: string[]) => string) = (data, parameterNames) => {
+const buildDataLine: ((data: ParameterMap, parameterNames: string[], gpsCoords: string) => string) = (data, parameterNames, gpsCoords) => {
     let line = parameterNames.map(parameter => {
         // console.log(data[parameter].breakdown.current.toFixed(ParameterSigFigs[parameter]));
         return data[parameter].breakdown.current.toFixed(ParameterSigFigs[parameter])
     });
 
-    return line + ',' + buildDataDate();
+    return line + ',' + gpsCoords + ',' + buildDataDate();
 }
 
 interface logDataFunct {
@@ -78,7 +79,7 @@ export function applyData(reading: DeviceReading) {
                 return;
             }
 
-            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
+            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, convertGPSToString(getState().gpsSlice.gpsCoords));
 
             let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName) || '';
             if (filePath == '' || filePath == undefined) {
@@ -101,7 +102,7 @@ export function applyData(reading: DeviceReading) {
             }
             await RNFS.appendFile(filePath, dataLine + '\n');
         } else {
-            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames);
+            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, convertGPSToString(getState().gpsSlice.gpsCoords));
             
             let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName);
             if (filePath == '' || filePath == undefined) {

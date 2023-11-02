@@ -30,7 +30,7 @@ const WelcomePage: FC<WelcomePageProps> = React.memo(({jumpToPage}) => {
             <View style={{width: '90%', flex: 1, marginHorizontal: '5%'}}>
                 <BulletPoint onPress={() => jumpToPage(1)} text='View Real Time Data' />
                 <BulletPoint onPress={() => jumpToPage(3)} text='Log and Export Data' />
-                <BulletPoint onPress={() => jumpToPage(5)} text='View and Change Device Settings' />
+                <BulletPoint onPress={() => jumpToPage(6)} text='View and Change Device Settings' />
             </View>
         </View>
     );

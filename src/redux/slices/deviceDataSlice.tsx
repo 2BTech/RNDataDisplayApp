@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { DeviceId } from "./deviceSlice";
 import { GPSCoordinate } from "./gpsSlice";
 import { convertGPSToString } from "../../Utils/GPSUtils";
+import { ParameterDefaultUnits } from "../../Constants/Parameters/ParameterDefs";
  
 export interface DataPointObj {
     value: number;
@@ -65,7 +66,7 @@ const defaultDeviceData: DeviceDataObj = {
         CO: {
             dataPoints: [],
             parameterName: 'CO',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.CO,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -80,7 +81,7 @@ const defaultDeviceData: DeviceDataObj = {
         CO2: {
             dataPoints: [],
             parameterName: 'CO2',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.CO2,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -95,7 +96,7 @@ const defaultDeviceData: DeviceDataObj = {
         O3: {
             dataPoints: [],
             parameterName: 'O3',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.O3,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -110,7 +111,7 @@ const defaultDeviceData: DeviceDataObj = {
         PM1: {
             dataPoints: [],
             parameterName: 'PM1',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.PM1,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -125,7 +126,7 @@ const defaultDeviceData: DeviceDataObj = {
         'PM 2.5': {
             dataPoints: [],
             parameterName: 'PM 2.5',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits['PM 2.5'],
             breakdown: {
                 min: 0,
                 max: 0,
@@ -140,7 +141,7 @@ const defaultDeviceData: DeviceDataObj = {
         'PM 10': {
             dataPoints: [],
             parameterName: 'PM 10',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits['PM 10'],
             breakdown: {
                 min: 0,
                 max: 0,
@@ -155,7 +156,7 @@ const defaultDeviceData: DeviceDataObj = {
         SO2: {
             dataPoints: [],
             parameterName: 'SO2',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.SO2,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -170,7 +171,7 @@ const defaultDeviceData: DeviceDataObj = {
         NO: {
             dataPoints: [],
             parameterName: 'NO',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.NO,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -185,7 +186,7 @@ const defaultDeviceData: DeviceDataObj = {
         NO2: {
             dataPoints: [],
             parameterName: 'NO2',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.NO2,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -200,7 +201,7 @@ const defaultDeviceData: DeviceDataObj = {
         NOx: {
             dataPoints: [],
             parameterName: 'NOx',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.NOx,
             breakdown: {
                 min: 0,
                 max: 0,
@@ -215,7 +216,7 @@ const defaultDeviceData: DeviceDataObj = {
         Methane: {
             dataPoints: [],
             parameterName: 'Methane',
-            parameterUnits: 'ppm',
+            parameterUnits: ParameterDefaultUnits.Methane,
             breakdown: {
                 min: 0,
                 max: 0,

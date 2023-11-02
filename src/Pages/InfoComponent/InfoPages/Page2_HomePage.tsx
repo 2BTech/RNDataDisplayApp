@@ -36,7 +36,7 @@ const HomePageDescription: FC<HomePageDescriptionProps> = React.memo(({}) => {
                 </View>
 
                 <View style={{height: seperatorHeight}} />
-                    <Text style={styles.contentText}>Each parameter reported by the device is displayed in a cell that prominetly displays the most recent reading.</Text>
+                    <Text style={styles.contentText}>Each parameter reported by the device is displayed in a cell that prominently displays the most recent reading.</Text>
                 <View style={{height: seperatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
