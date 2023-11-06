@@ -75,11 +75,11 @@ android {
 
     namespace "com.twobdatadisplay"
     defaultConfig {
-        applicationId "com.twobdatadisplay"
+        applicationId "com.twobdatadisply"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 5
-        versionName "2.0"
+        versionCode 6
+        versionName "2.0.1"
     }
     signingConfigs {
         debug {
