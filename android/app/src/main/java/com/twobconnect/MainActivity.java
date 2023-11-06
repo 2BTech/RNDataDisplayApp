@@ -1,4 +1,4 @@
-package com.twobconnect;
+package com.twobdatadisplay;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;

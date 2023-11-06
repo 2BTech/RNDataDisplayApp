@@ -1,4 +1,4 @@
-package com.twobconnect;
+package com.twobdatadisplay;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

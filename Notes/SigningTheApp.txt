@@ -1,0 +1,33 @@
+Steps:
+ 1. Generate key file
+    A. Open project in Android Studio
+    B. Build -> Generate Signed Bundle / APK
+    C. Select APK
+    D. Create new
+    E. Press Next
+    F. Select release
+ 2. Create PEM file using keytook
+    A. Open terminal
+    B. Navigate to project folder
+    C. Run command: keytool -genkeypair -v -storetype PKCS12 -keystore my-upload-key.jks -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
+ 3. Upload keyfile to google play developer console
+ 4. Update build.gradle with keyfile information
+    A. Open project in Android Studio
+    B. Open build.gradle (Module: app)
+    C. Add the following to the android section:
+        signingConfigs {
+            release {
+                storeFile file("my-upload-key.jks")
+                storePassword "password"
+                keyAlias "my-key-alias"
+                keyPassword "password"
+            }
+        }
+        buildTypes {
+            release {
+                signingConfig signingConfigs.release
+            }
+        }
+ 5. Build release version of app
+    A. Run: npx react-native run-android --variant=release
+ 6. Upload APK to Google Play Developer Console
