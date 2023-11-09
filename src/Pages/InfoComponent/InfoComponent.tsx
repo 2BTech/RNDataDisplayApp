@@ -28,27 +28,27 @@ const InfoComponent: FC<InfoComponentProps> = React.memo(({finishCallback,}) => 
 
             case 1:
                 return (
-                    <HomePageDescription />
+                    <AddDevicesDescription />
                 );
 
             case 2:
                 return (
-                    <ParameterViewDescription />
+                    <HomePageDescription />
                 );
 
             case 3:
                 return (
-                    <AllFilesPageDescription />
+                    <ParameterViewDescription />
                 );
 
             case 4:
                 return (
-                    <Info_LocalFilesPage />
+                    <AllFilesPageDescription />
                 );
 
             case 5:
                 return (
-                    <AddDevicesDescription />
+                    <Info_LocalFilesPage />
                 );
 
             case 6:

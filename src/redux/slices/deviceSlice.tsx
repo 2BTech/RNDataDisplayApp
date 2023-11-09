@@ -34,7 +34,7 @@ const initialState: DeviceSliceState = {
     deviceDefinitions: {
         'Default': {
             deviceKey: 'Default',
-            deviceName: 'Default',
+            deviceName: 'Select a device',
             connectionType: ConnectionType.Beacon,
             isConnected: true,
             fileName: '',

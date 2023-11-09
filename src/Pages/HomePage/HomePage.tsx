@@ -6,6 +6,7 @@ import ParameterOverviewPage from "./ParameterOverviewPage/ParameterOverviewPage
 import { useSelector } from 'react-redux';
 import { RootState } from "../../redux/store";
 import ParameterView from "./ParameterView";
+import AddDevicesView from "./AddDevicesView";
 import ParameterDescriptions from "../../Constants/Parameters/ParameterDefs";
 
 interface HomePageProps {
@@ -46,21 +47,32 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
     }
 
     const renderSelectedPage = () => {
-        // console.log('Rendering selected page: ', pageIndex);
-        if (pageIndex == 0) {
+        // If the selected device is the default device, show the add devices view
+        if (deviceKey == 'Default') {
             return (
                 <View style={styles.pageContainer}>
-                    <ParameterOverviewPage deviceKey={deviceKey} parameterNames={parameterNames} onPressParameter={onPressParameter} pageHeight={pageHeight} />
+                    <AddDevicesView />
                 </View>
             );
         } else {
-            // console.log('Selected parameter: ', parametersWithDescs[pageIndex - 1]);
-            return (
-                <ScrollView style={styles.pageContainer}>
-                    <ParameterView parameterName={parametersWithDescs[pageIndex - 1]} deviceKey={deviceKey} />
-                </ScrollView>
-            );
+            // console.log('Rendering selected page: ', pageIndex);
+            if (pageIndex == 0) {
+                return (
+                    <View style={styles.pageContainer}>
+                        <ParameterOverviewPage deviceKey={deviceKey} parameterNames={parameterNames} onPressParameter={onPressParameter} pageHeight={pageHeight} />
+                    </View>
+                );
+            } else {
+                // console.log('Selected parameter: ', parametersWithDescs[pageIndex - 1]);
+                return (
+                    <ScrollView style={styles.pageContainer}>
+                        <ParameterView parameterName={parametersWithDescs[pageIndex - 1]} deviceKey={deviceKey} />
+                    </ScrollView>
+                );
+            }
         }
+
+        
     }
 
     return (

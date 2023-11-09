@@ -108,19 +108,19 @@ export function connectToDirectConnect(deviceId: DeviceId) {
             });
         }
 
-        // // Send request to get all data files from the device
-        // dispatch(bluetoothWriteCommand({
-        //     deviceKey: deviceId,
-        //     command: requestDataFileNamesCommand,
-        //     key: getUniqueKeyForCommand(),
-        // }));
+        // Send request to get all data files from the device
+        dispatch(bluetoothWriteCommand({
+            deviceKey: deviceId,
+            command: requestDataFileNamesCommand,
+            key: getUniqueKeyForCommand(),
+        }));
 
-        // // Send request to get all settings from the device
-        // dispatch(bluetoothWriteCommand({
-        //     deviceKey: deviceId,
-        //     command: requestSettingsCommand,
-        //     key: getUniqueKeyForCommand(),
-        // }));
+        // Send request to get all settings from the device
+        dispatch(bluetoothWriteCommand({
+            deviceKey: deviceId,
+            command: requestSettingsCommand,
+            key: getUniqueKeyForCommand(),
+        }));
     }
 }
 

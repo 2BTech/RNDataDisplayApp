@@ -55,74 +55,60 @@ export function applyData(reading: DeviceReading) {
             gpsCoords: getState().gpsSlice.gpsCoords,
         }));
 
-        // Save the data to a file
+        // Get the current app state
+        const appState: CombinedState<RootState> = getState();
 
-        // If a beacon device, wait for the first item in the data array to receive a second item before starting to log data
-        const connType: ConnectionType = getState().deviceSlice.deviceDefinitions[reading.deviceKey].connectionType;
+        // If the device is a beacon, check if all parameters have been received
+        const connType: ConnectionType = appState.deviceSlice.deviceDefinitions[reading.deviceKey].connectionType;
         if (connType == ConnectionType.Beacon) {
-
-            let data: ParameterPointMap = {
-                ...reading.data,
-            };
-
-            Object.values(getState().deviceDataSlice.deviceData[reading.deviceKey]?.data || {}).forEach(param => {
-                if (!Object.keys(data).includes(param.parameterName)) {
-                    data[param.parameterName] = {
-                        val: param.breakdown.current,
-                        unt: param.parameterUnits,
-                    };
+            // If any of the parameters have two points, then all parameters have been received
+            let allParamsReceived = false;
+            Object.values(appState.deviceDataSlice.deviceData[reading.deviceKey].data).forEach(param => {
+                if (param.breakdown.numberOfPoints > 1) {
+                    allParamsReceived = true;
                 }
             });
-            
-            const firstParamName = getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames[0];
-            if (getState().deviceDataSlice.deviceData[reading.deviceKey].data[firstParamName].breakdown.numberOfPoints < 2) {
+
+            // If allParamsReceived is false, then return
+            if (!allParamsReceived) {
+                console.log('Not logging data for ', reading.deviceKey, ' because not all parameters have been received');
                 return;
             }
-
-            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, convertGPSToString(getState().gpsSlice.gpsCoords));
-
-            let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName) || '';
-            if (filePath == '' || filePath == undefined) {
-                filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, true);
-
-                dispatch(updateDeviceFileName({
-                    deviceKey: reading.deviceKey,
-                    fileName: filePath,
-                }));
-            }
-
-            // console.log('Filepath: ', filePath);
-
-            await mkpath(filePath.split('/').slice(0, -1).join('/'));
-
-            const fileExists = await RNFS.exists(filePath);
-
-            if (!fileExists) {
-                await RNFS.write(filePath, [...getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, 'Date', 'Time'].join(',') + '\n');
-            }
-            await RNFS.appendFile(filePath, dataLine + '\n');
-        } else {
-            const dataLine = buildDataLine(getState().deviceDataSlice.deviceData[reading.deviceKey].data, getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, convertGPSToString(getState().gpsSlice.gpsCoords));
-            
-            let filePath: string = (store.getState().deviceSlice.deviceDefinitions[reading.deviceKey].fileName);
-            if (filePath == '' || filePath == undefined) {
-                filePath = buildFullDataFilePath(getState().deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, false);
-
-                dispatch(updateDeviceFileName({
-                    deviceKey: reading.deviceKey,
-                    fileName: filePath,
-                }));
-            }
-
-            await mkpath(filePath.split('/').slice(0, -1).join('/'));
-
-            const fileExists = await RNFS.exists(filePath);
-
-            if (!fileExists) {
-                await RNFS.write(filePath, [...getState().deviceDataSlice.deviceData[reading.deviceKey].parameterNames, 'Date', 'Time'].join(',') + '\n');
-            }
-            await RNFS.appendFile(filePath, dataLine + '\n');
         }
+
+        // Get the data file name for the device. If one does not exist, create one
+        let filePath: string = (appState.deviceSlice.deviceDefinitions[reading.deviceKey].fileName) || '';
+
+        // If the file path is empty, then create a new file path
+        if (filePath == '' || filePath == undefined) {
+            filePath = buildFullDataFilePath(appState.deviceSlice.deviceDefinitions[reading.deviceKey].deviceName, FileTypes.LocalDataFile, connType == ConnectionType.Beacon);
+
+            dispatch(updateDeviceFileName({
+                deviceKey: reading.deviceKey,
+                fileName: filePath,
+            }));
+        }
+
+        // If the file path does not exist, then create it and write the data header to the file
+
+        // Make sure the directory exists
+        await mkpath(filePath.split('/').slice(0, -1).join('/'));
+
+        // Check if the file exists
+        const fileExists = await RNFS.exists(filePath);
+
+        // If the file does not exist, create it and write the header
+        if (!fileExists) {
+            await RNFS.write(filePath, [...([...appState.deviceDataSlice.deviceData[reading.deviceKey].parameterNames].sort()), 'Longitude', 'Latitude', 'Altitude', 'Date', 'Time'].join(',') + '\n');
+        }
+
+        // Build the data line
+        const dataLine = buildDataLine(appState.deviceDataSlice.deviceData[reading.deviceKey].data, appState.deviceDataSlice.deviceData[reading.deviceKey].parameterNames, convertGPSToString(appState.gpsSlice.gpsCoords));
+
+        // Append the data line to the file
+        await RNFS.appendFile(filePath, dataLine + '\n');
+
+        // console.log('Writing data to file: ', filePath, ' - ', dataLine);
     }
 }
 

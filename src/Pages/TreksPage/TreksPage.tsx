@@ -76,12 +76,12 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
         let kmlDoc: Document = CreateDefaultKMLDoc(fileName);
 
         timeStamps.forEach(time => {
-            let content = header + 'Date,Time' + '\n';
+            let content = header + ',Longitude,Latidude,Altitude,Date,Time' + '\n';
             let data: (string | number)[] = [];
             let cont: string[] = [];
             selected.forEach(param => {
-                const val: (string | number) = devData.timeData[time].points[param];
-                if (val) {
+                const val: (string | number | undefined) = devData.timeData[time].points[param];
+                if (val !== undefined) {
                     if (typeof val == 'number' && Object.keys(ParameterSigFigs).includes(param)) {
                         data.push(val.toFixed(ParameterSigFigs[param]));
                         cont.push(param + ' = ' + val.toFixed(ParameterSigFigs[param]));
@@ -89,12 +89,32 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
                         data.push(val);
                         cont.push(param + ' = ' + val);
                     }
+                } else {
+                    data.push('N/A');
+                    cont.push(param + ' = N/A');
                 }
             });
+
+            // Add GPS data
+
+            const gpsArray: string[] = devData.timeData[time].gpsCoords.split(',');
+            // Longitude
+            data.push(gpsArray[0]);
+            cont.push('Longitude = ' + gpsArray[0]);
+            // Latitude
+            data.push(gpsArray[1]);
+            cont.push('Latitude = ' + gpsArray[1]);
+            // Altitude
+            data.push(gpsArray[2]);
+            cont.push('Altitude = ' + gpsArray[2]);
+
+            // Date and time
             const timeStamp = moment(new Date(time));
+            // Date
             data.push(timeStamp.format('DD/MM/yyyy'));
-            data.push(timeStamp.format('HH:mm:ss'));
             cont.push('Date = ' + timeStamp.format('DD/MM/yyyy'));
+            // Time
+            data.push(timeStamp.format('HH:mm:ss'));
             cont.push('Time = ' + timeStamp.format('HH:mm:ss'));
 
             content += data.join(',') + '\n';

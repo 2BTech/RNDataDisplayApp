@@ -41,28 +41,6 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
     //     new Map<Peripheral['id'], Peripheral>(),
     // );
 
-    useEffect(() => {
-      BleManager.checkState().then((state) => {
-        console.log(`current BLE state = '${state}'.`);
-        // If Bluetooth is turned off, prompt the user to turn it on
-        if (state == 'off') {
-          // Handle android
-          if (Platform.OS == 'android') {
-            BleManager.enableBluetooth()
-              .then(() => {
-                console.log('Bluetooth is now enabled');
-              })
-              .catch(error => {
-                console.error('Failed to enable bluetooth', error);
-              });
-          } else {
-            alert('Please turn on Bluetooth.');
-          }
-        }
-      }
-      );
-    }, []);
-
     const startScanning = () => {
         if (!isScanning) {
             // reset found peripherals before scan
@@ -287,6 +265,90 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
       }
 
       useEffect(() => {
+        
+
+        handleAndroidPermissions()
+          .then(() => {
+            BleManager.checkState().then((state) => {
+              console.log(`current BLE state = '${state}'.`);
+              // If Bluetooth is turned off, prompt the user to turn it on
+              if (state == 'off') {
+                // Handle android
+                if (Platform.OS == 'android') {
+                  BleManager.enableBluetooth()
+                    .then(() => {
+                      console.log('Bluetooth is now enabled');
+                    })
+                    .catch(error => {
+                      console.error('Failed to enable bluetooth', error);
+                    });
+                } else {
+                  alert('Please turn on Bluetooth.');
+                }
+              }
+            }
+            );
+          })
+          .then(() => {
+            try {
+              BleManager.start({showAlert: false})
+                .then(() => {
+                    startScanning();
+                })
+                .catch(error =>
+                  console.error('BleManager could not be started.', error),
+                );
+            } catch (error) {
+              console.error('unexpected error starting BleManager.', error);
+              return;
+            }
+          });
+
+          const listeners = [
+            bleManagerEmitter.addListener(
+              'BleManagerDiscoverPeripheral',
+              handleDiscoverPeripheral,
+            ),
+            bleManagerEmitter.addListener('BleManagerStopScan', handleStopScan),
+            bleManagerEmitter.addListener(
+              'BleManagerDisconnectPeripheral',
+              handleDisconnectedPeripheral,
+            ),
+            bleManagerEmitter.addListener(
+              'BleManagerDidUpdateValueForCharacteristic',
+              handleUpdateValueForCharacteristic,
+            ),
+          ];
+      
+          return () => {
+            // console.debug('[app] main component unmounting. Removing listeners...');
+            for (const listener of listeners) {
+              listener.remove();
+            }
+          };
+
+        return;
+
+        BleManager.checkState().then((state) => {
+          console.log(`current BLE state = '${state}'.`);
+          // If Bluetooth is turned off, prompt the user to turn it on
+          if (state == 'off') {
+            // Handle android
+            if (Platform.OS == 'android') {
+              BleManager.enableBluetooth()
+                .then(() => {
+                  console.log('Bluetooth is now enabled');
+                })
+                .catch(error => {
+                  console.error('Failed to enable bluetooth', error);
+                });
+            } else {
+              alert('Please turn on Bluetooth.');
+            }
+          }
+        }
+        );
+
         try {
           BleManager.start({showAlert: false})
             .then(() => {
@@ -300,73 +362,55 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
           return;
         }
     
-        const listeners = [
-          bleManagerEmitter.addListener(
-            'BleManagerDiscoverPeripheral',
-            handleDiscoverPeripheral,
-          ),
-          bleManagerEmitter.addListener('BleManagerStopScan', handleStopScan),
-          bleManagerEmitter.addListener(
-            'BleManagerDisconnectPeripheral',
-            handleDisconnectedPeripheral,
-          ),
-          bleManagerEmitter.addListener(
-            'BleManagerDidUpdateValueForCharacteristic',
-            handleUpdateValueForCharacteristic,
-          ),
-        ];
+        // const listeners = [
+        //   bleManagerEmitter.addListener(
+        //     'BleManagerDiscoverPeripheral',
+        //     handleDiscoverPeripheral,
+        //   ),
+        //   bleManagerEmitter.addListener('BleManagerStopScan', handleStopScan),
+        //   bleManagerEmitter.addListener(
+        //     'BleManagerDisconnectPeripheral',
+        //     handleDisconnectedPeripheral,
+        //   ),
+        //   bleManagerEmitter.addListener(
+        //     'BleManagerDidUpdateValueForCharacteristic',
+        //     handleUpdateValueForCharacteristic,
+        //   ),
+        // ];
     
-        handleAndroidPermissions();
-    
-        return () => {
-          // console.debug('[app] main component unmounting. Removing listeners...');
-          for (const listener of listeners) {
-            listener.remove();
-          }
-        };
+        // return () => {
+        //   // console.debug('[app] main component unmounting. Removing listeners...');
+        //   for (const listener of listeners) {
+        //     listener.remove();
+        //   }
+        // };
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
 
-      const handleAndroidPermissions = () => {
+      const handleAndroidPermissions = async () => {
         if (Platform.OS === 'android' && Platform.Version >= 31) {
-          PermissionsAndroid.requestMultiple([
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
-            PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
-          ]).then(result => {
+          await PermissionsAndroid.requestMultiple([PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN, PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT])
+          .then(result => {
             if (result) {
-              console.debug(
-                '[handleAndroidPermissions] User accepts runtime permissions android 12+',
-              );
+              console.debug('[handleAndroidPermissions] User accepts runtime permissions android 12+');
             } else {
-              console.error(
-                '[handleAndroidPermissions] User refuses runtime permissions android 12+',
-              );
+              console.error('[handleAndroidPermissions] User refuses runtime permissions android 12+');
             }
           });
         } else if (Platform.OS === 'android' && Platform.Version >= 23) {
-          PermissionsAndroid.check(
-            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          ).then(checkResult => {
-            if (checkResult) {
-              console.debug(
-                '[handleAndroidPermissions] runtime permission Android <12 already OK',
-              );
+          const checkResult = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+
+          if (checkResult) {
+            console.debug('[handleAndroidPermissions] runtime permission Android <12 already OK');
+          } else {
+            const requestResult = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION);
+
+            if (requestResult) {
+              console.debug('[handleAndroidPermissions] User accepts runtime permission android <12');
             } else {
-              PermissionsAndroid.request(
-                PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-              ).then(requestResult => {
-                if (requestResult) {
-                  console.debug(
-                    '[handleAndroidPermissions] User accepts runtime permission android <12',
-                  );
-                } else {
-                  console.error(
-                    '[handleAndroidPermissions] User refuses runtime permission android <12',
-                  );
-                }
-              });
+              console.error('[handleAndroidPermissions] User refuses runtime permission android <12');
             }
-          });
+          }
         }
       };
 
