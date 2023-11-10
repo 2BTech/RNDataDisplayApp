@@ -71,8 +71,6 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
                 );
             }
         }
-
-        
     }
 
     return (

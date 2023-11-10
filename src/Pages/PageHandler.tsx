@@ -32,11 +32,11 @@ const PageHandler: FC<PageHandlerProps> = React.memo(({}) => {
         setSelectedDevice(deviceDefs.deviceDefinitions['Default']);
         return <></>
     }
-    // If there was previously only the default device, set the selected device to the newly connected device
-    else if (selectedDevice.deviceKey == 'Default' && deviceDefs.connectedDevices.length > 1) {
-        setSelectedDevice(deviceDefs.deviceDefinitions[deviceDefs.connectedDevices[1]]);
-        return <></>
-    }
+    // // If there was previously only the default device, set the selected device to the newly connected device
+    // else if (selectedDevice.deviceKey == 'Default' && deviceDefs.connectedDevices.length > 1) {
+    //     setSelectedDevice(deviceDefs.deviceDefinitions[deviceDefs.connectedDevices[1]]);
+    //     return <></>
+    // }
 
 
     const updateSelectedPage: (pageName: string) => void = (pageName) => {

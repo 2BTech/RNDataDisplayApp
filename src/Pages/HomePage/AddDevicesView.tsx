@@ -21,7 +21,7 @@ const AddDevicesView: FC<AddDevicesViewProps> = React.memo(({}) => {
             {/* Provide a link to the Add Devices Page */}
             <View style={styles.seperator} />
 
-            <View style={{width: '90%', paddingHorizontal: '5%'}}>
+            <View style={{width: '100%', alignContent: 'center', justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={styles.titleText}>To get started, please add a device by pressing on the + button on the bottom nav bar.</Text>
             </View>
         </View>
@@ -38,7 +38,10 @@ const styles = StyleSheet.create({
         color: 'black',
         width: '100%',
         textAlign: 'center',
-    }
+        alignContent: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });
 
 export default AddDevicesView;

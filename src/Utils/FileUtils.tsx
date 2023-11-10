@@ -44,10 +44,11 @@ export const FileExts = {
 export const buildFileDate: ((includeTime: boolean) => string) = (includeTime: boolean = false) => {
     const d = new Date();
 
+    // If include time, generate the string in the following format: yyyy_MM_dd_hh_mm_ss
     if (includeTime) {
-        return ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear() + "_" + ('0' + d.getHours()).slice(-2) + '_' + ('0' + d.getMinutes()).slice(-2) + '_' + ('0' + d.getSeconds()).slice(-2);
+        return d.getFullYear() + '_' + (d.getMonth() + 1).toString().padStart(2, '0') + '_' + d.getDate().toString().padStart(2, '0') + '_' + d.getHours().toString().padStart(2, '0') + '_' + d.getMinutes().toString().padStart(2, '0') + '_' + d.getSeconds().toString().padStart(2, '0');
     } else {
-        return ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
+        return d.getFullYear() + '_' + (d.getMonth() + 1).toString().padStart(2, '0') + '_' + d.getDate().toString().padStart(2, '0');
     }
 }
 

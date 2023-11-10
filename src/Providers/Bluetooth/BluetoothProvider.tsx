@@ -265,8 +265,6 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
       }
 
       useEffect(() => {
-        
-
         handleAndroidPermissions()
           .then(() => {
             BleManager.checkState().then((state) => {
