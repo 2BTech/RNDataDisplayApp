@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, } from "react";
-import { StyleSheet } from "react-native";
+import { PermissionsAndroid, StyleSheet, NativeModules, } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import { store } from "./src/redux/store";
@@ -15,6 +15,31 @@ import Orientation from 'react-native-orientation-locker';
 interface AppProps {
 
 };
+
+async function RequestBackgroundLocationPermission() {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_BACKGROUND_LOCATION,
+      {
+        title: "2B Connect Background Location Permission",
+        message:
+          "2B Connect needs access to your location " +
+          "so you can collect data in the background.",
+        buttonNeutral: "Ask Me Later",
+        buttonNegative: "Cancel",
+        buttonPositive: "OK"
+      }
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Background location permission granted');
+    } else {
+      console.log('Background location permission denied');
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+
+}
 
 const App: FC<AppProps> = ({}) => {
   const {getItem, setItem} = useAsyncStorage('isFirstStart');
@@ -38,6 +63,14 @@ const App: FC<AppProps> = ({}) => {
       setItem(String(Number(item) + 1));
     }
   }
+
+  useEffect(() => {
+    RequestBackgroundLocationPermission();
+    const interval = setInterval(() => {
+      console.log('Still alive');
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const renderTutorial = () => {
     if (isFirstStart) {
