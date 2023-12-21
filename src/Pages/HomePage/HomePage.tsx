@@ -24,22 +24,22 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
         }
     }, [deviceKey]);
 
-    // const parametersWithDescs = parameterNames.filter((paramName: string) => ParameterDescriptions[paramName] != undefined);
-    const parametersWithDescs = parameterNames;
+    // const parametersWithDescriptions = parameterNames.filter((paramName: string) => ParameterDescriptions[paramName] != undefined);
+    const parametersWithDescriptions = parameterNames;
 
     // Move onto the next page
     const incrementPageIndex = () => {
-        setPageIndex(pageIndex + 1 <= parametersWithDescs.length ? pageIndex + 1 : 0);
+        setPageIndex(pageIndex + 1 <= parametersWithDescriptions.length ? pageIndex + 1 : 0);
     }
     // Move to the previous page
     const decrementPageIndex = () => {
-        setPageIndex(pageIndex - 1 >= 0 ? pageIndex - 1 : parametersWithDescs.length);
+        setPageIndex(pageIndex - 1 >= 0 ? pageIndex - 1 : parametersWithDescriptions.length);
     }
     // Jump to the page for the selected parameter
     const onPressParameter = (parameterName: string) => {
         let i = 0;
-        for (; i < parametersWithDescs.length; i++) {
-            if (parameterName == parametersWithDescs[i]) {
+        for (; i < parametersWithDescriptions.length; i++) {
+            if (parameterName == parametersWithDescriptions[i]) {
                 setPageIndex(i + 1);
                 return;
             }
@@ -63,10 +63,10 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
                     </View>
                 );
             } else {
-                // console.log('Selected parameter: ', parametersWithDescs[pageIndex - 1]);
+                // console.log('Selected parameter: ', parametersWithDescriptions[pageIndex - 1]);
                 return (
                     <ScrollView style={styles.pageContainer}>
-                        <ParameterView parameterName={parametersWithDescs[pageIndex - 1]} deviceKey={deviceKey} />
+                        <ParameterView parameterName={parametersWithDescriptions[pageIndex - 1]} deviceKey={deviceKey} />
                     </ScrollView>
                 );
             }
@@ -79,7 +79,7 @@ const HomePage: FC<HomePageProps> = React.memo(({deviceKey, pageHeight}) => {
                 renderSelectedPage()
             }
             <View style={{height: '10%'}}>
-                <PageNav currentIndex={pageIndex + 1} numberOfPages={parametersWithDescs.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
+                <PageNav currentIndex={pageIndex + 1} numberOfPages={parametersWithDescriptions.length + 1} onLeftClicked={decrementPageIndex} onRightClicked={incrementPageIndex} />
             </View>
         </View>
     );

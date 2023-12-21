@@ -15,11 +15,10 @@ const OptionsSettingComponent: FC<OptionsSettingComponentProps> = React.memo(({s
             <Text style={styles.descriptionText}>{setting.description}</Text>
             <View style={styles.dropdownContainer}>
             <Dropdown
-                    currentVal={{label: setting.description, value: setting.description}}
+                    currentVal={{ label: setting.description, value: setting.description }}
                     onSelectItem={(val) => console.log('Selected: ', val)}
                     options={[]}
-                    itemStartHeight={0}
-                />
+                    itemStartHeight={0} headerFontSize={0}                />
             </View>
         </View>
     );

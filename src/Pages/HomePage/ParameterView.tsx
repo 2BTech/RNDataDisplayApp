@@ -26,7 +26,7 @@ interface ParameterSectionComponent {
 const ParameterSection: FC<ParameterSectionComponent> = React.memo(({sectionName, sectionContent, isExpanded, toggleIsExpanded}) => {
     // const [isExpanded, setIsExpanded] = useState(true);
 
-    // const toggleIsExpaned = () => {
+    // const toggleIsExpanded = () => {
     //     setIsExpanded(!isExpanded);
     // }
 
@@ -74,7 +74,7 @@ const breakdownKeyToDisplay: (key: keyof ParameterBreakdownObj) => string = (key
 }
 
 const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
-    const [breakdownIsExpanded, setBreakdownIsExpaned] = useState<boolean>(false);
+    const [breakdownIsExpanded, setBreakdownIsExpanded] = useState<boolean>(false);
     const [descriptionIsExpanded, setDescriptionIsExpanded] = useState<boolean>(false);
     const [rangesIsExpanded, setRangesIsExpanded] = useState<boolean>(false);
     const [graphIsExpanded, setGraphIsExpanded] = useState<boolean>(true);
@@ -276,7 +276,7 @@ const ParameterView: FC<ParameterViewProps> = ({parameterName, deviceKey}) => {
             </View>
 
             {/* Parameter break down */}
-            {parameterBreakdown != undefined ? <ParameterSection sectionName="Break Down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpaned(!breakdownIsExpanded)} /> : <></>}
+            {parameterBreakdown != undefined ? <ParameterSection sectionName="Break Down" sectionContent={parameterBreakdown} isExpanded={breakdownIsExpanded} toggleIsExpanded={() => setBreakdownIsExpanded(!breakdownIsExpanded)} /> : <></>}
 
             {/* Parameter Description */}
             {parameterDescription != undefined ? <ParameterSection sectionName="Description" sectionContent={parameterDescription} isExpanded={descriptionIsExpanded} toggleIsExpanded={() => setDescriptionIsExpanded(!descriptionIsExpanded)} /> : <></>}
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
         // The section should fill all of the width
         width: '100%',
 
-        // Add a line to the top to seperate different sections
+        // Add a line to the top to separate different sections
         borderTopWidth: 2,
 
         // Add space between components

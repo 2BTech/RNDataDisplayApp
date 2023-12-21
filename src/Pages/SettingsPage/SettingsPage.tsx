@@ -64,7 +64,7 @@ const writeFirmwareToDevice = async (deviceKey: DeviceId, deviceName: string, up
     const firmwareChunkSize: number = 2019; //995 + 1024 + 2048;
     // const firmwareChunkSize: number = 4067; //995 + 1024 + 2048;
 
-    // Convert the firmware file contents into chuncks of firmwareChunkSize bytes
+    // Convert the firmware file contents into chunks of firmwareChunkSize bytes
     let firmware: string[] = [];
 
     for (let i = 0; i < firmwareFileContents.length; i += firmwareChunkSize) {
@@ -218,8 +218,8 @@ const SettingsPage: FC<SettingsPageProps> = React.memo(({deviceKey, applyUpdated
             <Modal visible={isDownloadingFirmware || isWritingFirmware} transparent animationType="none">
                 <View style={styles.overlay}>
                     <Text style={styles.downloadTitle}>{isWritingFirmware ? 'Pushing Firmware' : 'Downloading Firmware'}</Text>
-                    {/* <Text style={styles.downloadTitle}>Progresss: { isWritingFirmware ? currentSection : firmwareDownloadProgress.toFixed(2)} / {isWritingFirmware ? totalSections : numFirmwareSections}</Text> */}
-                    <Text style={styles.downloadTitle}>Progresss: { isWritingFirmware ? currentSection : firmwareDownloadProgress.toFixed(2)}</Text>
+                    {/* <Text style={styles.downloadTitle}>Progress: { isWritingFirmware ? currentSection : firmwareDownloadProgress.toFixed(2)} / {isWritingFirmware ? totalSections : numFirmwareSections}</Text> */}
+                    <Text style={styles.downloadTitle}>Progress: { isWritingFirmware ? currentSection : firmwareDownloadProgress.toFixed(2)}</Text>
                     <View style={{height: '10%'}} />
                     <Image source={require('../../gifs/loader.gif')} style={{width: 50, height: 50, }} />
                 </View>
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: 'black',
     },
-    seperator: {
+    separator: {
         height: 12
     },
 

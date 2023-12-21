@@ -91,15 +91,14 @@ const AllFilesPage: FC<AllFilesPageProps> = React.memo(({devices}) => {
                         onSelect={(item: DropdownItem) => console.log('Selected: ', item.value)}
                         /> */}
                         <Dropdown 
-                            options={allFiles ? Object.keys(allFiles).map(item => {return {label: item, value: item}}) : []}
-                            currentVal={deviceDropdown.find(val => val.label == selectedDevice) || {label: 'Select Device', value: 'Select Device'}}
-                            onSelectItem={item => {
-                                if (typeof item.value == 'string') {
-                                    setSelectedDevice(item.value);
-                                }
-                            }}
-                            itemStartHeight={10}
-                            />
+                        options={allFiles ? Object.keys(allFiles).map(item => { return { label: item, value: item }; }) : []}
+                        currentVal={deviceDropdown.find(val => val.label == selectedDevice) || { label: 'Select Device', value: 'Select Device' }}
+                        onSelectItem={item => {
+                            if (typeof item.value == 'string') {
+                                setSelectedDevice(item.value);
+                            }
+                        } }
+                        itemStartHeight={10} headerFontSize={0}                            />
                         {/* <DropDownPicker 
                             open={dropdownIsOpen}
                             value={dropdownValue}
@@ -168,7 +167,7 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: 'white',
     },
-    scollView: {
+    scrollView: {
         width: '100%',
         height: '100%',
     },

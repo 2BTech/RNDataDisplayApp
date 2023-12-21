@@ -8,17 +8,17 @@ interface WelcomePageProps {
 }
 
 const WelcomePage: FC<WelcomePageProps> = React.memo(({jumpToPage}) => {
-    const seperatorHeight = Dimensions.get('window').height / 20;
+    const separatorHeight = Dimensions.get('window').height / 20;
     const picWidth = (Dimensions.get('window').width / 10) * 5;
 
     return (
         <View style={{width: '100%',}}>
             <View style={{height: '25%', backgroundColor: 'white', borderBottomWidth: 1}}>
-                <View style={{height: seperatorHeight}} />
+                <View style={{height: separatorHeight}} />
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                         <Text style={styles.titleText}>Welcome to the 2B Connect App!</Text>
                     </View>
-                <View style={{height: seperatorHeight / 4}} />
+                <View style={{height: separatorHeight / 4}} />
             </View>
 
             <View style={{height: '10%'}} />

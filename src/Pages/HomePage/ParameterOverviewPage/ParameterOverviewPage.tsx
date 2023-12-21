@@ -10,16 +10,16 @@ import { DeviceId } from "../../../redux/slices/deviceSlice";
 import { RootState } from "../../../redux/store";
 import moment from "moment";
 
-interface ParamaterOverviewPageProps {
+interface ParameterOverviewPageProps {
     deviceKey: DeviceId;
     parameterNames: Array<string>;
     onPressParameter: ((parameterName: string) => void) | undefined;
     pageHeight: number;
 }
 
-interface ParamaterCellProps {
+interface ParameterCellProps {
     deviceKey: DeviceId;
-    paramterName: string;
+    parameterName: string;
     onPressParameter: ((parameterName: string) => void) | undefined;
 
     cellHeight: number;
@@ -38,39 +38,39 @@ const LoadingCell: FC = React.memo(({}) => {
     );
 });
 
-const ParameterValueCell: FC<ParamaterCellProps> = React.memo(({paramterName, deviceKey, onPressParameter, cellHeight}) => {
-    const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[paramterName]);
+const ParameterValueCell: FC<ParameterCellProps> = React.memo(({parameterName, deviceKey, onPressParameter, cellHeight}) => {
+    const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[parameterName]);
     return (
-        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
+        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(parameterName) : () => {}}>
             <View style={styles.container}>
                 <View style={{width: '100%', height: '10%'}} />
-                <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={styles.parameterCellTitle}>{paramterName}</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={styles.parameterCellTitle}>{parameterName}</Text>
                 <View style={{width: '80%', height: '5%', marginLeft: '10%', }} />
-                <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(paramterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
+                <Text adjustsFontSizeToFit={true} numberOfLines={Platform.OS == 'android' ? undefined : 1} style={StyleSheet.compose(styles.parameterValueText, {color: getParameterValueColor(parameterName, parameterData.breakdown.current)})}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[parameterName])} {parameterData.parameterUnits}</Text>
             </View>
         </TouchableHighlight>
     );
 })
 
-const ParameterDateTimeCell: FC<ParamaterCellProps> = React.memo(({paramterName, deviceKey, onPressParameter, cellHeight}) => {
+const ParameterDateTimeCell: FC<ParameterCellProps> = React.memo(({parameterName, deviceKey, onPressParameter, cellHeight}) => {
     const timeStamps: number[] = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps);
 
     const lastTime = moment(timeStamps.length > 0 ? new Date(timeStamps[timeStamps.length - 1]) : new Date())
 
     return (
-        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
+        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(parameterName) : () => {}}>
             <View style={styles.container}>
                 <View style={{width: '100%', height: '10%'}} />
-                <Text style={styles.parameterCellTitle}>{paramterName}</Text>
+                <Text style={styles.parameterCellTitle}>{parameterName}</Text>
                 <View style={{width: '100%', height: '10%'}} />
-                <Text style={styles.parameterValueText}>{paramterName == 'Date' ? lastTime.format('DD/MM/yyyy') : lastTime.format('hh:mm:ss')}</Text>
+                <Text style={styles.parameterValueText}>{parameterName == 'Date' ? lastTime.format('DD/MM/yyyy') : lastTime.format('hh:mm:ss')}</Text>
             </View>
         </TouchableHighlight>
     );
 });
 
-const ParameterGraphCell: FC<ParamaterCellProps> = React.memo(({paramterName, deviceKey, onPressParameter, cellHeight}) => {
-    const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[paramterName]);
+const ParameterGraphCell: FC<ParameterCellProps> = React.memo(({parameterName, deviceKey, onPressParameter, cellHeight}) => {
+    const parameterData: ParameterDataObj = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].data[parameterName]);
 
     const data = {
         labels: ["January", "February", "March", "April", "May", "June"],
@@ -100,9 +100,9 @@ const ParameterGraphCell: FC<ParamaterCellProps> = React.memo(({paramterName, de
     const [cellSizeObj, setGraphSize] = useState<CellSizeObj|undefined>(undefined);
 
     return (
-        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(paramterName) : () => {}}>
+        <TouchableHighlight underlayColor={'lightblue'} style={styles.parameterCellContainer} onPress={onPressParameter ? () => onPressParameter(parameterName) : () => {}}>
             <View>
-            <Text style={styles.parameterCellTitle}>{paramterName}</Text>
+            <Text style={styles.parameterCellTitle}>{parameterName}</Text>
             {
                 <Chart
                     style={{ height: '67%', width: '100%' }}
@@ -120,13 +120,13 @@ const ParameterGraphCell: FC<ParamaterCellProps> = React.memo(({paramterName, de
                         />
                 </Chart>
             }
-            <Text style={styles.parameterValueText}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[paramterName])} {parameterData.parameterUnits}</Text>
+            <Text style={styles.parameterValueText}>{parameterData.breakdown.current.toFixed(ParameterSigFigs[parameterName])} {parameterData.parameterUnits}</Text>
             </View>
         </TouchableHighlight>
     );
 });
 
-const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = React.memo(({parameterNames, deviceKey, onPressParameter, pageHeight}) => {
+const ParameterOverviewPage: FC<ParameterOverviewPageProps> = React.memo(({parameterNames, deviceKey, onPressParameter, pageHeight}) => {
 
     const cellHeight = pageHeight / 3;
 
@@ -163,30 +163,30 @@ const ParameterOverviewPage: FC<ParamaterOverviewPageProps> = React.memo(({param
         for (let i = 0; i + 1 < parameterNames.length; i += 2) {
             toReturn.push(
             <View key={'parameterRow' + i / 2} style={styles.parameterRowContainer}>
-                <ParameterValueCell paramterName={parameterNames[i]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
-                <ParameterValueCell paramterName={parameterNames[i + 1]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                <ParameterValueCell parameterName={parameterNames[i]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                <ParameterValueCell parameterName={parameterNames[i + 1]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
             </View>
             );
         }
 
         if (parameterNames.length % 2 == 1) {
             toReturn.push(
-                <View key={'parameterRowlast'} style={styles.parameterRowContainer}>
-                    <ParameterValueCell paramterName={parameterNames[parameterNames.length - 1]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
-                    <ParameterDateTimeCell paramterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                <View key={'parameterRowLast'} style={styles.parameterRowContainer}>
+                    <ParameterValueCell parameterName={parameterNames[parameterNames.length - 1]} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                    <ParameterDateTimeCell parameterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
                 </View>
             );
 
             toReturn.push(
                 <View key={'parameterRow dt'} style={styles.parameterRowContainer}>
-                    <ParameterDateTimeCell paramterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                    <ParameterDateTimeCell parameterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
                 </View>
             );
         } else {
             toReturn.push(
                 <View key={'parameterRow dt'} style={styles.parameterRowContainer}>
-                    <ParameterDateTimeCell paramterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
-                    <ParameterDateTimeCell paramterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                    <ParameterDateTimeCell parameterName={'Date'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
+                    <ParameterDateTimeCell parameterName={'Time'} deviceKey={deviceKey} onPressParameter={onPressParameter} cellHeight={cellHeight} />
                 </View>
             );
         }

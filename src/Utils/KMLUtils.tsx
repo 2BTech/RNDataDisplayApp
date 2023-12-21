@@ -92,7 +92,7 @@ export function UpdateKMLPath(doc: Document, description: string, pointsArray: s
     appendTextNode(doc, lineElement, 'coordinates', pointsArray.join('\n'));
 }
 
-// A track is used to descrive how an entity moves through the world over time
+// A track is used to describe how an entity moves through the world over time
 export function UpdateKMLTrack(doc: Document, description: string, pointsTimeMap: any) {
     // Get root element of document
     let rootElement = doc.documentElement;

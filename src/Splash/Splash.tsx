@@ -71,7 +71,7 @@ export const Splash = ({isAppReady}: {isAppReady: boolean}) => {
 
     return (
         <Animated.View
-            collapsable={false}
+            collapsible={false}
             style={[style.container, { opacity: containerOpacity }]}
         >
             <Animated.Image

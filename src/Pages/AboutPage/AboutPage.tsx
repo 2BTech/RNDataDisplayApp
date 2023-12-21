@@ -19,13 +19,13 @@ const AboutPage: FC<AboutPageProps> = React.memo(({openTutorial}) => {
             <View style={{height: '10%'}} />
 
             <View>
-                <Text style={styles.infoText}>Build Version: 2.1.6</Text>
-                <Text style={styles.infoText}>Build Date: Nov 2023</Text>
+                <Text style={styles.infoText}>Build Version: 2.1.7</Text>
+                <Text style={styles.infoText}>Build Date: Dec 2023</Text>
             </View>
 
             <View style={{width: '100%', flexDirection: 'row'}}>
                 <Text style={styles.supportText}>Support: </Text>
-                <Text style={StyleSheet.compose(styles.supportText, {color: 'blue', textDecorationLine: 'underline'})} onPress={() => Linking.openURL('https://twobtech.com')}>https://twobtech.com</Text>
+                <Text style={StyleSheet.compose(styles.supportText, {color: 'blue', textDecorationLine: 'underline'})} onPress={() => Linking.openURL('https://2btech.io')}>https://twobtech.com</Text>
             </View>
 
             <View style={{height: '10%'}} />

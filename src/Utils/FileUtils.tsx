@@ -69,7 +69,7 @@ export const buildFullDataFilePath: ((deviceName: string, fileType: FileTypes, i
     return buildDeviceDirPath(deviceName, fileType) + buildDeviceFileName(deviceName, fileType, includeTime);
 }
 
-// Makes sure all items in a path exists. Expexts the full system path
+// Makes sure all items in a path exists. Expects the full system path
 export async function mkpath(path: string) {
     const dirExists = await RNFS.exists(path);
     if (!dirExists) {

@@ -10,7 +10,7 @@ import bluetoothCommandReducer from './slices/bluetoothCommandSlice';
 import deviceSettingsReducer from './slices/deviceSettingsSlice';
 import deviceFilesReducer from './slices/deviceFilesSlice';
 import downloadFilesReducer from './slices/fileDownloadSlice';
-// Import the fimware slice
+// Import the firmware slice
 import firmwareReducer from './slices/firmwareSlice';
 
 // Middlewares

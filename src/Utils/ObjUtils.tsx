@@ -1,12 +1,12 @@
-export function mergeObjects(obj1: object, obj2: object) {
+export function mergeObjects(obj1: any, obj2: any) {
     let obj1Keys = Object.keys(obj1);
     let obj2Keys = Object.keys(obj2);
 
-    let merged = {};
+    let merged: any = {};
 
     for (let i = 0; i < obj1Keys.length; i++) {
         if (obj2Keys.includes(obj1Keys[i])) {
-            if (typeof obj1[obj1Keys] == 'object') {
+            if (typeof obj1[obj1Keys[i]] == 'object') {
                 merged[obj1Keys[i]] = mergeObjects(obj1[obj1Keys[i]], obj2[obj1Keys[i]]);
             } else {
                 merged[obj1Keys[i]] = obj2[obj1Keys[i]];

@@ -26,7 +26,7 @@ const taskRandom = async (taskData: any) => {
   if (Platform.OS === 'ios') {
     console.warn(
       'This task will not keep your app alive in the background by itself, use other library like react-native-track-player that use audio,',
-      'geolocalization, etc. to keep your app alive in the background while you excute the JS from this library.'
+      'geolocalization, etc. to keep your app alive in the background while you execute the JS from this library.'
     );
   }
   await new Promise(async (resolve) => {
@@ -34,8 +34,8 @@ const taskRandom = async (taskData: any) => {
     const { delay } = taskData;
     console.log(BackgroundJob.isRunning(), delay)
     for (let i = 0; BackgroundJob.isRunning(); i++) {
-      console.log('Runned -> ', i);
-      await BackgroundJob.updateNotification({ taskDesc: 'Runned -> ' + i });
+      console.log('Ran -> ', i);
+      await BackgroundJob.updateNotification({ taskDesc: 'Ran -> ' + i });
       await sleep(delay);
     }
   });
@@ -50,7 +50,8 @@ const options = {
     type: 'mipmap',
   },
   color: '#ff00ff',
-  linkingURI: 'exampleScheme://chat/jane',
+  // linkingURI: 'exampleScheme://chat/jane',
+  linkingURI: undefined,
   parameters: {
     delay: 1000,
   },

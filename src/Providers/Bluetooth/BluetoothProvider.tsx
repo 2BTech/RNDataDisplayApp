@@ -91,14 +91,14 @@ const BluetoothProvider: FC<BluetoothProviderProps> = ({clearOnStart, discoverDe
       else if (id == undefined) {
         return;
       } 
-      // Ignore devies with no name
+      // Ignore devices with no name
       else if (updatedPeripheral.name == undefined) {
         return;
       }
 
       // Check if the device is in the connected list
       if (store.getState().deviceSlice.connectedDevices.find((deviceKey) => deviceKey == id) != undefined) {
-        // If the device is a beaon, parse the data, else ignore it
+        // If the device is a beacon, parse the data, else ignore it
         if (updatedPeripheral.advertising.serviceUUIDs?.includes('0061')) {
           onReceiveBeaconData(updatedPeripheral);
         } else {

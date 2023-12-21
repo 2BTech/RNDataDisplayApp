@@ -1,5 +1,4 @@
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { Icon } from "@rneui/base";
 import React, { FC, ReactElement, useEffect, useRef, useState, } from "react";
 import { StyleSheet, View, TouchableOpacity, Text, FlatList, Modal, Dimensions, } from "react-native";
 import { faChevronUp, faChevronDown, } from "@fortawesome/free-solid-svg-icons";

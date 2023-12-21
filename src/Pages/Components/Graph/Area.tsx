@@ -11,7 +11,7 @@ type Props = {
     gradient?: Gradient
   }
   smoothing?: Smoothing
-  /** Setting this prop will smooth out the line with bézier curves. Value between 0 and 1. */
+  /** Setting this prop will smooth out the line with bezier curves. Value between 0 and 1. */
   tension?: number
   /** Data for the chart. Overrides optional data provided in `<Chart />`. */
   data?: ChartDataPoint[]

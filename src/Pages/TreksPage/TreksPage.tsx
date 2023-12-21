@@ -56,12 +56,6 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
         setBlockingPageActive(false);
     }
 
-    const saveTreck = async () => {
-        await createTrek()
-        
-        alert('Finished saving trek');
-    }
-
     const createTrek = async () => {
         console.log('Creating trek: ', fileName);
 
@@ -76,7 +70,7 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
         let kmlDoc: Document = CreateDefaultKMLDoc(fileName);
 
         timeStamps.forEach(time => {
-            let content = header + ',Longitude,Latidude,Altitude,Date,Time' + '\n';
+            let content = header + ',Longitude,Latitude,Altitude,Date,Time' + '\n';
             let data: (string | number)[] = [];
             let cont: string[] = [];
             selected.forEach(param => {
@@ -180,7 +174,7 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
                 <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={async () => {
                         await setBlocking();
-                        await saveTreck();
+                        await createTrek();
                         await clearBlocking();
                     }}>
                     <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Save Trek</Text>

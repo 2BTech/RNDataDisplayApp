@@ -11,41 +11,41 @@ interface HomePageDescriptionProps {
 }
 
 const HomePageDescription: FC<HomePageDescriptionProps> = React.memo(({}) => {
-    const seperatorHeight = Dimensions.get('window').height / 20;
+    const separatorHeight = Dimensions.get('window').height / 20;
     const picWidth = (Dimensions.get('window').width / 10) * 5;
 
     return (
         <View style={{width: '100%'}}>
             <View style={{height: '15%', backgroundColor: 'white', borderBottomWidth: 1}}>
-                <View style={{height: seperatorHeight}} />
+                <View style={{height: separatorHeight}} />
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                         <FontAwesomeIcon icon={faHome} size={35} />
                         <Text style={styles.titleText}>Home Page</Text>
                     </View>
-                <View style={{height: seperatorHeight / 4}} />
+                <View style={{height: separatorHeight / 4}} />
             </View>
 
             <ScrollView style={{width: '100%', height: '85%'}} showsVerticalScrollIndicator={false}>
                     
-                <View style={{height: seperatorHeight}} />
+                <View style={{height: separatorHeight}} />
                 <Text style={styles.contentText}>The Home Page provides a quick and easy way to view all of the data from the selected device.</Text>
-                <View style={{height: seperatorHeight / 2}} />
+                <View style={{height: separatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
                     <Image width={picWidth} source={require('../../../../screenShots/HomePageDefault.png')} />
                 </View>
 
-                <View style={{height: seperatorHeight}} />
+                <View style={{height: separatorHeight}} />
                     <Text style={styles.contentText}>Each parameter reported by the device is displayed in a cell that prominently displays the most recent reading.</Text>
-                <View style={{height: seperatorHeight / 2}} />
+                <View style={{height: separatorHeight / 2}} />
 
                 <View style={{flex: 1, width: '100%', alignItems: 'center',}}>
                     <Image width={picWidth} source={require('../../../../screenShots/singleCell.png')} />
                 </View>
 
-                <View style={{height: seperatorHeight}} />
+                <View style={{height: separatorHeight}} />
                     <Text style={styles.contentText}>A more detailed view can be accessed on the Parameter page. This page can be accessed by pressing on a parameter cell or by using the arrows on the bottom of the page.</Text>
-                <View style={{height: seperatorHeight / 2}} />
+                <View style={{height: separatorHeight / 2}} />
 
             </ScrollView>
         </View>

@@ -27,7 +27,7 @@ const buildDataLine: ((data: ParameterMap, parameterNames: string[], gpsCoords: 
 
 interface logDataFunct {
     deviceKey: DeviceId;
-    funt: Function
+    func: Function
 }
 
 export interface ParameterPoint {

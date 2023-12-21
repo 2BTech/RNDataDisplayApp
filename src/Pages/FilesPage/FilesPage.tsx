@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: 'white',
     },
-    scollView: {
+    scrollView: {
         width: '100%',
         height: '100%',
     },

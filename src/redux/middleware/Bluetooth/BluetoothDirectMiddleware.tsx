@@ -61,7 +61,7 @@ export function connectToDirectConnect(deviceId: DeviceId) {
             `[connectPeripheral][${deviceId}] retrieved current RSSI value: ${rssi}.`,
         );
 
-        // There is some wierd casting? issue causing a crash on IOS. Not sure if this code is needed though
+        // There is some weird casting? issue causing a crash on IOS. Not sure if this code is needed though
         if (Platform.OS == 'android') {
             if (peripheralData.characteristics) {
                 for (let characteristic of peripheralData.characteristics) {
@@ -101,7 +101,7 @@ export function connectToDirectConnect(deviceId: DeviceId) {
             // This sets the Bluetooth package size used by the app. This is only done on
             // android because ios will automatically negotiate the highest possible value
             // during the connection process
-            // Set the max transmittion unit to 512. All other values tend to fail
+            // Set the max transmission unit to 512. All other values tend to fail
             await BleManager.requestMTU(deviceId, 512)
             .catch(err => {
                 console.log('Failed to request MTU: ', err);
@@ -213,13 +213,13 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
         console.log('Sent command is either invalid or unknown: ', message);
         return;
     } else if (message.status != 200) {
-        console.log('Unknown staus code: ', message.status);
+        console.log('Unknown status code: ', message.status);
         return;
     }
 
     switch (message.type) {
         case 'settings': 
-            // Awcknowledge that the settings were received
+            // Acknowledge that the settings were received
             console.log('Received settings message');
             dispatch(setIsWaitingForResponse(false));
             await parseSettings(message.body, deviceKey, dispatch);
@@ -231,7 +231,7 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
             break;
 
         case 'confirmation':
-            // Awcknowledge that the message was received
+            // Acknowledge that the message was received
             console.log('Received confirmation message');
             dispatch(setIsWaitingForResponse(false));
             console.log('Received confirmation message. Not handled.');
@@ -239,21 +239,21 @@ async function parseMessageJson(message: BluetoothMessage, deviceKey: DeviceId, 
 
         case 'sd card':
         case 'filenames':
-            // Awcknowledge that the settings were received
+            // Acknowledge that the settings were received
             console.log('Received sd card message');
             dispatch(setIsWaitingForResponse(false));
             await parseDeviceFiles(message.body, deviceKey, dispatch);
             break;
 
         case 'file':
-            // Awcknowledge that the settings were received
+            // Acknowledge that the settings were received
             console.log('Received file message');
             dispatch(setIsWaitingForResponse(false));
             await parseFileData(message.body, deviceKey, dispatch);
             break;
 
         case 'networks':
-            // Awcknowledge that the settings were received
+            // Acknowledge that the settings were received
             console.log('Received networks message');
             dispatch(setIsWaitingForResponse(false));
             await parseAvailableNetworks(deviceKey, message.body);

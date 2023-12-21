@@ -1,4 +1,3 @@
-import { Icon } from '@rneui/base';
 import React, { FC } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, } from 'react-native';
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";

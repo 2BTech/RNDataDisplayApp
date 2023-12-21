@@ -6,24 +6,24 @@ interface EndPageProps {
 }
 
 const EndPage: FC<EndPageProps> = React.memo(({onCloseClicked}) => {
-    const seperatorHeight = Dimensions.get('window').height / 20;
+    const separatorHeight = Dimensions.get('window').height / 20;
     const picWidth = (Dimensions.get('window').width / 10) * 5;
 
     return (
         <View style={{width: '100%'}}>
             <View style={{height: '15%', backgroundColor: 'white', borderBottomWidth: 1}}>
-                <View style={{height: seperatorHeight}} />
+                <View style={{height: separatorHeight}} />
                     <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
                         <Text style={styles.titleText}>2B Connect</Text>
                     </View>
-                <View style={{height: seperatorHeight / 4}} />
+                <View style={{height: separatorHeight / 4}} />
             </View>
 
             <View style={{height: '85%'}}>
                 <ScrollView style={{width: '100%', height: '100%'}} showsVerticalScrollIndicator={false}>
-                    <View style={{height: seperatorHeight}} />
+                    <View style={{height: separatorHeight}} />
                     <Text style={styles.contentText}>Thank you for completing the tutorial. You can access the tutorial through the About Page.</Text>
-                    <View style={{height: seperatorHeight / 2}} />
+                    <View style={{height: separatorHeight / 2}} />
 
                     <View style={{width: '100%', alignItems: 'center',}}>
                         <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={onCloseClicked}>
