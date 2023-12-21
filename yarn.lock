@@ -4682,6 +4682,11 @@
   "resolved" "https://registry.npmjs.org/event-target-shim/-/event-target-shim-5.0.1.tgz"
   "version" "5.0.1"
 
+"eventemitter3@^4.0.7":
+  "integrity" "sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw=="
+  "resolved" "https://registry.npmjs.org/eventemitter3/-/eventemitter3-4.0.7.tgz"
+  "version" "4.0.7"
+
 "exec-async@^2.2.0":
   "integrity" "sha512-87OpwcEiMia/DeiKFzaQNBNFeN3XkkpYIh9FyOqq5mS2oKv3CBE67PXoEKcr6nodWdXNogTiQ0jE2NGuoffXPw=="
   "resolved" "https://registry.npmjs.org/exec-async/-/exec-async-2.2.0.tgz"
@@ -8256,6 +8261,13 @@
   "resolved" "https://registry.npmjs.org/react-is/-/react-is-17.0.2.tgz"
   "version" "17.0.2"
 
+"react-native-background-actions@^3.0.1":
+  "integrity" "sha512-xlEjUM2PP+OEQQkr9Z4c4+dRIzhbCh1xAeakL8FKGDib2a3dki2kMR4ZTw+9oHspHn9VF1Fuu78mWXR5zqkVaA=="
+  "resolved" "https://registry.npmjs.org/react-native-background-actions/-/react-native-background-actions-3.0.1.tgz"
+  "version" "3.0.1"
+  dependencies:
+    "eventemitter3" "^4.0.7"
+
 "react-native-ble-manager@^10.1.2":
   "integrity" "sha512-IuxslzyKvol9ZD1ctlbSzPEmBLNqTOPi94owrV4W6wU2Zb96JWIyIJHy4xTnLz6qqtVdUQoISf9MxtGJuL2GHg=="
   "resolved" "https://registry.npmjs.org/react-native-ble-manager/-/react-native-ble-manager-10.1.2.tgz"
@@ -8422,7 +8434,7 @@
     "ws" "^6.2.2"
     "yargs" "^17.6.2"
 
-"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", "react-native@^0.72.3", "react-native@>= 0.64.3", "react-native@>= 0.67", "react-native@>=0.59", "react-native@>=0.60.0", "react-native@>=0.63.2", "react-native@0.72.3":
+"react-native@*", "react-native@^0.0.0-0 || 0.60 - 0.72 || 1000.0.0", "react-native@^0.72.3", "react-native@>= 0.64.3", "react-native@>= 0.67", "react-native@>=0.47.0", "react-native@>=0.59", "react-native@>=0.60.0", "react-native@>=0.63.2", "react-native@0.72.3":
   "integrity" "sha512-QqISi+JVmCssNP2FlQ4MWhlc4O/I00MRE1/GClvyZ8h/6kdsyk/sOirkYdZqX3+DrJfI3q+OnyMnsyaXIQ/5tQ=="
   "resolved" "https://registry.npmjs.org/react-native/-/react-native-0.72.3.tgz"
   "version" "0.72.3"

@@ -1,4 +1,4 @@
-package com.twobdatadisplay;
+package com.twobconnect;
 
 import android.app.Application;
 import com.facebook.react.PackageList;
@@ -24,8 +24,6 @@ public class MainApplication extends Application implements ReactApplication {
         protected List<ReactPackage> getPackages() {
           @SuppressWarnings("UnnecessaryLocalVariable")
           List<ReactPackage> packages = new PackageList(this).getPackages();
-
-          packages.add(new BackgroundPackage());
 
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
@@ -65,6 +63,6 @@ public class MainApplication extends Application implements ReactApplication {
       // If you opted-in for the New Architecture, we load the native entry point for this app.
       DefaultNewArchitectureEntryPoint.load();
     }
-    ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    com.twobconnect.ReactNativeFlipper.initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
   }
 }

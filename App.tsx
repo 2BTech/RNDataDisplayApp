@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState, } from "react";
-import { PermissionsAndroid, StyleSheet, NativeModules, } from "react-native";
+import { PermissionsAndroid, StyleSheet, NativeModules, Platform, Linking, } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import { store } from "./src/redux/store";
@@ -11,6 +11,57 @@ import AsyncStorage, { useAsyncStorage, } from '@react-native-async-storage/asyn
 import InfoComponent from "./src/Pages/InfoComponent/InfoComponent";
 import { WithSplashScreen } from "./src/Splash/Splash";
 import Orientation from 'react-native-orientation-locker';
+import BackgroundService from 'react-native-background-actions';
+import BackgroundJob from 'react-native-background-actions';
+
+const sleep = (time: any) => new Promise<void>((resolve) => setTimeout(() => resolve(), time));
+
+BackgroundJob.on('expiration', () => {
+  console.log('iOS: I am being closed!');
+});
+
+const taskRandom = async (taskData: any) => {
+  console.log('Hello from a background task');
+
+  if (Platform.OS === 'ios') {
+    console.warn(
+      'This task will not keep your app alive in the background by itself, use other library like react-native-track-player that use audio,',
+      'geolocalization, etc. to keep your app alive in the background while you excute the JS from this library.'
+    );
+  }
+  await new Promise(async (resolve) => {
+    // For loop with a delay
+    const { delay } = taskData;
+    console.log(BackgroundJob.isRunning(), delay)
+    for (let i = 0; BackgroundJob.isRunning(); i++) {
+      console.log('Runned -> ', i);
+      await BackgroundJob.updateNotification({ taskDesc: 'Runned -> ' + i });
+      await sleep(delay);
+    }
+  });
+};
+
+const options = {
+  taskName: 'Example',
+  taskTitle: 'ExampleTask title',
+  taskDesc: 'ExampleTask desc',
+  taskIcon: {
+    name: 'ic_launcher',
+    type: 'mipmap',
+  },
+  color: '#ff00ff',
+  linkingURI: 'exampleScheme://chat/jane',
+  parameters: {
+    delay: 1000,
+  },
+};
+
+function handleOpenURL(evt: any) {
+  console.log(evt.url);
+  // do something with the url
+}
+
+Linking.addEventListener('url', handleOpenURL);
 
 interface AppProps {
 
@@ -38,7 +89,20 @@ async function RequestBackgroundLocationPermission() {
   } catch (err) {
     console.warn(err);
   }
+}
 
+const startBackgroundService = async () => {
+  const usingHermes = typeof HermesInternal === 'object' && HermesInternal !== null;
+  
+  console.log('Using Hermes: ', usingHermes);
+
+  try {
+    console.log('Trying to start background service');
+    await BackgroundService.start(taskRandom, options);
+    console.log('Background service has been started');
+  } catch (e) {
+    console.log('Cannot start the background service', e);
+  }
 }
 
 const App: FC<AppProps> = ({}) => {
@@ -66,6 +130,7 @@ const App: FC<AppProps> = ({}) => {
 
   useEffect(() => {
     RequestBackgroundLocationPermission();
+
     const interval = setInterval(() => {
       console.log('Still alive');
     }, 1000);
@@ -90,6 +155,15 @@ const App: FC<AppProps> = ({}) => {
     setTimeout(() => {
       setIsAppReady(true)
     }, 2000);
+  }, []);
+
+  // Start the background service
+  useEffect(() => {
+    startBackgroundService();
+
+    return () => {
+      BackgroundService.stop();
+    }
   }, []);
 
   return (
