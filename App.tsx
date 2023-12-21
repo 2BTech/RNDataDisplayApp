@@ -20,9 +20,35 @@ BackgroundJob.on('expiration', () => {
   console.log('iOS: I am being closed!');
 });
 
-const taskRandom = async (taskData: any) => {
-  console.log('Hello from a background task');
+const formatTime = (time: number) : string => {
+  // Calculate msecs in time
+  let msecs: number = time % 1000;
+  // Remove msecs from time
+  time = (time - msecs) / 1000;
 
+  // Calculate secs in time
+  let secs: number = time % 60;
+  // Remove secs from time
+  time = (time - secs) / 60;
+
+  // Calculate mins in time
+  let mins: number = time % 60;
+  // Remove mins from time
+  time = (time - mins) / 60;
+
+  // Calculate hours in time
+  let hours: number = time % 24;
+  // Remove hours from time
+  time = (time - hours) / 24;
+
+  // Calculate days in time
+  let days: number = time;
+
+  // Return formatted time where each field is two characters long
+  return `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${msecs.toString().padStart(3, '0')}`;
+}
+
+const taskRandom = async (taskData: any) => {
   if (Platform.OS === 'ios') {
     console.warn(
       'This task will not keep your app alive in the background by itself, use other library like react-native-track-player that use audio,',
@@ -30,12 +56,28 @@ const taskRandom = async (taskData: any) => {
     );
   }
   await new Promise(async (resolve) => {
+    // Store the time that the task started
+    const startTime: number = Date.now();
+
+    // Update the background notification
+    await BackgroundJob.updateNotification({ taskDesc: 'Running' });
+
+    // Log message that the task has started
+    console.log('Task has started at ', new Date().setTime(startTime), ' with data ', taskData);
+
     // For loop with a delay
     const { delay } = taskData;
-    console.log(BackgroundJob.isRunning(), delay)
     for (let i = 0; BackgroundJob.isRunning(); i++) {
-      console.log('Ran -> ', i);
-      await BackgroundJob.updateNotification({ taskDesc: 'Ran -> ' + i });
+      // Get the total elapsed time since the task was started
+      const elapsedTime: number = Date.now() - startTime;
+
+      // Update the notification with the elapsed time
+      await BackgroundJob.updateNotification({ taskDesc: `Ran for ${formatTime(elapsedTime)}` });
+
+      // Log message that the task is running
+      console.log(`Ran for ${formatTime(elapsedTime)}`);
+      
+      // Wait for the delay
       await sleep(delay);
     }
   });
@@ -131,11 +173,6 @@ const App: FC<AppProps> = ({}) => {
 
   useEffect(() => {
     RequestBackgroundLocationPermission();
-
-    const interval = setInterval(() => {
-      console.log('Still alive');
-    }, 1000);
-    return () => clearInterval(interval);
   }, []);
 
   const renderTutorial = () => {
@@ -158,14 +195,16 @@ const App: FC<AppProps> = ({}) => {
     }, 2000);
   }, []);
 
-  // Start the background service
-  useEffect(() => {
-    startBackgroundService();
-
-    return () => {
-      BackgroundService.stop();
-    }
-  }, []);
+  // Start the background service if on android
+  if (Platform.OS === 'android') {
+    useEffect(() => {
+      startBackgroundService();
+  
+      return () => {
+        BackgroundService.stop();
+      }
+    }, []);
+  }
 
   return (
     <WithSplashScreen isAppReady={isAppReady}>
