@@ -74,8 +74,8 @@ const taskRandom = async (taskData: any) => {
       // Update the notification with the elapsed time
       await BackgroundJob.updateNotification({ taskDesc: `Ran for ${formatTime(elapsedTime)}` });
 
-      // Log message that the task is running
-      console.log(`Ran for ${formatTime(elapsedTime)}`);
+      // // Log message that the task is running
+      // console.log(`Ran for ${formatTime(elapsedTime)}`);
       
       // Wait for the delay
       await sleep(delay);

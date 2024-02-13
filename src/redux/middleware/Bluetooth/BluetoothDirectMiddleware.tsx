@@ -158,6 +158,51 @@ interface Measurement {
     units: string;
 }
 
+const measurementUnitsMap: {[key: number]: string} = {
+    // PPM units, 1
+    1: 'PPM',
+    // PPB units, 2
+    2: 'PPB',
+    // Voltage units, 3
+    3: 'VOLT',
+    // Byte, 4
+    4: 'BYTE',
+    // Percent units, 5
+    5: '%',
+    // C units, 6
+    6: 'C',
+    // FEET units, 7
+    7: 'FEET',
+    // KHOMS units, 8
+    8: 'KHOMS',
+    // HPA units, 9
+    9: 'HPA',
+    // LAT units, 10
+    10: 'LAT',
+    // MBAR units, 11
+    11: 'MBAR',
+    // DATE units, 12
+    12: 'DATE',
+    // TIME units, 13
+    13: 'TIME',
+    // DATETIME units, 14
+    14: 'DATETIME',
+    // CCMIN units, 15
+    15: 'CCMIN',
+    // UG/M3 units, 16
+    16: 'UG/M3',
+    // MS units, 17
+    17: 'MS',
+    // DEGRESSTEMP units, 18
+    18: 'DEGRESSTEMP',
+    // FAHRENHEIT units, 19
+    19: 'FAHRENHEIT',
+    // MMHG units, 20
+    20: 'MMHG',
+    // LON units, 21
+    21: 'LON',
+}
+
 async function parseMeasurement(measurements: Measurement[], deviceKey: DeviceId, dispatch: ThunkDispatch<RootState, void, Action>, getState: () => CombinedState<RootState>) {
     // console.log('Measurement: ', measurements);
 
@@ -168,7 +213,7 @@ async function parseMeasurement(measurements: Measurement[], deviceKey: DeviceId
     measurements.forEach(reading => {
         data[reading.name] = {
             val: Number(reading.value),
-            unt: reading.units,
+            unt: typeof reading.units == 'string' ? reading.units : (measurementUnitsMap[reading.units] || ''),
         };
     });
 
