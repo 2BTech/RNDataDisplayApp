@@ -2,7 +2,7 @@ import React, { FC, useState } from "react";
 import { ScrollView, StyleSheet, Text, TextInput, View, Button, TouchableOpacity, Modal, Image, } from "react-native";
 import DatePicker from "react-native-date-picker";
 import { useSelector } from "react-redux";
-import { DeviceId } from "../../redux/slices/deviceSlice";
+import { DeviceDefinition, DeviceId } from "../../redux/slices/deviceSlice";
 import { RootState, store } from "../../redux/store";
 import { FileTypes, buildDeviceDirPath, buildDeviceFileName } from "../../Utils/FileUtils";
 import { DeviceDataObj, TimeDataMap } from "../../redux/slices/deviceDataSlice";
@@ -18,24 +18,42 @@ interface TreksPageProps {
 }
 
 const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
-    const deviceDef = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey]);
-    // const timeData: TimeDataMap = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeData);
-    const timeStamps = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps);
+    // Start by gathering information from the redux store
 
-    const earliest: Date = new Date(timeStamps.length > 0 ? timeStamps[0] : 0);
-    const latest: Date = new Date(timeStamps.length > 0 ? timeStamps[timeStamps.length - 1] : 1);
+    // Get the device definition
+    const deviceDef: DeviceDefinition = useSelector((state: RootState) => state.deviceSlice.deviceDefinitions[deviceKey]);
 
+    // Next, get the first and last time stamps
+    const firstTimeStamp: number | undefined = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].firstDataTimeStamp);
+    // Then, get the last time stamp
+    const lastTimeStamp: number | undefined = useSelector((state: RootState) => state.deviceDataSlice.deviceData[deviceKey].timeStamps.pop());
+
+    // Convert the time stamps to date objects
+    const startT: Date = firstTimeStamp ? new Date(firstTimeStamp) : new Date();
+    const latest: Date = lastTimeStamp ? new Date(lastTimeStamp) : new Date();
+
+    // Build the state variables for the page
+
+    // Create the file name for the trek
     const [fileName, setFileName] = useState<string>(buildDeviceFileName(deviceDef.deviceName, FileTypes.TrekFile, true));
-    const [startTime, setStartTime] = useState<number>(earliest.getTime());
-    const [endTime, setEndTime] = useState<number>(latest.getTime());
-
+    // Create a state variable to track the selected start time. If firstTimeStamp or lastTimeStamp are undefined, use the current time
+    const [startTime, setStartTime] = useState<Date>(firstTimeStamp ? new Date(firstTimeStamp) : new Date());
+    // Create a state variable to track the selected end time. If firstTimeStamp or lastTimeStamp are undefined, use the current time
+    const [endTime, setEndTime] = useState<Date>(lastTimeStamp ? new Date(lastTimeStamp) : new Date());
+    // Create a state variable to track if the blocking widget is active. This should be true when the trek is being created and saved
     const [blockingPageActive, setBlockingPageActive] = useState<boolean>(false);
+    
+    
 
+    
+
+    // This function will save a created trek to the device
     const saveTrek = async (kmlDoc: Document) => {
-        const dirPath = buildDeviceDirPath(deviceDef.deviceName, FileTypes.TrekFile);
+        // Get the path to the directory where the file will be saved
+        const dirPath: string = buildDeviceDirPath(deviceDef.deviceName, FileTypes.TrekFile);
 
         // Check if the directory exists
-        const dirExits = await RNFS.exists(dirPath);
+        const dirExits: boolean = await RNFS.exists(dirPath);
 
         // Create dest dir if exists
         if (!dirExits) {
@@ -56,69 +74,143 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
         setBlockingPageActive(false);
     }
 
-    const createTrek = async () => {
+    // This function handles generating a trek based on the selected time range
+    const createTrek: () => Promise<void> = async () => {
+        // Do not make the trek if the start time is greater than or equal to the end time
+        if (startTime >= endTime) {
+            console.log('Not making Trek: The start time is greater than or equal to end time');
+            return;
+        }
+
+        // Log that a trek is being created with the selected file name
         console.log('Creating trek: ', fileName);
 
-        const devData: DeviceDataObj = store.getState().deviceDataSlice.deviceData[deviceKey];
-        const timeStamps: number[] = devData.timeStamps.filter(time => time >= startTime && time <= endTime);
-        const selected: string[] = devData.parameterNames;
-        const header: string = devData.parameterNames.join(',');
+        // Get the name of the current device data file from the deviceSlice
+        const dataFileName: string = store.getState().deviceSlice.deviceDefinitions[deviceKey].fileName;
 
-        console.log('Timestamps. Count: ', timeStamps.length, ' / ', devData.timeStamps.length);
-        console.log('Header: ', devData.parameterNames.join(','));
+        // If the file name is empty, then the file has not been created yet, no data to build a trek from, so return
+        if (dataFileName == '') {
+            console.log('Not making Trek: No data file for device');
+            return;
+        }
 
+        // Next, try to open the device data file for reading. If failed to open, return. Read all at once to prevent issues with the file being written to while reading
+        let fileContents: string = '';
+        try {
+            fileContents = await RNFS.readFile(dataFileName);
+        } catch (err) {
+            console.log('Failed to read file: ', err);
+            return;
+        }
+
+        // Next, parse fileContents into lines
+        const lines: string[] = fileContents.split('\n');
+
+        // Clear the fileContents variable to free up memory
+        fileContents = '';
+
+        // Get the header from the file by taking the first line from lines
+        const fileHeader: string[] = (lines.shift() || '').split(',');
+
+        // Create a empty kml document that will be used to build the trek
         let kmlDoc: Document = CreateDefaultKMLDoc(fileName);
 
-        timeStamps.forEach(time => {
-            let content = header + ',Longitude,Latitude,Altitude,Date,Time' + '\n';
-            let data: (string | number)[] = [];
-            let cont: string[] = [];
-            selected.forEach(param => {
-                const val: (string | number | undefined) = devData.timeData[time].points[param];
-                if (val !== undefined) {
-                    if (typeof val == 'number' && Object.keys(ParameterSigFigs).includes(param)) {
-                        data.push(val.toFixed(ParameterSigFigs[param]));
-                        cont.push(param + ' = ' + val.toFixed(ParameterSigFigs[param]));
-                    } else {
-                        data.push(val);
-                        cont.push(param + ' = ' + val);
-                    }
-                } else {
-                    data.push('N/A');
-                    cont.push(param + ' = N/A');
+        // Get the index of the time column from the file header
+        const timeIndex: number = fileHeader.indexOf('Time');
+        // Get the index of the date column from the file header
+        const dateIndex: number = fileHeader.indexOf('Date');
+        // Get the latitude index
+        const latIndex: number = fileHeader.indexOf('Latitude');
+        // Get the longitude index
+        const lonIndex: number = fileHeader.indexOf('Longitude');
+        // Get the altitude index
+        const altIndex: number = fileHeader.indexOf('Altitude');
+
+        // Iterate through the lines until we find the first line that has a time stamp that is greater than or equal to the start time
+        let line: string[] = [];
+        let timeStampInRange: boolean = false;
+
+        do {
+            // Get the next line from lines and split into an array
+            line = (lines.shift() || '').split(',');
+
+            // Next, rebuild the date time object from the line
+            const lineDate: Date = new Date(line[dateIndex] + ' ' + line[timeIndex]);
+
+            // Check if the line date is greater than or equal to the start time
+            if (lineDate >= startTime) {
+                timeStampInRange = true;
+            }
+
+        } while (lines.length > 0 && !timeStampInRange);
+
+        // If timeStampInRange is false, then return b/c no time stamps are in the range
+        if (!timeStampInRange) {
+            console.log('Not making Trek: No time stamps in range');
+            return;
+        }
+
+        // Iterate through the lines until we find the first line that has a time stamp that is greater than the end time. Add an entry into the kml document for each line that is kept
+        do {
+            // Rebuild the date time object from the line
+            const lineDate: Date = new Date(line[dateIndex] + ' ' + line[timeIndex]);
+
+            // If the line date is greater than the end time, then break the loop
+            if (lineDate > endTime) {
+                break;
+            }
+
+            // Create the data string for the kml entry
+            // Example:
+            // <Header>
+            // <DataLine>
+            // <Parameter Name> = <Value>
+            // ...
+            // <Longitude> = <Value>
+            // <Latitude> = <Value>
+            // <Altitude> = <Value>
+            // <Date> = <Value>
+            // <Time> = <Value>
+            let data: string = '';
+
+            // Add the header to the data string
+            data += fileHeader.join(',') + '\n';
+            // Add the line to the data string
+            data += line.join(',') + '\n';
+
+            // Add each parameter to data
+            fileHeader.forEach((param, index) => {
+                // Skip the time, date, longitude, latitude, and altitude columns
+                if (param == 'Time' || param == 'Date' || param == 'Longitude' || param == 'Latitude' || param == 'Altitude') {
+                    return;
                 }
+
+                // Add the parameter to data
+                data += param + ' = ' + line[index] + '\n';
             });
 
-            // Add GPS data
+            // Add the GPS data
+            data += 'Longitude = ' + line[lonIndex] + '\n';
+            data += 'Latitude = ' + line[latIndex] + '\n';
+            data += 'Altitude = ' + line[altIndex] + '\n';
+            data += 'Date = ' + line[dateIndex] + '\n';
+            data += 'Time = ' + line[timeIndex] + '\n';
 
-            const gpsArray: string[] = devData.timeData[time].gpsCoords.split(',');
-            // Longitude
-            data.push(gpsArray[0]);
-            cont.push('Longitude = ' + gpsArray[0]);
-            // Latitude
-            data.push(gpsArray[1]);
-            cont.push('Latitude = ' + gpsArray[1]);
-            // Altitude
-            data.push(gpsArray[2]);
-            cont.push('Altitude = ' + gpsArray[2]);
+            // Add the data to the kml document
+            AddPointToKML(kmlDoc, line[timeIndex], data, line[latIndex] + ',' + line[lonIndex] + ',' + line[altIndex]);
 
-            // Date and time
-            const timeStamp = moment(new Date(time));
-            // Date
-            data.push(timeStamp.format('DD/MM/yyyy'));
-            cont.push('Date = ' + timeStamp.format('DD/MM/yyyy'));
-            // Time
-            data.push(timeStamp.format('HH:mm:ss'));
-            cont.push('Time = ' + timeStamp.format('HH:mm:ss'));
+            // Check if there are more lines to process
+            if (lines.length > 0) {
+                // Get the next line from lines and split into an array
+                line = (lines.shift() || '').split(',');
+            } else {
+                break;
+            }
+        } while (1);
 
-            content += data.join(',') + '\n';
-            content += cont.join('\n');
-
-            AddPointToKML(kmlDoc, timeStamp.format('HH:mm:ss'), content, devData.timeData[time].gpsCoords);
-        });
-
+        // Save the trek to the file
         await saveTrek(kmlDoc);
-
+        // Log that the trek has been saved
         console.log('Finished saving trek');
     }
 
@@ -148,12 +240,12 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
             {/* Start Time Selector */}
             <View style={styles.sectionContainer}>
                 <DatePicker 
-                    minimumDate={earliest}
-                    maximumDate={new Date(endTime)}
-                    date={new Date(startTime)}
+                    minimumDate={latest}
+                    maximumDate={endTime}
+                    date={startTime}
                     mode="datetime"
                     textColor="black"
-                    onDateChange={nDate => setStartTime(nDate.getTime())}
+                    onDateChange={nDate => setStartTime(nDate)}
                     />
                 <Text style={StyleSheet.compose(styles.sectionLabelText, {position: 'absolute'})}>Start Time:</Text>
             </View>
@@ -161,21 +253,21 @@ const TreksPage: FC<TreksPageProps> = React.memo(({ deviceKey }) => {
             {/* End Time Selector */}
             <View style={styles.sectionContainer}>
                 <DatePicker 
-                    minimumDate={new Date(startTime)}
+                    minimumDate={startTime}
                     maximumDate={latest}
-                    date={new Date(endTime)}
+                    date={endTime}
                     mode="datetime"
                     textColor="black"
-                    onDateChange={nDate => setEndTime(nDate.getTime())}
+                    onDateChange={nDate => setEndTime(nDate)}
                     />
                 <Text style={StyleSheet.compose(styles.sectionLabelText, {position: 'absolute'})}>End Time:</Text>
             </View>
 
             <View style={StyleSheet.compose(styles.sectionContainer, {borderBottomWidth: 0,})}>
                 <TouchableOpacity style={StyleSheet.compose(styles.defaultButton, styles.button)} onPress={async () => {
-                        await setBlocking();
-                        await createTrek();
-                        await clearBlocking();
+                        setBlocking()
+                            .then(_ => createTrek())
+                            .then(_ => clearBlocking())
                     }}>
                     <Text style={StyleSheet.compose(styles.defaultTextStyle, styles.buttonText)}>Save Trek</Text>
                 </TouchableOpacity>
